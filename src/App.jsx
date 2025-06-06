@@ -1,35 +1,26 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import {
+  Container,
+  Accordion,
+  AccordionBody,
+  AccordionHeader,
+  AccordionItem,
+} from 'reactstrap';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count {count}
-        </button>
-        <p>
-          Edit
-          <code>src/App.jsx</code>
-          and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Container className="p-3">
+      <Accordion>
+        <AccordionItem>
+          <AccordionHeader>Header</AccordionHeader>
+          <AccordionBody>This is the body of the accordion item.</AccordionBody>
+        </AccordionItem>
+        <AccordionItem>
+          <AccordionHeader>Header</AccordionHeader>
+          <AccordionBody>This is the body of the second item.</AccordionBody>
+        </AccordionItem>
+      </Accordion>
+      <h1>something</h1>
+    </Container>
   );
 }
 
