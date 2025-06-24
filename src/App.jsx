@@ -1,27 +1,87 @@
+import { useMemo } from 'react';
 import {
-  Container,
-  Accordion,
-  AccordionBody,
-  AccordionHeader,
-  AccordionItem,
-} from 'reactstrap';
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+} from 'react-router';
+import NotFound from './components/Common/NotFound';
+import VerticalLayout from './components/VerticalLayout/index';
+import HorizontalLayout from './components/HorizontalLayout/index';
+import ProtectedLayout from './components/ProtectedLayout';
+import NonAuthLayout from './components/NonAuthLayout';
+import ErrorElement from './components/Common/ErrorElement';
+import { useSelector } from 'react-redux';
+import { layoutSelectors } from './store/layout/layoutSlice';
+import { authProtectedRoutes, publicRoutes } from './routes';
 
-function App() {
-  return (
-    <Container className="p-3">
-      <Accordion>
-        <AccordionItem>
-          <AccordionHeader>Header</AccordionHeader>
-          <AccordionBody>This is the body of the accordion item.</AccordionBody>
-        </AccordionItem>
-        <AccordionItem>
-          <AccordionHeader>Header</AccordionHeader>
-          <AccordionBody>This is the body of the second item.</AccordionBody>
-        </AccordionItem>
-      </Accordion>
-      <h1>something</h1>
-    </Container>
-  );
+function getLayout(layoutType) {
+  let layoutCls = VerticalLayout;
+  switch (layoutType) {
+    case 'horizontal':
+      layoutCls = HorizontalLayout;
+      break;
+    default:
+      layoutCls = VerticalLayout;
+      break;
+  }
+  return layoutCls;
 }
+
+const App = () => {
+  const layoutType = useSelector(layoutSelectors.selectLayoutType);
+  const Layout = useMemo(() => getLayout(layoutType), [layoutType]);
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <>
+        {publicRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={<NonAuthLayout>{route.element}</NonAuthLayout>}
+            exact={true}
+            errorElement={<ErrorElement />}
+          />
+        ))}
+
+        {authProtectedRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={<ProtectedLayout>{route.element}</ProtectedLayout>}
+            exact={true}
+            errorElement={<ErrorElement />}
+          />
+        ))}
+
+        <Route
+          path="/not_found"
+          element={
+            <Layout>
+              <NotFound />
+            </Layout>
+          }
+          errorElement={<ErrorElement />}
+        />
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <NotFound />
+            </Layout>
+          }
+          errorElement={<ErrorElement />}
+        />
+      </>
+    )
+  );
+
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  );
+};
 
 export default App;
