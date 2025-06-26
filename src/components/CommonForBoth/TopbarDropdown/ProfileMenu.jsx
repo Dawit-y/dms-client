@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-} from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import defaultAvatar from '../../../assets/images/defaultAvatar.png';
@@ -28,8 +23,9 @@ const ProfileMenu = () => {
         toggle={() => setMenu(!menu)}
         className="d-inline-block"
       >
-        <DropdownToggle
-          className="btn header-item d-flex align-items-center"
+        <Dropdown.Toggle
+          variant={'transparent'}
+          className="header-item d-flex align-items-center"
           id="page-header-user-dropdown"
           tag="button"
         >
@@ -41,18 +37,18 @@ const ProfileMenu = () => {
           />
           <span className="d-none d-xl-inline-block ms-2">{'John Doe'}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block ms-1" />
-        </DropdownToggle>
-        <DropdownMenu className="dropdown-menu-end">
-          <DropdownItem tag={Link} to="/profile">
+        </Dropdown.Toggle>
+        <Dropdown.Menu className="dropdown-menu-end">
+          <Dropdown.Item tag={Link} to="/profile">
             <i className="bx bx-user font-size-16 align-middle me-1" />
             {t('Profile')}
-          </DropdownItem>
+          </Dropdown.Item>
           <div className="dropdown-divider" />
-          <DropdownItem tag={Link} to="/logout">
+          <Dropdown.Item tag={Link} to="/logout">
             <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
             <span>{t('Logout')}</span>
-          </DropdownItem>
-        </DropdownMenu>
+          </Dropdown.Item>
+        </Dropdown.Menu>
       </Dropdown>
     </React.Fragment>
   );

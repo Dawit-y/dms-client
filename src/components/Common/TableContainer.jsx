@@ -1,5 +1,16 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Row, Table, Button, Col, Spinner } from 'reactstrap';
+import {
+  Row,
+  Table,
+  Button,
+  Col,
+  Spinner,
+  Dropdown,
+  DropdownMenu,
+  DropdownToggle,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -10,12 +21,6 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import {
-  UncontrolledTooltip,
-  UncontrolledDropdown,
-  DropdownMenu,
-  DropdownToggle,
-} from 'reactstrap';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { FaFileExport, FaInfoCircle, FaRedoAlt } from 'react-icons/fa';
 import ExportToExcel from './ExportToExcel';
@@ -177,6 +182,12 @@ const TableContainer = ({
     }
   };
 
+  const renderTooltip = (props) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Export
+    </Tooltip>
+  );
+
   return (
     <Fragment>
       <Row className="mb-2 d-flex align-items-center justify-content-between">
@@ -221,9 +232,13 @@ const TableContainer = ({
               </Button>
             )}
             {(isExcelExport || isPdfExport || isPrint) && (
-              <>
-                <UncontrolledDropdown>
-                  <DropdownToggle color="primary" id="export_toggle">
+              <OverlayTrigger
+                placement="top"
+                delay={{ show: 250, hide: 400 }}
+                overlay={renderTooltip}
+              >
+                <Dropdown>
+                  <DropdownToggle variant="primary" id="export_toggle">
                     <FaFileExport size={18} />
                   </DropdownToggle>
                   <DropdownMenu end className="py-2 mt-1">
@@ -236,7 +251,7 @@ const TableContainer = ({
                       />
                     )}
                     {isPdfExport && (
-                      <ExportToPDF
+                      <ExportToPdf
                         tableData={data}
                         tableName={tableName}
                         dropdownItem={true}
@@ -252,11 +267,8 @@ const TableContainer = ({
                       />
                     )}
                   </DropdownMenu>
-                </UncontrolledDropdown>
-                <UncontrolledTooltip placement="top" target="export_toggle">
-                  {t('export')}
-                </UncontrolledTooltip>
-              </>
+                </Dropdown>
+              </OverlayTrigger>
             )}
             {refetch && (
               <>

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 
-// Reactstrap
-import { Dropdown } from 'reactstrap';
+import { Dropdown } from 'react-bootstrap';
 
 // Import menuDropdown
 import LanguageDropdown from '../CommonForBoth/TopbarDropdown/LanguageDropdown';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { Dropdown, DropdownToggle, DropdownMenu, Row, Col } from 'reactstrap';
+import { Dropdown, Row, Col } from 'react-bootstrap';
 import SimpleBar from 'simplebar-react';
 import { useTranslation } from 'react-i18next';
 
@@ -68,8 +68,9 @@ const NotificationDropdown = () => {
         className="dropdown d-inline-block"
         tag="li"
       >
-        <DropdownToggle
-          className="btn header-item noti-icon position-relative"
+        <Dropdown.Toggle
+          variant={'transparent'}
+          className="header-item noti-icon position-relative"
           tag="button"
           id="page-header-notifications-dropdown"
         >
@@ -79,9 +80,9 @@ const NotificationDropdown = () => {
               {unreadNotifications}
             </span>
           )}
-        </DropdownToggle>
+        </Dropdown.Toggle>
 
-        <DropdownMenu className="dropdown-menu dropdown-menu-lg p-0 dropdown-menu-end">
+        <Dropdown.Menu className="dropdown-menu dropdown-menu-lg p-0 dropdown-menu-end">
           <div className="p-3">
             <Row className="align-items-center">
               <Col>
@@ -151,7 +152,7 @@ const NotificationDropdown = () => {
               </Link>
             )}
           </div>
-        </DropdownMenu>
+        </Dropdown.Menu>
       </Dropdown>
     </React.Fragment>
   );

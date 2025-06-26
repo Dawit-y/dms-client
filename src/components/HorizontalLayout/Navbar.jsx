@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Row, Col, Collapse } from 'reactstrap';
+import { Collapse } from 'react-bootstrap';
 import { Link } from 'react-router';
 import classname from 'classnames';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,7 @@ const Navbar = () => {
             id="navigation"
           >
             <Collapse
-              isOpen={leftMenu}
+              in={leftMenu}
               className="navbar-collapse"
               id="topnav-menu-content"
             >

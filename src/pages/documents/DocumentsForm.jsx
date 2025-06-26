@@ -1,15 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Col,
-} from 'reactstrap';
+import { Modal, Button, Form, Col } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -40,99 +29,94 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
   });
 
   return (
-    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader className="bg-primary text-white" toggle={toggle}>
-        {isEdit ? 'Edit Document' : 'Add Document'}
-      </ModalHeader>
-      <Form onSubmit={formik.handleSubmit}>
-        <ModalBody>
-          <FormGroup tag={Col}>
-            <Label for="title">Title</Label>
-            <Input
-              id="title"
+    <Modal show={isOpen} onHide={toggle} size="lg" centered>
+      <Modal.Header closeButton className="">
+        <Modal.Title>{isEdit ? 'Edit Document' : 'Add Document'}</Modal.Title>
+      </Modal.Header>
+      <Form noValidate onSubmit={formik.handleSubmit}>
+        <Modal.Body>
+          <Form.Group as={Col} controlId="title" className="mb-3">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
               name="title"
               type="text"
+              placeholder="Enter title"
               value={formik.values.title}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              invalid={formik.touched.title && !!formik.errors.title}
-              placeholder="Enter title"
+              isInvalid={formik.touched.title && !!formik.errors.title}
             />
-            {formik.touched.title && formik.errors.title && (
-              <div className="invalid-feedback d-block">
-                {formik.errors.title}
-              </div>
-            )}
-          </FormGroup>
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.title}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <FormGroup tag={Col}>
-            <Label for="type">Type</Label>
-            <Input
-              id="type"
+          <Form.Group as={Col} controlId="type" className="mb-3">
+            <Form.Label>Type</Form.Label>
+            <Form.Select
               name="type"
-              type="select"
               value={formik.values.type}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              invalid={formik.touched.type && !!formik.errors.type}
+              isInvalid={formik.touched.type && !!formik.errors.type}
             >
               <option value="">Select type</option>
               <option value="PDF">PDF</option>
               <option value="DOCX">DOCX</option>
               <option value="XLSX">XLSX</option>
-            </Input>
-            {formik.touched.type && formik.errors.type && (
-              <div className="invalid-feedback d-block">
-                {formik.errors.type}
-              </div>
-            )}
-          </FormGroup>
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.type}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <FormGroup tag={Col}>
-            <Label for="uploadedBy">Uploaded By</Label>
-            <Input
-              id="uploadedBy"
+          <Form.Group as={Col} controlId="uploadedBy" className="mb-3">
+            <Form.Label>Uploaded By</Form.Label>
+            <Form.Control
               name="uploadedBy"
               type="text"
+              placeholder="Uploader name"
               value={formik.values.uploadedBy}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              invalid={formik.touched.uploadedBy && !!formik.errors.uploadedBy}
-              placeholder="Uploader name"
+              isInvalid={
+                formik.touched.uploadedBy && !!formik.errors.uploadedBy
+              }
             />
-            {formik.touched.uploadedBy && formik.errors.uploadedBy && (
-              <div className="invalid-feedback d-block">
-                {formik.errors.uploadedBy}
-              </div>
-            )}
-          </FormGroup>
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.uploadedBy}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <FormGroup tag={Col}>
-            <Label for="uploadedAt">Uploaded At</Label>
-            <Input
-              id="uploadedAt"
+          <Form.Group as={Col} controlId="uploadedAt" className="mb-3">
+            <Form.Label>Uploaded At</Form.Label>
+            <Form.Control
               name="uploadedAt"
               type="date"
               value={formik.values.uploadedAt}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              invalid={formik.touched.uploadedAt && !!formik.errors.uploadedAt}
+              isInvalid={
+                formik.touched.uploadedAt && !!formik.errors.uploadedAt
+              }
             />
-            {formik.touched.uploadedAt && formik.errors.uploadedAt && (
-              <div className="invalid-feedback d-block">
-                {formik.errors.uploadedAt}
-              </div>
-            )}
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="secondary" onClick={toggle}>
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.uploadedAt}
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={toggle}>
             Cancel
           </Button>
-          <Button color="primary" type="submit" disabled={formik.isSubmitting}>
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={formik.isSubmitting}
+          >
             {isEdit ? 'Update Document' : 'Add Document'}
           </Button>
-        </ModalFooter>
+        </Modal.Footer>
       </Form>
     </Modal>
   );

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import TableContainer from '../../components/Common/TableContainer';
 import DocumentsForm from './DocumentsForm';
 import { useCallback } from 'react';
-import { FaBullseye } from 'react-icons/fa';
 
 const data = [
   {
