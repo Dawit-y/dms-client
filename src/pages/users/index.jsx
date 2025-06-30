@@ -3,7 +3,7 @@ import { makeData } from '../../utils/makeUserData';
 import TableContainer from '../../components/Common/TableContainer';
 
 function Users() {
-  const data = useMemo(() => makeData(5_000), []);
+  const data = useMemo(() => makeData(500), []);
   const columns = useMemo(
     () => [
       {

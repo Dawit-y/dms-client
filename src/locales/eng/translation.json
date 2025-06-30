@@ -1,3 +1,7 @@
 {
-  "documents": "name"
+  "title": "Title",
+  "type": "Type",
+  "actions": "Actions",
+  "uploaded_by": "Uploaded By",
+  "uploaded_at": "Uploaded At"
 }

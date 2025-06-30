@@ -18,23 +18,29 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownMenu,
+  DropdownItem,
   Spinner,
   Overlay,
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
-import { FaFileExport, FaRedoAlt, FaInfoCircle } from 'react-icons/fa';
+import {
+  FaFileExport,
+  FaRedoAlt,
+  FaInfoCircle,
+  FaColumns,
+} from 'react-icons/fa';
 import ExportToExcel from './ExportToExcel';
 import ExportToPdf from './ExportToPdf';
 import PrintTable from './PrintTable';
 import { useTranslation } from 'react-i18next';
+import Switch from 'react-switch';
 
 const TableContainer = ({
   columns,
   data,
   tableClass = '',
   theadClass = 'table-light',
-  divClassName = 'table-responsive',
   isLoading = false,
   isBordered = false,
   isPagination = true,
@@ -57,6 +63,9 @@ const TableContainer = ({
 }) => {
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState('');
+  const [columnVisibility, setColumnVisibility] = React.useState({});
+  const [showColumnDropdown, setShowColumnDropdown] = React.useState(false);
+
   const { t } = useTranslation();
 
   const table = useReactTable({
@@ -66,7 +75,9 @@ const TableContainer = ({
     state: {
       columnFilters,
       globalFilter,
+      columnVisibility,
     },
+    onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -78,9 +89,14 @@ const TableContainer = ({
     debugColumns: false,
   });
 
-  const renderTooltip = (props) => (
-    <Tooltip id="button-tooltip" {...props}>
+  const exportTooltip = (props) => (
+    <Tooltip id="export-tooltip" {...props}>
       Export
+    </Tooltip>
+  );
+  const toggleColumnsTooltip = (props) => (
+    <Tooltip id="toggle-columns-tooltip" {...props}>
+      Toggle Columns
     </Tooltip>
   );
 
@@ -128,17 +144,106 @@ const TableContainer = ({
                 <i className="mdi mdi-plus me-1"></i> {buttonName}
               </Button>
             )}
+            <OverlayTrigger
+              placement="top"
+              delay={{ show: 250, hide: 400 }}
+              overlay={toggleColumnsTooltip}
+            >
+              <Dropdown
+                show={showColumnDropdown}
+                onToggle={(isOpen) => setShowColumnDropdown(isOpen)}
+              >
+                <DropdownToggle variant="primary" id="toggle-columns-tooltip">
+                  <FaColumns size={18} />
+                </DropdownToggle>
+                <DropdownMenu
+                  className="py-2 mt-1 bg-light"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <DropdownItem
+                    as="div"
+                    className="px-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Row className="gx-2">
+                      <Col xs={6}>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const allHidden = {};
+                            table.getAllLeafColumns().forEach((col) => {
+                              allHidden[col.id] = false;
+                            });
+                            setColumnVisibility(allHidden);
+                          }}
+                          disabled={table
+                            .getAllLeafColumns()
+                            .every((col) => !col.getIsVisible())}
+                        >
+                          Hide All
+                        </Button>
+                      </Col>
+                      <Col xs={6}>
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => {
+                            const allVisible = {};
+                            table.getAllLeafColumns().forEach((col) => {
+                              allVisible[col.id] = true;
+                            });
+                            setColumnVisibility(allVisible);
+                          }}
+                          disabled={table
+                            .getAllLeafColumns()
+                            .every((col) => col.getIsVisible())}
+                        >
+                          Show All
+                        </Button>
+                      </Col>
+                    </Row>
+                  </DropdownItem>
+
+                  {table.getAllLeafColumns().map((column) => (
+                    <DropdownItem
+                      key={column.id}
+                      as="div"
+                      className="px-3 py-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="d-flex align-items-center gap-2">
+                        <Switch
+                          height={16}
+                          width={36}
+                          checked={column.getIsVisible()}
+                          onChange={(checked) => {
+                            setColumnVisibility((prev) => ({
+                              ...prev,
+                              [column.id]: checked,
+                            }));
+                          }}
+                          onColor="#34c38f"
+                        />
+                        <span>{column.columnDef.header || column.id}</span>
+                      </div>
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </OverlayTrigger>
+
             {(isExcelExport || isPdfExport || isPrint) && (
               <OverlayTrigger
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
-                overlay={renderTooltip}
+                overlay={exportTooltip}
               >
                 <Dropdown>
                   <DropdownToggle variant="primary" id="export_toggle">
                     <FaFileExport size={18} />
                   </DropdownToggle>
-                  <DropdownMenu end className="py-2 mt-1">
+                  <DropdownMenu className="py-2 mt-1">
                     {isExcelExport && (
                       <ExportToExcel
                         tableData={data}
@@ -215,14 +320,12 @@ const TableContainer = ({
             </UncontrolledTooltip>
           </div>
         )}
-        <div
-          style={{ overflowX: 'scroll' }}
-          className={divClassName ? divClassName : 'table-responsive'}
-        >
+        <div style={{ overflowX: 'scroll' }} className={'table-responsive'}>
           <Table
             hover
             className={`${tableClass} table-sm table-bordered table-striped`}
             bordered={isBordered}
+            style={{ minHeight: '400px' }}
           >
             <thead className={theadClass}>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -270,22 +373,30 @@ const TableContainer = ({
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row) => {
-                return (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <td key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + 2} className="text-center py-5">
+                    {!isLoading && 'No data availaible.'}
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map((row) => {
+                  return (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => {
+                        return (
+                          <td key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </Table>
         </div>

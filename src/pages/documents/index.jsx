@@ -13,7 +13,7 @@ function Documents() {
   const [isEdit, setIsEdit] = useState(false);
   const { t } = useTranslation();
 
-  const documents = useMemo(() => makeData(5000), []);
+  const documents = useMemo(() => makeData(500), []);
 
   useEffect(() => {
     document.title = 'Documents Page';
@@ -39,6 +39,18 @@ function Documents() {
 
   const columns = useMemo(
     () => [
+      {
+        id: 'sn',
+        header: 'S.N',
+        cell: ({ row, table }) =>
+          row.index +
+          1 +
+          table.getState().pagination.pageIndex *
+            table.getState().pagination.pageSize,
+        enableSorting: false,
+        enableColumnFilter: false,
+        maxSize: 50,
+      },
       {
         header: t('title'),
         accessorKey: 'title',
@@ -104,11 +116,10 @@ function Documents() {
           SearchPlaceholder={'filter'}
           buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
           buttonName={buttonName}
-          tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
+          // tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
           theadClass="table-secondary"
           pagination="pagination"
           paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
-          divClassName="-"
           isExcelExport
           isPdfExport
           isPrint
