@@ -16,7 +16,7 @@ const isError = false;
 
 const NotificationDropdown = () => {
   const { t } = useTranslation();
-  const [menu, setMenu] = useState(false);
+  // const [menu, setMenu] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   // const { data, isLoading, isError, error, refetch } = useFetchNotifications();
@@ -37,12 +37,12 @@ const NotificationDropdown = () => {
   //   return formatDistanceToNow(parsedDate, { addSuffix: true });
   // };
 
-  const toggleMenu = () => {
-    setMenu(!menu);
-    if (!menu) {
-      setUnreadNotifications(0);
-    }
-  };
+  // const toggleMenu = () => {
+  //   setMenu(!menu);
+  //   if (!menu) {
+  //     setUnreadNotifications(0);
+  //   }
+  // };
 
   // const handleMarkUnreadAsRead = () => {
   //   const unreadNotificationIds = notifications
@@ -62,12 +62,7 @@ const NotificationDropdown = () => {
 
   return (
     <React.Fragment>
-      <Dropdown
-        isOpen={menu}
-        toggle={toggleMenu}
-        className="dropdown d-inline-block"
-        tag="li"
-      >
+      <Dropdown className="dropdown d-inline-block" tag="li">
         <Dropdown.Toggle
           variant={'transparent'}
           className="header-item noti-icon position-relative"

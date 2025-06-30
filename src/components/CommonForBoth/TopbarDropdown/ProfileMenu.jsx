@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -6,7 +6,7 @@ import defaultAvatar from '../../../assets/images/defaultAvatar.png';
 
 const ProfileMenu = () => {
   const { t } = useTranslation();
-  const [menu, setMenu] = useState(false);
+  // const [menu, setMenu] = useState(false);
 
   // const storedUser = localStorage.getItem("authUser");
   // const User = storedUser ? JSON.parse(storedUser) : null; // Handle null case
@@ -18,11 +18,7 @@ const ProfileMenu = () => {
 
   return (
     <React.Fragment>
-      <Dropdown
-        isOpen={menu}
-        toggle={() => setMenu(!menu)}
-        className="d-inline-block"
-      >
+      <Dropdown className="d-inline-block">
         <Dropdown.Toggle
           variant={'transparent'}
           className="header-item d-flex align-items-center"

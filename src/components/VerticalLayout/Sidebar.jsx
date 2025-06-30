@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { layoutSelectors } from '../../store/layout/layoutSlice';
 import { menuItems } from './Menu';
+import logo from '../../assets/images/logo-light.png';
 
 const Sidebar = () => {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);
@@ -17,7 +18,7 @@ const Sidebar = () => {
           <Link to="/" className="logo logo-inf0-light">
             <span className="logo-sm"></span>
             <span className="logo-lg">
-              <img src={''} alt="" height="55" />
+              <img src={logo} alt="" height="55" />
             </span>
           </Link>
         </div>

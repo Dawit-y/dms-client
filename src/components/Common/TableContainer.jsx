@@ -1,186 +1,82 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
-import {
-  Row,
-  Table,
-  Button,
-  Col,
-  Spinner,
-  Dropdown,
-  DropdownMenu,
-  DropdownToggle,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router';
-import { useTranslation } from 'react-i18next';
 import {
-  useReactTable,
+  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  flexRender,
+  useReactTable,
 } from '@tanstack/react-table';
-import { rankItem } from '@tanstack/match-sorter-utils';
-import { FaFileExport, FaInfoCircle, FaRedoAlt } from 'react-icons/fa';
+import {
+  Table,
+  Button,
+  Row,
+  Col,
+  FormSelect,
+  FormControl,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  Spinner,
+  Overlay,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap';
+import { FaFileExport, FaRedoAlt, FaInfoCircle } from 'react-icons/fa';
 import ExportToExcel from './ExportToExcel';
 import ExportToPdf from './ExportToPdf';
 import PrintTable from './PrintTable';
-
-// Column Filter
-const Filter = ({ column }) => {
-  const columnFilterValue = column.getFilterValue();
-
-  return (
-    <>
-      <DebouncedInput
-        type="text"
-        value={columnFilterValue ?? ''}
-        onChange={(value) => column.setFilterValue(value)}
-        placeholder="Search..."
-        className="w-36 border shadow rounded"
-        list={column.id + 'list'}
-      />
-      <div className="h-1" />
-    </>
-  );
-};
-
-// Global Filter
-const DebouncedInput = ({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}) => {
-  const [value, setValue] = useState(initialValue);
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-
-    return () => clearTimeout(timeout);
-  }, [debounce, onChange, value]);
-
-  return (
-    <React.Fragment>
-      <Col sm={4}>
-        <input
-          {...props}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </Col>
-    </React.Fragment>
-  );
-};
-
-const MAX_PAGE_NUMBERS = 10;
+import { useTranslation } from 'react-i18next';
 
 const TableContainer = ({
   columns,
   data,
-  tableClass,
-  theadClass,
-  divClassName,
+  tableClass = '',
+  theadClass = 'table-light',
+  divClassName = 'table-responsive',
   isLoading = false,
-  isBordered,
-  isPagination,
-  isGlobalFilter,
-  paginationWrapper,
-  SearchPlaceholder,
-  pagination,
-  buttonName,
-  isAddButton,
-  isCustomPageSize,
+  isBordered = false,
+  isPagination = true,
+  isGlobalFilter = true,
+  paginationWrapper = 'dataTables_paginate paging_simple_numbers pagination-rounded',
+  SearchPlaceholder = 'Search...',
+  pagination = 'pagination',
+  buttonName = 'Add New',
+  isAddButton = false,
+  isCustomPageSize = true,
   handleUserClick,
   isExcelExport = false,
   isPdfExport = false,
-  isPrint = true,
+  isPrint = false,
   exportColumns = [],
   tableName = '',
   infoIcon = false,
   refetch,
-  isFetching,
+  isFetching = false,
 }) => {
-  const [columnFilters, setColumnFilters] = useState([]);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [columnFilters, setColumnFilters] = React.useState([]);
+  const [globalFilter, setGlobalFilter] = React.useState('');
   const { t } = useTranslation();
-  const pageIndexRef = useRef(0); // Store the page index
-  const [pageSize, setPageSize] = useState(10);
-  const fuzzyFilter = (row, columnId, value, addMeta) => {
-    const itemRank = rankItem(row.getValue(columnId), value);
-    addMeta({ itemRank });
-    return itemRank.passed;
-  };
 
   const table = useReactTable({
-    columns,
     data,
-    filterFns: { fuzzy: fuzzyFilter },
+    columns,
+    defaultColumn: { size: 200 },
     state: {
       columnFilters,
       globalFilter,
-      pagination: {
-        pageIndex: pageIndexRef.current,
-        pageSize,
-      },
     },
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    debugTable: false,
+    debugHeaders: false,
+    debugColumns: false,
   });
-
-  const {
-    getHeaderGroups,
-    getRowModel,
-    getCanPreviousPage,
-    getCanNextPage,
-    getPageOptions,
-    setPageIndex,
-    nextPage,
-    previousPage,
-    getState,
-  } = table;
-
-  useEffect(() => {
-    setPageIndex(pageIndexRef.current); // Apply the saved page index
-  }, [data, setPageIndex]); // Reapply the page index after data update
-
-  const paginationState = getState().pagination;
-  const totalPages = getPageOptions().length;
-  const currentPage = paginationState.pageIndex;
-
-  // Calculate the start and end of the current range
-  const startPage =
-    Math.floor(currentPage / MAX_PAGE_NUMBERS) * MAX_PAGE_NUMBERS;
-  const endPage = Math.min(startPage + MAX_PAGE_NUMBERS, totalPages);
-
-  // Create the page numbers to display
-  const visiblePageNumbers = getPageOptions().slice(startPage, endPage);
-
-  const handlePrevious = () => {
-    if (getCanPreviousPage()) {
-      pageIndexRef.current = currentPage - 1; // Decrement the page index
-      previousPage(); // Call the function to go to the previous page
-    }
-  };
-
-  const handleNext = () => {
-    if (getCanNextPage()) {
-      pageIndexRef.current = currentPage + 1; // Increment the page index
-      nextPage(); // Call the function to go to the next page
-    }
-  };
 
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
@@ -190,7 +86,7 @@ const TableContainer = ({
 
   return (
     <Fragment>
-      <Row className="mb-2 d-flex align-items-center justify-content-between">
+      <Row className="mb-2 d-flex align-items-center justify-content-between border-1 border-danger">
         <>
           {isCustomPageSize && (
             <Col sm={2} className="">
@@ -198,7 +94,7 @@ const TableContainer = ({
                 className="form-select pageSize my-auto"
                 value={table.getState().pagination.pageSize}
                 onChange={(e) => {
-                  setPageSize(Number(e.target.value));
+                  // setPageSize(Number(e.target.value));
                   table.setPageSize(Number(e.target.value));
                 }}
               >
@@ -216,6 +112,7 @@ const TableContainer = ({
               onChange={(value) => setGlobalFilter(String(value))}
               className="form-control search-box me-2 my-auto d-inline-block"
               placeholder={SearchPlaceholder}
+              globalFilter={true}
             />
           )}
         </>
@@ -318,38 +215,29 @@ const TableContainer = ({
             </UncontrolledTooltip>
           </div>
         )}
-        <div className={divClassName ? divClassName : 'table-responsive'}>
-          <div id="printable-table">
-            <Table
-              hover
-              className={`${tableClass} table-sm table-bordered table-striped`}
-              bordered={isBordered}
-            >
-              <thead className={theadClass}>
-                {getHeaderGroups().map((headerGroup, idx) => (
-                  <tr key={headerGroup.id}>
-                    {idx === getHeaderGroups().length - 1 ? (
-                      <th rowSpan={1}>{t('S.N')}</th>
-                    ) : (
-                      // For upper groups, add an empty cell that spans where S.N would be
-                      <th
-                        rowSpan={1}
-                        colSpan={1}
-                        style={{ visibility: 'hidden' }}
-                      ></th>
-                    )}
-                    {headerGroup.headers.map((header) => (
+        <div
+          style={{ overflowX: 'scroll' }}
+          className={divClassName ? divClassName : 'table-responsive'}
+        >
+          <Table
+            hover
+            className={`${tableClass} table-sm table-bordered table-striped`}
+            bordered={isBordered}
+          >
+            <thead className={theadClass}>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
                       <th
                         key={header.id}
                         colSpan={header.colSpan}
-                        className={`${
-                          header.column.columnDef.enableSorting
-                            ? 'sorting sorting_desc'
-                            : ''
-                        }`}
+                        style={{
+                          minWidth: header.getSize(),
+                        }}
                       >
                         {header.isPlaceholder ? null : (
-                          <Fragment>
+                          <>
                             <div
                               {...{
                                 className: header.column.getCanSort()
@@ -364,60 +252,51 @@ const TableContainer = ({
                                 header.getContext()
                               )}
                               {{
-                                asc: '',
-                                desc: '',
+                                asc: ' 🔼',
+                                desc: ' 🔽',
                               }[header.column.getIsSorted()] ?? null}
                             </div>
                             {header.column.getCanFilter() ? (
                               <div>
-                                <Filter column={header.column} table={table} />
+                                <Filter column={header.column} />
                               </div>
                             ) : null}
-                          </Fragment>
+                          </>
                         )}
                       </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody style={{ height: 'auto' }}>
-                {data.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={columns.length + 2}
-                      className="text-center py-5"
-                    >
-                      {!isLoading && 'No data availaible.'}
-                    </td>
-                  </tr>
-                ) : (
-                  getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
-                      <td>{Number(row.id) + 1}</td>
-                      {row.getVisibleCells().map((cell) => (
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => {
+                return (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => {
+                      return (
                         <td key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
                           )}
                         </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </Table>
-          </div>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
         </div>
-        {isPagination && data.length > 0 && (
+        {isPagination && table.getRowModel().rows.length > 0 && (
           <Row className="my-2">
             <Col sm={12} md={5}>
               <div className="dataTables_info">
-                {paginationState.pageSize > data.length
-                  ? `${t('Showing')} ${data.length} of ${data.length}`
-                  : `${t('Showing')} ${paginationState.pageSize} of ${
-                      data.length
-                    }`}
+                {table.getPrePaginationRowModel().rows.length <
+                table.getState().pagination.pageSize
+                  ? `Showing ${table.getRowModel().rows.length} of ${table.getPrePaginationRowModel().rows.length}`
+                  : `Showing ${table.getState().pagination.pageSize} of ${table.getPrePaginationRowModel().rows.length}`}
               </div>
             </Col>
             <Col sm={12} md={7}>
@@ -426,41 +305,53 @@ const TableContainer = ({
                   {/* Previous Button */}
                   <li
                     className={`paginate_button page-item previous ${
-                      !getCanPreviousPage() ? 'disabled' : ''
+                      !table.getCanPreviousPage() ? 'disabled' : ''
                     }`}
                   >
-                    <Link className="page-link" onClick={handlePrevious}>
+                    <Link
+                      className="page-link"
+                      onClick={() => table.previousPage()}
+                    >
                       <i className="mdi mdi-chevron-left"></i>
                     </Link>
                   </li>
 
-                  {/* Render visible page numbers */}
-                  {visiblePageNumbers.map((item) => (
-                    <li
-                      key={item}
-                      className={`paginate_button page-item ${
-                        currentPage === item ? 'active' : ''
-                      }`}
-                    >
-                      <Link
-                        className="page-link"
-                        onClick={() => {
-                          pageIndexRef.current = item;
-                          setPageIndex(item);
-                        }}
+                  {/* Visible Page Numbers */}
+                  {Array.from({ length: table.getPageCount() }, (_, i) => i)
+                    .filter(
+                      (pageIndex) =>
+                        Math.abs(
+                          pageIndex - table.getState().pagination.pageIndex
+                        ) <= 2
+                    )
+                    .map((pageIndex) => (
+                      <li
+                        key={pageIndex}
+                        className={`paginate_button page-item ${
+                          table.getState().pagination.pageIndex === pageIndex
+                            ? 'active'
+                            : ''
+                        }`}
                       >
-                        {item + 1}
-                      </Link>
-                    </li>
-                  ))}
+                        <Link
+                          className="page-link"
+                          onClick={() => table.setPageIndex(pageIndex)}
+                        >
+                          {pageIndex + 1}
+                        </Link>
+                      </li>
+                    ))}
 
                   {/* Next Button */}
                   <li
                     className={`paginate_button page-item next ${
-                      !getCanNextPage() ? 'disabled' : ''
+                      !table.getCanNextPage() ? 'disabled' : ''
                     }`}
                   >
-                    <Link className="page-link" onClick={handleNext}>
+                    <Link
+                      className="page-link"
+                      onClick={() => table.nextPage()}
+                    >
                       <i className="mdi mdi-chevron-right"></i>
                     </Link>
                   </li>
@@ -473,5 +364,95 @@ const TableContainer = ({
     </Fragment>
   );
 };
+
+function Filter({ column }) {
+  const columnFilterValue = column.getFilterValue();
+  const { filterVariant, options } = column.columnDef.meta ?? {};
+
+  return filterVariant === 'range' ? (
+    <div>
+      <div className="flex space-x-2">
+        {/* See faceted column filters example for min max values functionality */}
+        <DebouncedInput
+          type="number"
+          value={columnFilterValue?.[0] ?? ''}
+          onChange={(value) =>
+            column.setFilterValue((old) => [value, old?.[1]])
+          }
+          placeholder={`Min`}
+          className="w-24 border shadow rounded"
+        />
+        <DebouncedInput
+          type="number"
+          value={columnFilterValue?.[1] ?? ''}
+          onChange={(value) =>
+            column.setFilterValue((old) => [old?.[0], value])
+          }
+          placeholder={`Max`}
+          className="w-24 border shadow rounded"
+        />
+      </div>
+      <div className="h-1" />
+    </div>
+  ) : filterVariant === 'select' && options.length > 0 ? (
+    <FormSelect
+      size="sm"
+      htmlSize={'sm'}
+      onChange={(e) => column.setFilterValue(e.target.value)}
+      value={columnFilterValue?.toString()}
+    >
+      {/* See faceted column filters example for dynamic select options */}
+      <option value="">All</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </FormSelect>
+  ) : (
+    <DebouncedInput
+      className="w-36 border shadow rounded"
+      onChange={(value) => column.setFilterValue(value)}
+      placeholder={`Search...`}
+      type="text"
+      value={columnFilterValue ?? ''}
+    />
+    // See faceted column filters example for datalist search suggestions
+  );
+}
+
+// A typical debounced input react component
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  globalFilter,
+  ...props
+}) {
+  const [value, setValue] = React.useState(initialValue);
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  return (
+    <Col sm={globalFilter ? 4 : 12}>
+      <FormControl
+        size={globalFilter ? 'md' : 'sm'}
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+    </Col>
+  );
+}
 
 export default React.memo(TableContainer);

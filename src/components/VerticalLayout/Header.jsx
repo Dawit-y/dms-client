@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router';
 
 import { Dropdown } from 'react-bootstrap';
@@ -17,7 +17,6 @@ import { useDispatch } from 'react-redux';
 
 const Header = () => {
   const dispatch = useDispatch();
-  const [socialDrp, setsocialDrp] = useState(false);
 
   function toggleFullscreen() {
     if (
@@ -97,13 +96,7 @@ const Header = () => {
           </div>
           <div className="d-flex">
             <LanguageDropdown />
-            <Dropdown
-              className="d-none d-lg-inline-block ms-1"
-              isOpen={socialDrp}
-              toggle={() => {
-                setsocialDrp(!socialDrp);
-              }}
-            ></Dropdown>
+            <Dropdown className="d-none d-lg-inline-block ms-1"></Dropdown>
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button
                 type="button"

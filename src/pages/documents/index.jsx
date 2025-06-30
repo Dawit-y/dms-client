@@ -1,39 +1,24 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import TableContainer from '../../components/Common/TableContainer';
 import DocumentsForm from './DocumentsForm';
 import { useCallback } from 'react';
-
-const data = [
-  {
-    id: 1,
-    title: 'Project Charter',
-    type: 'PDF',
-    uploadedBy: 'John Doe',
-    uploadedAt: '2025-06-20',
-  },
-  {
-    id: 2,
-    title: 'Design Specification',
-    type: 'DOCX',
-    uploadedBy: 'Jane Smith',
-    uploadedAt: '2025-06-18',
-  },
-  {
-    id: 3,
-    title: 'Budget Report',
-    type: 'XLSX',
-    uploadedBy: 'Alice Johnson',
-    uploadedAt: '2025-06-15',
-  },
-];
+import { makeData } from '../../utils/makeDocumentsData';
+import IconButton from '../../components/Common/IconButton';
 
 function Documents() {
-  document.title = 'Documents Page';
   const [formModal, setFormModal] = useState(false);
   const [rowData, setRowData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const { t } = useTranslation();
+
+  const documents = useMemo(() => makeData(5000), []);
+
+  useEffect(() => {
+    document.title = 'Documents Page';
+  }, []);
+
   const togggleFormModal = useCallback(
     () => setFormModal(!formModal),
     [formModal]
@@ -43,7 +28,7 @@ function Documents() {
   const handleEditClick = useCallback((row) => {
     setIsEdit(true);
     setRowData(row);
-    setFormModal(true); // Directly set to true instead of toggle
+    setFormModal(true);
   }, []);
 
   const handleAddClick = useCallback(() => {
@@ -51,6 +36,7 @@ function Documents() {
     setRowData(null);
     setFormModal(true);
   }, []);
+
   const columns = useMemo(
     () => [
       {
@@ -71,6 +57,7 @@ function Documents() {
       {
         header: t('uploaded_at'),
         accessorKey: 'uploadedAt',
+        enableColumnFilter: false,
         cell: (info) => {
           const date = new Date(info.getValue());
           return date.toLocaleDateString();
@@ -81,14 +68,15 @@ function Documents() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="d-flex gap-2">
-            <button className="btn btn-sm btn-primary">{t('view')}</button>
-            <button
-              className="btn btn-sm btn-success"
+            <IconButton icon={<FaEye />} onClick={() => console.log('view')} />
+            <IconButton
+              icon={<FaEdit />}
               onClick={() => handleEditClick(row.original)}
-            >
-              {t('edit')}
-            </button>
-            <button className="btn btn-sm btn-danger">{t('delete')}</button>
+            />
+            <IconButton
+              icon={<FaTrash />}
+              onClick={() => console.log('Delete')}
+            />
           </div>
         ),
       },
@@ -107,7 +95,7 @@ function Documents() {
       <div className="page-content">
         <TableContainer
           columns={columns}
-          data={data}
+          data={documents}
           isGlobalFilter={true}
           isAddButton={true}
           isCustomPageSize={true}
@@ -117,10 +105,13 @@ function Documents() {
           buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
           buttonName={buttonName}
           tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
-          theadClass="table-light"
+          theadClass="table-secondary"
           pagination="pagination"
           paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
           divClassName="-"
+          isExcelExport
+          isPdfExport
+          isPrint
         />
       </div>
     </>

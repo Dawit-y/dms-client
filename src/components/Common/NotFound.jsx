@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Container, Row, Col } from 'react-bootstrap';
 
 const NotFound = () => {
-  document.title = '404 Error Page ';
-
+  useEffect(() => {
+    document.title = '404 Not Found';
+  }, []);
   return (
     <React.Fragment>
       <div className="account-pages my-5 pt-5">

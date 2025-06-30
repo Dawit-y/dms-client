@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Container, Row, Col } from 'react-bootstrap';
 
 const ErrorElement = () => {
-  //meta title
-  document.title = '500 Error Page ';
+  useEffect(() => {
+    document.title = '500 Error';
+  }, []);
 
   return (
     <React.Fragment>
