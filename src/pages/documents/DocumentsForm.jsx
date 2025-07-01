@@ -1,15 +1,21 @@
-import { Modal, Button, Form, Col } from 'react-bootstrap';
+import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-
-const schema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  type: Yup.string().required('Type is required'),
-  uploadedBy: Yup.string().required('Uploader name is required'),
-  uploadedAt: Yup.date().required('Upload date is required'),
-});
+import { useTranslation } from 'react-i18next';
+import FileUploader from '../../components/Common/FileUploader';
+import Input from '../../components/Common/Input';
+import AsyncSelectField from '../../components/Common/AsyncSelectField';
 
 const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
+  const { t } = useTranslation();
+
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required(t('field_required')),
+    type: Yup.string().required(t('field_required')),
+    uploadedBy: Yup.string().required(t('field_required')),
+    uploadedAt: Yup.date().required(t('field_required')),
+    file: Yup.string().required(t('field_required')),
+  });
   const formik = useFormik({
     initialValues: {
       title: isEdit ? rowData.title || '' : '',
@@ -20,7 +26,7 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
           new Date().toISOString().slice(0, 10)
         : '',
     },
-    validationSchema: schema,
+    validationSchema,
     onSubmit: (values) => {
       console.log(isEdit ? 'Update:' : 'Create:', values);
       toggle();
@@ -29,79 +35,32 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
   });
 
   return (
-    <Modal show={isOpen} onHide={toggle} size="lg" centered>
+    <Modal show={isOpen} onHide={toggle} size="xl" centered>
       <Modal.Header closeButton className="">
         <Modal.Title>{isEdit ? 'Edit Document' : 'Add Document'}</Modal.Title>
       </Modal.Header>
       <Form noValidate onSubmit={formik.handleSubmit}>
         <Modal.Body>
-          <Form.Group as={Col} controlId="title" className="mb-3">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              name="title"
-              type="text"
-              placeholder="Enter title"
-              value={formik.values.title}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={formik.touched.title && !!formik.errors.title}
+          <Row>
+            <Input formik={formik} fieldId={'title'} />
+            <Input formik={formik} fieldId={'uploadedBy'} />
+            <Input formik={formik} fieldId={'uploadedAt'} />
+            <AsyncSelectField
+              fieldId="type"
+              validation={formik}
+              label="Type"
+              optionMap={{
+                PDF: 'PDF',
+                DOCX: 'DOCX',
+                XLSX: 'XLSX',
+              }}
             />
+          </Row>
+          <Form.Group as={Col} controlId="file" className="mb-3">
+            <Form.Label>File</Form.Label>
+            <FileUploader />
             <Form.Control.Feedback type="invalid">
-              {formik.errors.title}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group as={Col} controlId="type" className="mb-3">
-            <Form.Label>Type</Form.Label>
-            <Form.Select
-              name="type"
-              value={formik.values.type}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={formik.touched.type && !!formik.errors.type}
-            >
-              <option value="">Select type</option>
-              <option value="PDF">PDF</option>
-              <option value="DOCX">DOCX</option>
-              <option value="XLSX">XLSX</option>
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.type}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group as={Col} controlId="uploadedBy" className="mb-3">
-            <Form.Label>Uploaded By</Form.Label>
-            <Form.Control
-              name="uploadedBy"
-              type="text"
-              placeholder="Uploader name"
-              value={formik.values.uploadedBy}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={
-                formik.touched.uploadedBy && !!formik.errors.uploadedBy
-              }
-            />
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.uploadedBy}
-            </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group as={Col} controlId="uploadedAt" className="mb-3">
-            <Form.Label>Uploaded At</Form.Label>
-            <Form.Control
-              name="uploadedAt"
-              type="date"
-              value={formik.values.uploadedAt}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={
-                formik.touched.uploadedAt && !!formik.errors.uploadedAt
-              }
-            />
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.uploadedAt}
+              {formik.errors.file}
             </Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>
@@ -110,7 +69,7 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
             Cancel
           </Button>
           <Button
-            variant="primary"
+            variant="success"
             type="submit"
             disabled={formik.isSubmitting}
           >
