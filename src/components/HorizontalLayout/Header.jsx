@@ -14,7 +14,7 @@ import NotificationDropdown from '../CommonForBoth/TopbarDropdown/NotificationDr
 import ProfileMenu from '../CommonForBoth/TopbarDropdown/ProfileMenu';
 
 // Assets
-import logoDark from '../../assets/images/logo-dark.png';
+import { logo } from '../../constants/constantTexts';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -62,18 +62,18 @@ const Header = () => {
           <div className="navbar-brand-box">
             <Link to="/" className="logo logo-dark">
               <span className="logo-sm">
-                <img src={logoDark} alt="logo" height="22" />
+                <img src={logo} alt="logo" height="22" />
               </span>
               <span className="logo-lg">
-                <img src={logoDark} alt="logo" height="55" />
+                <img src={logo} alt="logo" height="55" />
               </span>
             </Link>
             <Link to="/" className="logo logo-light">
               <span className="logo-sm">
-                <img src={logoDark} alt="logo" height="22" />
+                <img src={logo} alt="logo" height="22" />
               </span>
               <span className="logo-lg">
-                <img src={logoDark} alt="logo" height="55" />
+                <img src={logo} alt="logo" height="55" />
               </span>
             </Link>
           </div>

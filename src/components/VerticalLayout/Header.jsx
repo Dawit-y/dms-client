@@ -7,9 +7,7 @@ import { Dropdown } from 'react-bootstrap';
 import LanguageDropdown from '../CommonForBoth/TopbarDropdown/LanguageDropdown';
 import NotificationDropdown from '../CommonForBoth/TopbarDropdown/NotificationDropdown';
 import ProfileMenu from '../CommonForBoth/TopbarDropdown/ProfileMenu';
-
-import logo from '../../assets/images/logo.svg';
-import logoDark from '../../assets/images/logo-dark.png';
+import { logo } from '../../constants/constantTexts';
 
 // Redux Store
 import { toggleRightSidebar } from '../../store/layout/layoutSlice';
@@ -70,7 +68,7 @@ const Header = () => {
                   <img src={logo} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logoDark} alt="" height="55" />
+                  <img src={logo} alt="" height="55" />
                 </span>
               </Link>
               <Link to="/" className="logo logo-light">
@@ -78,7 +76,7 @@ const Header = () => {
                   <img src={logo} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logoDark} alt="" height="55" />
+                  <img src={logo} alt="" height="55" />
                 </span>
               </Link>
             </div>

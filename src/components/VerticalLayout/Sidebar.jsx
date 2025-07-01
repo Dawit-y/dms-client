@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { layoutSelectors } from '../../store/layout/layoutSlice';
 import { menuItems } from './Menu';
-import logo from '../../assets/images/logo-light.png';
+import { logo } from '../../constants/constantTexts';
 
 const Sidebar = () => {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);
