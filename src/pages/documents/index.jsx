@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import TableContainer from '../../components/Common/TableContainer';
+import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 import DocumentsForm from './DocumentsForm';
 import { useFetchDocuments } from '../../queries/document_query';
 import { makeData } from '../../utils/makeDocumentsData';
@@ -41,18 +42,7 @@ function Documents() {
 
   const columns = useMemo(
     () => [
-      {
-        id: 'sn',
-        header: 'S.N',
-        cell: ({ row, table }) =>
-          row.index +
-          1 +
-          table.getState().pagination.pageIndex *
-            table.getState().pagination.pageSize,
-        enableSorting: false,
-        enableColumnFilter: false,
-        maxSize: 50,
-      },
+      snColumn,
       {
         header: t('title'),
         accessorKey: 'title',

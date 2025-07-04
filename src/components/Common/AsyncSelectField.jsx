@@ -23,7 +23,7 @@ const AsyncSelectField = ({
   fieldId,
   validation,
   isRequired = true,
-  className,
+  className = 'col-md-4 mb-3',
   label,
   optionMap = {},
   isLoading = false,
@@ -36,7 +36,7 @@ const AsyncSelectField = ({
   const value = validation.values?.[fieldId] || '';
 
   return (
-    <Col className={className ?? 'col-md-4 mb-3'}>
+    <Col className={className}>
       <Form.Group controlId={fieldId}>
         <Form.Label>
           {label ?? t(fieldId)}{' '}

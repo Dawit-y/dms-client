@@ -10,7 +10,7 @@ const Input = ({
   onChange,
   placeholder,
   maxLength = 200,
-  className,
+  className = 'col-md-4 mb-3',
   isRequired = true,
   rows = 3,
   cols,
@@ -24,7 +24,7 @@ const Input = ({
   const isTextarea = type === 'textarea';
 
   return (
-    <Col className={className ?? 'col-md-4 mb-3'}>
+    <Col className={className}>
       <Form.Group controlId={fieldId}>
         <Form.Label>
           {label || t(fieldId)}{' '}
