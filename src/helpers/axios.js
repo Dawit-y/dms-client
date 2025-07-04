@@ -1,54 +1,39 @@
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import store from '../store';
 import { setAuthData, clearAuthData } from '../store/auth/authSlice';
 
 const NODE_ENV = import.meta.env.VITE_NODE_ENV;
 const API_URL =
-  NODE_ENV === 'development' ? '/api' : import.meta.env.VITE_BASE_API_URL;
+  NODE_ENV === 'development' ? '/api' : import.meta.env.VITE_API_URL;
+// const API_URL = import.meta.env.VITE_API_URL
 const axiosApi = axios.create({ baseURL: API_URL, withCredentials: true });
 
 const redirectToLogin = () => {
   window.location.href = '/login';
 };
 
-// Function to schedule token refresh before expiry
-export const scheduleTokenRefresh = (token) => {
-  if (!token) return;
-
-  try {
-    const decoded = jwtDecode(token);
-    const currentTime = Math.floor(Date.now() / 1000);
-    const expiresIn = decoded.exp - currentTime;
-
-    if (expiresIn > 0) {
-      const refreshTime = Math.max((expiresIn - 300) * 1000, 1000); // Refresh 5 mins before expiration
-      setTimeout(refreshAccessToken, refreshTime);
-    }
-  } catch (error) {
-    console.error('Error decoding token:', error);
+const logout = () => {
+  store.dispatch(clearAuthData());
+  if (window.location.pathname !== '/login') {
+    window.location.replace('/login'); // more immediate and doesn't add to history
   }
 };
 
 // Function to refresh access token
 export const refreshAccessToken = async () => {
   try {
-    const response = await post(`refreshtoken`, null, {
+    const response = await post(`/token/refresh/`, null, {
       withCredentials: true,
     });
 
-    const state = store.getState();
-    if (!state) {
-      console.error('Store is not ready yet');
-      throw new Error('Store not initialized');
-    }
-    store.dispatch(setAuthData(response.authorization.token, response.user));
-    scheduleTokenRefresh(response.authorization.token);
+    store.dispatch(
+      setAuthData({
+        accessToken: response.access,
+        userData: response.user,
+      })
+    );
   } catch {
-    store.dispatch(clearAuthData());
-    if (window.location.pathname !== '/login') {
-      redirectToLogin();
-    }
+    logout();
   }
 };
 
@@ -56,7 +41,7 @@ export const refreshAccessToken = async () => {
 axiosApi.interceptors.request.use(
   (config) => {
     const state = store.getState();
-    const accessToken = state.Auth.accessToken;
+    const accessToken = state?.auth?.accessToken;
 
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
@@ -73,7 +58,7 @@ axiosApi.interceptors.response.use(
     const originalRequest = error.config;
 
     // Prevent infinite loop by NOT retrying refresh request
-    const isRefreshRequest = originalRequest.url.includes('refreshtoken');
+    const isRefreshRequest = originalRequest.url.includes('refresh');
     if (isRefreshRequest) {
       // Only clear auth and redirect if the refresh request failed
       if (error.response?.status === 401) {
@@ -90,12 +75,11 @@ axiosApi.interceptors.response.use(
         await refreshAccessToken();
         const state = store.getState();
         originalRequest.headers['Authorization'] =
-          `Bearer ${state.Auth.accessToken}`;
+          `Bearer ${state.auth.accessToken}`;
 
         return axiosApi(originalRequest);
       } catch (refreshError) {
-        store.dispatch(clearAuthData());
-        if (window.location.pathname !== '/login') redirectToLogin();
+        logout();
         return Promise.reject(refreshError);
       }
     }
@@ -104,7 +88,9 @@ axiosApi.interceptors.response.use(
 );
 
 export async function get(url, config = {}) {
-  return axiosApi.get(url, { ...config }).then((response) => response?.data);
+  return axiosApi
+    .get(url, { ...config, withCredentials: true })
+    .then((response) => response?.data);
 }
 
 export async function post(url, data, config = {}) {

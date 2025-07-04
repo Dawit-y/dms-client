@@ -3,9 +3,11 @@ import { Dropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import defaultAvatar from '../../../assets/images/defaultAvatar.png';
+import { useAuth } from '../../../hooks/useAuth';
 
 const ProfileMenu = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   // const [menu, setMenu] = useState(false);
 
   // const storedUser = localStorage.getItem("authUser");
@@ -31,18 +33,22 @@ const ProfileMenu = () => {
             src={defaultAvatar}
             alt="Header Avatar"
           />
-          <span className="d-none d-xl-inline-block ms-2">{'John Doe'}</span>
+          <span className="d-none d-xl-inline-block ms-2">{user?.email}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block ms-1" />
         </Dropdown.Toggle>
         <Dropdown.Menu className="dropdown-menu-end">
           <Dropdown.Item tag={Link} to="/profile">
-            <i className="bx bx-user font-size-16 align-middle me-1" />
-            {t('Profile')}
+            <Link to="/profile">
+              <i className="bx bx-user font-size-16 align-middle me-1" />
+              {t('Profile')}
+            </Link>
           </Dropdown.Item>
           <div className="dropdown-divider" />
           <Dropdown.Item tag={Link} to="/logout">
-            <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
-            <span>{t('Logout')}</span>
+            <Link to="/logout">
+              <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
+              <span>{t('Logout')}</span>
+            </Link>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>

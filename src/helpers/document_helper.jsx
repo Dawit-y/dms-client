@@ -1,25 +1,17 @@
-import { post } from './axios';
+import { get, post } from './axios';
 
-const GET_DOCUMENTS = 'documents/listgrid';
-const ADD_DOCUMENT = 'documents/insertgrid';
-const UPDATE_DOCUMENT = 'documents/updategrid';
-const DELETE_DOCUMENT = 'documents/deletegrid';
+const DOCUMENTS_URL = '/documents/';
 
-// get DOCUMENTS
 export const getDocuments = async (params = {}) => {
   const queryString = new URLSearchParams(params).toString();
-  const url = queryString ? `${GET_DOCUMENTS}?${queryString}` : GET_DOCUMENTS;
-  const response = await post(url);
+  const url = queryString ? `${DOCUMENTS_URL}?${queryString}` : DOCUMENTS_URL;
+  const response = await get(url);
   return response;
 };
 
-// add DOCUMENTS
-export const addDocument = async (data) => post(ADD_DOCUMENT, data);
+export const addDocument = async (data) => post(DOCUMENTS_URL, data);
 
-// update DOCUMENTS
 export const updateDocument = (data) =>
-  post(`${UPDATE_DOCUMENT}?bra_id=${data?.bra_id}`, data);
+  post(`${DOCUMENTS_URL}?bra_id=${data?.bra_id}`, data);
 
-// delete  DOCUMENTS
-export const deleteDocument = (data) =>
-  post(`${DELETE_DOCUMENT}?bra_id=${data}`);
+export const deleteDocument = (data) => post(`${DOCUMENTS_URL}?bra_id=${data}`);

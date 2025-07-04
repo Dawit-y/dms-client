@@ -9,14 +9,13 @@ import {
 const DOCUMENT_QUERY_KEY = ['document'];
 
 // Fetch document
-export const useFetchDocuments = (param = {}, isActive) => {
+export const useFetchDocuments = (param = {}) => {
   return useQuery({
     queryKey: [...DOCUMENT_QUERY_KEY, 'fetch', param],
     queryFn: () => getDocuments(param),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-    enabled: isActive,
   });
 };
 

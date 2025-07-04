@@ -1,9 +1,14 @@
-// import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router';
+import { useAuth } from '../hooks/useAuth';
+import { Spinner } from 'react-bootstrap';
 
 function AuthMiddleware({ children }) {
-  // const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
-  const isAuthenticated = true;
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) {
+    <div className="d-flex align-items-center justify-content-center vh-100">
+      <Spinner />
+    </div>;
+  }
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

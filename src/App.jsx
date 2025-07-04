@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   Route,
   createBrowserRouter,
@@ -14,6 +14,9 @@ import ErrorElement from './components/Common/ErrorElement';
 import { useSelector } from 'react-redux';
 import { layoutSelectors } from './store/layout/layoutSlice';
 import { authProtectedRoutes, publicRoutes } from './routes';
+import { selectAccessToken } from './store/auth/authSlice';
+import { refreshAccessToken } from './helpers/axios';
+import { Spinner } from 'react-bootstrap';
 
 function getLayout(layoutType) {
   let layoutCls = VerticalLayout;
@@ -31,6 +34,27 @@ function getLayout(layoutType) {
 const App = () => {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);
   const Layout = useMemo(() => getLayout(layoutType), [layoutType]);
+  const accessToken = useSelector(selectAccessToken);
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
+
+  useEffect(() => {
+    const resolveAuth = async () => {
+      if (!accessToken) {
+        await refreshAccessToken();
+      }
+      setIsAuthResolved(true);
+    };
+    resolveAuth();
+  }, []);
+
+  // Wait for refresh check to complete
+  if (!isAuthResolved) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner />
+      </div>
+    );
+  }
 
   const router = createBrowserRouter(
     createRoutesFromElements(

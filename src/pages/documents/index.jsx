@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import TableContainer from '../../components/Common/TableContainer';
 import DocumentsForm from './DocumentsForm';
-import { useCallback } from 'react';
+import { useFetchDocuments } from '../../queries/document_query';
 import { makeData } from '../../utils/makeDocumentsData';
 import IconButton from '../../components/Common/IconButton';
 
@@ -12,6 +12,8 @@ function Documents() {
   const [rowData, setRowData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const { t } = useTranslation();
+  const { data } = useFetchDocuments();
+  console.log('data', data);
 
   const documents = useMemo(() => makeData(500), []);
 

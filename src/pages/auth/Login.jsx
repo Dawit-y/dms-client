@@ -28,7 +28,7 @@ import {
   logo,
 } from '../../constants/constantTexts';
 
-const loginUser = async (credentials) => await post('/login', credentials);
+const loginUser = async (credentials) => await post('/token/', credentials);
 
 const Login = () => {
   document.title = 'Login';
@@ -43,7 +43,12 @@ const Login = () => {
   const mutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      dispatch(setAuthData(data.authorization.token, data.user));
+      dispatch(
+        setAuthData({
+          accessToken: data.access,
+          userData: data.user,
+        })
+      );
       localStorage.setItem('I18N_LANGUAGE', 'en');
       localStorage.setItem('i18nextLng', 'en');
       setErrorMessage(null);
@@ -67,9 +72,8 @@ const Login = () => {
       email: Yup.string()
         .email('Invalid email format')
         .required('Please Enter Your Email'),
-      password: Yup.string()
-        .required('Please Enter Your Password')
-        .min(8, 'Password should be at least 8 characters long'),
+      password: Yup.string().required('Please Enter Your Password'),
+      // .min(8, 'Password should be at least 8 characters long'),
     }),
     onSubmit: async (values) => await mutation.mutateAsync(values),
   });
