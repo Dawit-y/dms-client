@@ -1,11 +1,7 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
 import { useMutation } from '@tanstack/react-query';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import {
   Container,
   Row,
@@ -17,16 +13,19 @@ import {
   Spinner,
   InputGroup,
 } from 'react-bootstrap';
-
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { post } from '../../helpers/axios';
-import { setAuthData } from '../../store/auth/authSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+import * as Yup from 'yup';
+
 import {
   LOGIN_TITLE,
   FOOTER_TEXT,
   BUREAU_NAME,
   logo,
 } from '../../constants/constantTexts';
+import { post } from '../../helpers/axios';
+import { setAuthData } from '../../store/auth/authSlice';
 
 const loginUser = async (credentials) => await post('/token/', credentials);
 

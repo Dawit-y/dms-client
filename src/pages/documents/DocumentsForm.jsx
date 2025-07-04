@@ -1,10 +1,11 @@
-import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import * as Yup from 'yup';
+
+import AsyncSelectField from '../../components/Common/AsyncSelectField';
 import FileUploader from '../../components/Common/FileUploader';
 import Input from '../../components/Common/Input';
-import AsyncSelectField from '../../components/Common/AsyncSelectField';
 
 const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
   const { t } = useTranslation();

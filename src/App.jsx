@@ -1,22 +1,23 @@
 import { useMemo, useState, useEffect } from 'react';
+import { Spinner } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import {
   Route,
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router';
-import NotFound from './components/Common/NotFound';
-import VerticalLayout from './components/VerticalLayout/index';
-import HorizontalLayout from './components/HorizontalLayout/index';
-import ProtectedLayout from './components/ProtectedLayout';
-import NonAuthLayout from './components/NonAuthLayout';
+
 import ErrorElement from './components/Common/ErrorElement';
-import { useSelector } from 'react-redux';
-import { layoutSelectors } from './store/layout/layoutSlice';
+import NotFound from './components/Common/NotFound';
+import HorizontalLayout from './components/HorizontalLayout/index';
+import NonAuthLayout from './components/NonAuthLayout';
+import ProtectedLayout from './components/ProtectedLayout';
+import VerticalLayout from './components/VerticalLayout/index';
+import { refreshAccessToken } from './helpers/axios';
 import { authProtectedRoutes, publicRoutes } from './routes';
 import { selectAccessToken } from './store/auth/authSlice';
-import { refreshAccessToken } from './helpers/axios';
-import { Spinner } from 'react-bootstrap';
+import { layoutSelectors } from './store/layout/layoutSlice';
 
 function getLayout(layoutType) {
   let layoutCls = VerticalLayout;

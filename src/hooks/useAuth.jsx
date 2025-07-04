@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+
 import { selectIsAuthenticated, selectUserData } from '../store/auth/authSlice';
 
 export const useAuth = () => {

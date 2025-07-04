@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import store from '../store';
 import { setAuthData, clearAuthData } from '../store/auth/authSlice';
 

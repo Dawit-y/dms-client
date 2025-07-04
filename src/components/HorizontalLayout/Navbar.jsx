@@ -1,9 +1,10 @@
+import classname from 'classnames';
 import React, { useState } from 'react';
 import { Collapse } from 'react-bootstrap';
-import { Link } from 'react-router';
-import classname from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router';
+
 import { menuItems } from '../VerticalLayout/Menu';
 
 const Navbar = () => {

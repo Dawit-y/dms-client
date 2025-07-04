@@ -1,9 +1,10 @@
+import { createSelector } from '@reduxjs/toolkit';
 import React, { useEffect, useState, useCallback } from 'react';
-
 // Redux
 import { useSelector, useDispatch } from 'react-redux';
-import { createSelector } from '@reduxjs/toolkit';
 
+// Constants
+import { layoutTypes } from '../../constants/layout';
 // Actions
 import {
   changeLayout,
@@ -12,15 +13,11 @@ import {
   changeLayoutMode,
   setRightSidebar,
 } from '../../store/layout/layoutSlice';
-
+import RightSidebar from '../CommonForBoth/RightSidebar';
+import Footer from './Footer';
+import Header from './Header';
 // Components
 import Navbar from './Navbar';
-import Header from './Header';
-import Footer from './Footer';
-import RightSidebar from '../CommonForBoth/RightSidebar';
-
-// Constants
-import { layoutTypes } from '../../constants/layout';
 
 // Memoized selectors
 const selectLayout = (state) => state.layout;

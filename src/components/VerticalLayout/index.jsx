@@ -160,9 +160,11 @@
 
 // export default Layout;
 
-import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
+import { layoutTypes } from '../../constants/layout';
 import {
   changeLayout,
   changeLayoutMode,
@@ -172,12 +174,6 @@ import {
   changeLayoutWidth,
   setRightSidebar,
 } from '../../store/layout/layoutSlice';
-
-import Header from './Header';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
-import RightSidebar from '../CommonForBoth/RightSidebar';
-
 import {
   selectLayoutModeType,
   selectLeftSidebarType,
@@ -187,8 +183,10 @@ import {
   selectLeftSidebarTheme,
   selectIsPreloader,
 } from '../../store/layout/layoutSlice';
-
-import { layoutTypes } from '../../constants/layout';
+import RightSidebar from '../CommonForBoth/RightSidebar';
+import Footer from './Footer';
+import Header from './Header';
+import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
   const dispatch = useDispatch();

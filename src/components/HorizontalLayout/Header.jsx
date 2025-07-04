@@ -2,19 +2,17 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 
+// Assets
+import { logo } from '../../constants/constantTexts';
 // Redux actions
 import {
   toggleLeftMenu,
   toggleRightSidebar,
 } from '../../store/layout/layoutSlice';
-
 // Topbar components
 import LanguageDropdown from '../CommonForBoth/TopbarDropdown/LanguageDropdown';
 import NotificationDropdown from '../CommonForBoth/TopbarDropdown/NotificationDropdown';
 import ProfileMenu from '../CommonForBoth/TopbarDropdown/ProfileMenu';
-
-// Assets
-import { logo } from '../../constants/constantTexts';
 
 const Header = () => {
   const dispatch = useDispatch();

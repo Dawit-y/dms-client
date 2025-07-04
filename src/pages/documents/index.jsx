@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
+
+import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
-import DocumentsForm from './DocumentsForm';
 import { useFetchDocuments } from '../../queries/document_query';
 import { makeData } from '../../utils/makeDocumentsData';
-import IconButton from '../../components/Common/IconButton';
+import DocumentsForm from './DocumentsForm';
 
 function Documents() {
   const [formModal, setFormModal] = useState(false);

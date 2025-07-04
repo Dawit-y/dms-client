@@ -1,6 +1,7 @@
-import { Navigate } from 'react-router';
-import { useAuth } from '../hooks/useAuth';
 import { Spinner } from 'react-bootstrap';
+import { Navigate } from 'react-router';
+
+import { useAuth } from '../hooks/useAuth';
 
 function AuthMiddleware({ children }) {
   const { isAuthenticated, isLoading } = useAuth();

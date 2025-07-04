@@ -1,7 +1,7 @@
-import Documents from '../pages/documents';
 import Login from '../pages/auth/Login';
-import Dashboard from '../pages/dashboard';
 import Logout from '../pages/auth/Logout';
+import Dashboard from '../pages/dashboard';
+import Documents from '../pages/documents';
 import Users from '../pages/users';
 
 const authProtectedRoutes = [

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 import { Form, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
 
 const NumberField = ({
   formik,

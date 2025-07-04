@@ -1,17 +1,15 @@
 import React from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router';
 
-import { Dropdown } from 'react-bootstrap';
-
+import { logo } from '../../constants/constantTexts';
+// Redux Store
+import { toggleRightSidebar } from '../../store/layout/layoutSlice';
 // Import menuDropdown
 import LanguageDropdown from '../CommonForBoth/TopbarDropdown/LanguageDropdown';
 import NotificationDropdown from '../CommonForBoth/TopbarDropdown/NotificationDropdown';
 import ProfileMenu from '../CommonForBoth/TopbarDropdown/ProfileMenu';
-import { logo } from '../../constants/constantTexts';
-
-// Redux Store
-import { toggleRightSidebar } from '../../store/layout/layoutSlice';
-import { useDispatch } from 'react-redux';
 
 const Header = () => {
   const dispatch = useDispatch();

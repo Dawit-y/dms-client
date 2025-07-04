@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router';
 import { Dropdown, Row, Col } from 'react-bootstrap';
-import SimpleBar from 'simplebar-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import SimpleBar from 'simplebar-react';
 
 const notifications = [
   {

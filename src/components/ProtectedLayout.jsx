@@ -1,8 +1,9 @@
-import AuthMiddleware from '../routes/authMiddleware';
-import { useSelector } from 'react-redux';
 import { useMemo } from 'react';
-import VerticalLayout from '../components/VerticalLayout';
+import { useSelector } from 'react-redux';
+
 import HorizontalLayout from '../components/HorizontalLayout';
+import VerticalLayout from '../components/VerticalLayout';
+import AuthMiddleware from '../routes/authMiddleware';
 import { layoutSelectors } from '../store/layout/layoutSlice';
 
 function getLayout(layoutType) {

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
-import { Dashboard } from '@uppy/react';
 import Uppy from '@uppy/core';
+import { Dashboard } from '@uppy/react';
 import XHRUpload from '@uppy/xhr-upload';
-
+import React, { useEffect, useMemo } from 'react';
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router';
 import { Container, Row, Col } from 'react-bootstrap';
+import { Link } from 'react-router';
 
 const NotFound = () => {
   useEffect(() => {

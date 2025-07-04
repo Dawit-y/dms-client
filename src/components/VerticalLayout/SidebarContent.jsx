@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useCallback, useState } from 'react';
-import SimpleBar from 'simplebar-react';
-import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router';
+import SimpleBar from 'simplebar-react';
 
 const SidebarContent = (props) => {
   const ref = useRef();

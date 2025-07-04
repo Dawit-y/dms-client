@@ -11,7 +11,6 @@ import {
   leftSidebarTypes,
   leftSideBarThemeTypes,
 } from '../../constants/layout';
-
 import { persistLayout, getLayout } from '../../utils/layoutStorage';
 
 // Helper functions for DOM manipulation

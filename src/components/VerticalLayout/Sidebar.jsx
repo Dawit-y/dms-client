@@ -1,10 +1,11 @@
 import React from 'react';
-import SidebarContent from './SidebarContent';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router';
+
+import { logo } from '../../constants/constantTexts';
 import { layoutSelectors } from '../../store/layout/layoutSlice';
 import { menuItems } from './Menu';
-import { logo } from '../../constants/constantTexts';
+import SidebarContent from './SidebarContent';
 
 const Sidebar = () => {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);

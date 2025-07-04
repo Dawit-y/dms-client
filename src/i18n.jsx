@@ -1,13 +1,13 @@
 import i18n from 'i18next';
 import detector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
-import usFlag from './assets/images/flags/us.jpg';
+
 import eth from './assets/images/flags/eth.png';
 import oro from './assets/images/flags/oromia.png';
-
-import translationGr from './locales/or/translation.json';
+import usFlag from './assets/images/flags/us.jpg';
 import translationIT from './locales/am/translation.json';
 import translationENG from './locales/eng/translation.json';
+import translationGr from './locales/or/translation.json';
 
 // the translations
 const resources = {

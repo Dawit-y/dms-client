@@ -1,6 +1,7 @@
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+
 import { post } from '../../helpers/axios';
 
 const logoutUser = async () => await post('/logout/');

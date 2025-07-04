@@ -1,5 +1,6 @@
-import DebouncedInput from './DebounceInput';
 import { FormSelect } from 'react-bootstrap';
+
+import DebouncedInput from './DebounceInput';
 
 function Filter({ column }) {
   const columnFilterValue = column.getFilterValue();

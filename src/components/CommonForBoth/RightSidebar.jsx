@@ -1,8 +1,16 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import SimpleBar from 'simplebar-react';
 import { Link } from 'react-router';
+import SimpleBar from 'simplebar-react';
+
 import '../../components/CommonForBoth/rightbar.scss';
+import {
+  layoutTypes,
+  layoutModeTypes,
+  layoutWidthTypes,
+  topBarThemeTypes,
+  leftSidebarTypes,
+} from '../../constants/layout';
 import {
   changeLayout,
   changeLayoutMode,
@@ -11,13 +19,6 @@ import {
   changeTopbarTheme,
   setRightSidebar,
 } from '../../store/layout/layoutSlice';
-import {
-  layoutTypes,
-  layoutModeTypes,
-  layoutWidthTypes,
-  topBarThemeTypes,
-  leftSidebarTypes,
-} from '../../constants/layout';
 
 const RightSidebar = () => {
   const dispatch = useDispatch();

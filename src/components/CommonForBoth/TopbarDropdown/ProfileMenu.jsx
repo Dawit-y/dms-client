@@ -2,6 +2,7 @@ import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+
 import defaultAvatar from '../../../assets/images/defaultAvatar.png';
 import { useAuth } from '../../../hooks/useAuth';
 

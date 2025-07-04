@@ -1,11 +1,12 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { makeData } from '../../utils/makeUserData';
+import { useTranslation } from 'react-i18next';
+import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
+
+import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
+import { makeData } from '../../utils/makeUserData';
 import UsersForm from './UsersForm';
-import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
-import IconButton from '../../components/Common/IconButton';
-import { useTranslation } from 'react-i18next';
 
 function Users() {
   const { t } = useTranslation();

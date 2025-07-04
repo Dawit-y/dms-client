@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
+
 import i18n, { languages } from '../../../i18n';
 
 const LanguageDropdown = () => {

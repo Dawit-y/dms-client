@@ -1,5 +1,3 @@
-import React, { Fragment } from 'react';
-import { Link } from 'react-router';
 import {
   flexRender,
   getCoreRowModel,
@@ -8,6 +6,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import React, { Fragment } from 'react';
 import {
   Table,
   Button,
@@ -21,19 +20,21 @@ import {
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import {
   FaFileExport,
   FaRedoAlt,
   FaInfoCircle,
   FaColumns,
 } from 'react-icons/fa';
+import { Link } from 'react-router';
+import Switch from 'react-switch';
+
 import ExportToExcel from '../ExportToExcel';
 import ExportToPdf from '../ExportToPdf';
 import PrintTable from '../PrintTable';
-import { useTranslation } from 'react-i18next';
-import Switch from 'react-switch';
-import Filter from './Filter';
 import DebouncedInput from './DebounceInput';
+import Filter from './Filter';
 
 const TableContainer = ({
   columns,

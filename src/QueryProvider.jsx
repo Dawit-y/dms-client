@@ -1,10 +1,10 @@
-import React from 'react';
-import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { toast } from 'react-toastify';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 const useErrorMessages = () => {
   const { t } = useTranslation();
