@@ -288,9 +288,6 @@ const TableContainer = ({
                     <FaRedoAlt />
                   )}
                 </Button>
-                <UncontrolledTooltip placement="top" target="refresh_btn">
-                  Refresh
-                </UncontrolledTooltip>
               </>
             )}
           </div>

@@ -21,14 +21,14 @@ export const useFetchDocuments = (param = {}) => {
 };
 
 //search document
-export const useSearchDocuments = (searchParams = {}) => {
+export const useSearchDocuments = (searchParams) => {
   return useQuery({
     queryKey: [...DOCUMENT_QUERY_KEY, 'search', searchParams],
-    queryFn: () => getDocuments(searchParams),
+    queryFn: () => getDocuments(searchParams || {}),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    enabled: Object.keys(searchParams).length > 0,
+    enabled: !!searchParams && Object.keys(searchParams || {}).length > 0,
   });
 };
 

@@ -2,10 +2,14 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 
+import AdvancedSearch from '../../components/Common/AdvancedSearch';
 import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
-import { useFetchDocuments } from '../../queries/document_query';
+import {
+  useFetchDocuments,
+  useSearchDocuments,
+} from '../../queries/document_query';
 import { makeData } from '../../utils/makeDocumentsData';
 import DocumentsForm from './DocumentsForm';
 
@@ -98,25 +102,37 @@ function Documents() {
         rowData={rowData}
       />
       <div className="page-content">
-        <TableContainer
-          columns={columns}
-          data={documents}
-          isGlobalFilter={true}
-          isAddButton={true}
-          isCustomPageSize={true}
-          handleUserClick={handleAddClick}
-          isPagination={true}
-          SearchPlaceholder={'filter'}
-          buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
-          buttonName={buttonName}
-          // tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
-          theadClass="table-secondary"
-          pagination="pagination"
-          paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
-          isExcelExport
-          isPdfExport
-          isPrint
-        />
+        <AdvancedSearch
+          searchHook={useSearchDocuments}
+          dateSearchKeys={['uploadedAt']}
+          textSearchKeys={['title', 'type']}
+          // additionalParams={projectParams}
+          // setAdditionalParams={setProjectParams}
+          // onSearchResult={handleSearchResults}
+          // setIsSearchLoading={setIsSearchLoading}
+          // setSearchResults={setSearchResults}
+          // setShowSearchResult={setShowSearchResult}
+        >
+          <TableContainer
+            columns={columns}
+            data={documents}
+            isGlobalFilter={true}
+            isAddButton={true}
+            isCustomPageSize={true}
+            handleUserClick={handleAddClick}
+            isPagination={true}
+            SearchPlaceholder={'filter'}
+            buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
+            buttonName={buttonName}
+            // tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
+            theadClass="table-secondary"
+            pagination="pagination"
+            paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
+            isExcelExport
+            isPdfExport
+            isPrint
+          />
+        </AdvancedSearch>
       </div>
     </>
   );
