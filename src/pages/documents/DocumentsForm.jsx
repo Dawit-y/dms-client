@@ -48,7 +48,7 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
             <Input formik={formik} fieldId={'uploadedAt'} />
             <AsyncSelectField
               fieldId="type"
-              validation={formik}
+              formik={formik}
               label="Type"
               optionMap={{
                 PDF: 'PDF',

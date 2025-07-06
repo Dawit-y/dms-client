@@ -12,7 +12,7 @@ const menuItems = [
     icon: 'mdi mdi-briefcase-outline',
     submenu: [
       { name: 'All Documents', path: '/documents' },
-      { name: 'Create Document', path: '/documents/create' },
+      { name: 'Projects', path: '/projects' },
     ],
   },
   {

@@ -7,6 +7,7 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router';
+import { ToastContainer } from 'react-toastify';
 
 import ErrorElement from './components/Common/ErrorElement';
 import NotFound from './components/Common/NotFound';
@@ -105,6 +106,7 @@ const App = () => {
   return (
     <>
       <RouterProvider router={router} />
+      <ToastContainer />
     </>
   );
 };

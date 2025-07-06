@@ -2,7 +2,6 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
@@ -52,12 +51,28 @@ const queryClient = new QueryClient({
     // },
   }),
   mutationCache: new MutationCache({
-    onError: (error) => {
-      if (!error.handledByMutationCache && error.response?.status !== 401) {
-        error.handledByMutationCache = true;
-        const message = <GetErrorMessage error={error} />;
-        toast.error(message, { autoClose: 2000 });
+    onSuccess: (_data, _variables, _context, mutation) => {
+      if (mutation.options.meta?.successMessage) {
+        toast.success(mutation.options.meta.successMessage, {
+          autoClose: 2000,
+        });
       }
+    },
+    onError: (error, variables, context, mutation) => {
+      const message = <GetErrorMessage error={error} />;
+      if (message) {
+        toast.error(message, { autoClose: 2000 });
+      } else if (mutation.options.meta?.errorMessage) {
+        toast.error(mutation.options.meta.errorMessage, { autoClose: 2000 });
+      } else {
+        toast.error('Operation failed', { autoClose: 2000 });
+      }
+
+      // if (!error.handledByMutationCache && error.response?.status !== 401) {
+      //   error.handledByMutationCache = true;
+      //   const message = <GetErrorMessage error={error} />;
+      //   toast.error(message, { autoClose: 2000 });
+      // }
     },
   }),
 });

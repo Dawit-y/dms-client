@@ -1,24 +1,46 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 
+import DeleteModal from '../../components/Common/DeleteModal';
 import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
-import { useFetchUsers } from '../../queries/users_query';
-import { makeData } from '../../utils/makeUserData';
-import UsersForm from './UsersForm';
+import {
+  useFetchProjects,
+  useDeleteProject,
+} from '../../queries/projects_query';
+import ProjectsForm from './ProjectsForm';
 
-function Users() {
+function Projects() {
   const { t } = useTranslation();
   const [formModal, setFormModal] = useState(false);
   const [rowData, setRowData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+
   const toggleFormModal = () => setFormModal(!formModal);
+  const toggleDeleteModal = () => setDeleteModal(!deleteModal);
+
+  const deleteProjectMutation = useDeleteProject();
+  const handleDelete = async () => {
+    try {
+      await deleteProjectMutation.mutateAsync(rowData.id);
+      toggleDeleteModal();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+    }
+  };
 
   useEffect(() => {
-    document.title = 'Users';
+    document.title = 'Projects';
+  }, []);
+
+  const { data: projectsData, isLoading } = useFetchProjects();
+
+  const handleDeleteClick = useCallback((row) => {
+    setRowData(row);
+    setDeleteModal(true);
   }, []);
 
   const handleEditClick = useCallback((row) => {
@@ -26,66 +48,30 @@ function Users() {
     setRowData(row);
     setFormModal(true);
   }, []);
+
   const handleAddClick = useCallback(() => {
     setIsEdit(false);
     setRowData(null);
     setFormModal(true);
   }, []);
 
-  const { data: usersData } = useFetchUsers();
-  console.log('usersData', usersData);
-
-  const data = useMemo(() => makeData(500), []);
   const columns = useMemo(
     () => [
       snColumn,
       {
-        accessorKey: 'firstName',
+        accessorKey: 'title',
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: 'lastName',
+        accessorKey: 'budget',
         cell: (info) => info.getValue(),
-      },
-      {
-        accessorFn: (row) => `${row.firstName} ${row.lastName}`,
-        id: 'fullName',
-        header: 'Full Name',
-        cell: (info) => info.getValue(),
-        filterFn: 'custom',
-      },
-      {
-        accessorKey: 'age',
-        header: () => 'Age',
         meta: {
           filterVariant: 'range',
         },
       },
       {
-        accessorKey: 'visits',
-        header: () => <span>Visits</span>,
-        meta: {
-          filterVariant: 'range',
-        },
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        meta: {
-          filterVariant: 'select',
-          options: [
-            { value: 'single', label: 'single' },
-            { value: 'complicated', label: 'complicated' },
-            { value: 'relationship', label: 'relationship' },
-          ],
-        },
-      },
-      {
-        accessorKey: 'progress',
-        header: 'Profile Progress',
-        meta: {
-          filterVariant: 'range',
-        },
+        accessorKey: 'description',
+        cell: (info) => info.getValue(),
       },
       {
         header: t('actions'),
@@ -99,18 +85,24 @@ function Users() {
             />
             <IconButton
               icon={<FaTrash />}
-              onClick={() => console.log('Delete')}
+              onClick={() => handleDeleteClick(row.original)}
             />
           </div>
         ),
       },
     ],
-    [handleEditClick, t]
+    [handleEditClick, t, handleDeleteClick]
   );
 
   return (
     <>
-      <UsersForm
+      <DeleteModal
+        isOpen={deleteModal}
+        onDeleteClick={handleDelete}
+        toggle={toggleDeleteModal}
+        isPending={deleteProjectMutation.isPending}
+      />
+      <ProjectsForm
         isOpen={formModal}
         toggle={toggleFormModal}
         rowData={rowData}
@@ -118,8 +110,9 @@ function Users() {
       />
       <div className="page-content">
         <TableContainer
-          data={data}
+          data={projectsData || []}
           columns={columns}
+          isLoading={isLoading}
           isGlobalFilter={true}
           isAddButton={true}
           isCustomPageSize={true}
@@ -127,7 +120,7 @@ function Users() {
           isPagination={true}
           SearchPlaceholder={'filter'}
           buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
-          buttonName={'Add User'}
+          buttonName={'Add Project'}
           tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
           theadClass="table-secondary"
           pagination="pagination"
@@ -140,4 +133,4 @@ function Users() {
   );
 }
 
-export default Users;
+export default memo(Projects);

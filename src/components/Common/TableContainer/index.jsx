@@ -50,6 +50,7 @@ const TableContainer = ({
   pagination = 'pagination',
   buttonName = 'Add New',
   isAddButton = false,
+  rowHeight = 35,
   isCustomPageSize = true,
   handleUserClick,
   isExcelExport = false,
@@ -225,7 +226,11 @@ const TableContainer = ({
                           }}
                           onColor="#34c38f"
                         />
-                        <span>{column.columnDef.header || column.id}</span>
+                        <span>
+                          {t(column.columnDef.accessorKey) ||
+                            t(column.columnDef.header) ||
+                            t(column.id)}
+                        </span>
                       </div>
                     </DropdownItem>
                   ))}
@@ -317,12 +322,15 @@ const TableContainer = ({
             </UncontrolledTooltip>
           </div>
         )}
-        <div style={{ overflowX: 'scroll' }} className={'table-responsive'}>
+        <div
+          style={{ overflowX: 'scroll', minHeight: '400px' }}
+          className={'table-responsive'}
+        >
           <Table
             hover
             className={`${tableClass} table-sm table-bordered table-striped`}
             bordered={isBordered}
-            style={{ minHeight: '400px' }}
+            // style={{ minHeight: '400px' }}
           >
             <thead className={theadClass}>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -369,7 +377,7 @@ const TableContainer = ({
                 </tr>
               ))}
             </thead>
-            <tbody>
+            <tbody style={{ height: 'auto' }}>
               {data.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + 2} className="text-center py-5">
@@ -379,7 +387,7 @@ const TableContainer = ({
               ) : (
                 table.getRowModel().rows.map((row) => {
                   return (
-                    <tr key={row.id}>
+                    <tr key={row.id} style={{ maxHeight: rowHeight }}>
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <td key={cell.id}>

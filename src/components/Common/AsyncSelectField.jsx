@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  *
  * @param {Object} props
  * @param {string} props.fieldId - Form field name.
- * @param {Object} props.validation - Formik-like validation object.
+ * @param {Object} props.formik - Formik-like formik object.
  * @param {boolean} [props.isRequired=false] - Show asterisk on the label if true.
  * @param {string} [props.className] - Optional class for layout.
  * @param {Object.<string|number, string>} props.optionMap - Map of value-label pairs.
@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
  */
 const AsyncSelectField = ({
   fieldId,
-  validation,
+  formik,
   isRequired = true,
   className = 'col-md-4 mb-3',
   label,
@@ -30,14 +30,15 @@ const AsyncSelectField = ({
   isError = false,
 }) => {
   const { t } = useTranslation();
+  const controlId = `${fieldId}-control`;
 
-  const touched = validation.touched?.[fieldId];
-  const error = validation.errors?.[fieldId];
-  const value = validation.values?.[fieldId] || '';
+  const touched = formik?.touched?.[fieldId];
+  const error = formik?.errors?.[fieldId];
+  const value = formik?.values?.[fieldId] || '';
 
   return (
     <Col className={className}>
-      <Form.Group controlId={fieldId}>
+      <Form.Group controlId={controlId}>
         <Form.Label>
           {label ?? t(fieldId)}{' '}
           {isRequired && <span className="text-danger">*</span>}
@@ -46,31 +47,32 @@ const AsyncSelectField = ({
         <Form.Select
           name={fieldId}
           value={value}
-          onChange={validation.handleChange}
-          onBlur={validation.handleBlur}
+          onChange={formik?.handleChange}
+          onBlur={formik?.handleBlur}
           isInvalid={touched && !!error}
           disabled={isLoading || isError}
         >
-          {isLoading && <option value="">{t('Loading')}...</option>}
-          {isError && <option value="">{t('Failed to load options')}</option>}
-
-          {!isLoading && !isError && (
+          {isLoading ? (
+            <option value="">{t('Loading')}...</option>
+          ) : isError ? (
+            <option value="">{t('Failed to load options')}</option>
+          ) : (
             <>
               <option value="">
                 {t('Select')} {label ?? t(fieldId)}
               </option>
-              {Object.entries(optionMap).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {t(label)}
+              {Object.entries(optionMap).map(([optValue, optLabel]) => (
+                <option key={optValue} value={optValue}>
+                  {t(optLabel)}
                 </option>
               ))}
             </>
           )}
         </Form.Select>
 
-        {touched && error && (
-          <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
-        )}
+        <Form.Control.Feedback type="invalid">
+          {touched && error ? error : ''}
+        </Form.Control.Feedback>
       </Form.Group>
     </Col>
   );
@@ -78,7 +80,7 @@ const AsyncSelectField = ({
 
 AsyncSelectField.propTypes = {
   fieldId: PropTypes.string.isRequired,
-  validation: PropTypes.shape({
+  formik: PropTypes.shape({
     values: PropTypes.object.isRequired,
     handleChange: PropTypes.func.isRequired,
     handleBlur: PropTypes.func.isRequired,
