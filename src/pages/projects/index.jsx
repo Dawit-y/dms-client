@@ -1,10 +1,12 @@
 import React, { useMemo, useState, useCallback, useEffect, memo } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 
 import Breadcrumb from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
 import DetailModal from '../../components/Common/DetailModal';
+import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
@@ -16,52 +18,48 @@ import ProjectsForm from './ProjectsForm';
 
 function Projects() {
   const { t } = useTranslation();
-  const [formModal, setFormModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [detailModal, setDetailModal] = useState(false);
   const [rowData, setRowData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [modal, setModal] = useState(null);
 
-  const toggleFormModal = () => setFormModal(!formModal);
-  const toggleDeleteModal = () => setDeleteModal(!deleteModal);
-  const toggleDetailModal = () => setDetailModal(!detailModal);
+  const closeModal = () => setModal(null);
 
   const deleteProjectMutation = useDeleteProject();
-  const handleDelete = async () => {
-    try {
-      await deleteProjectMutation.mutateAsync(rowData.id);
-      toggleDeleteModal();
-    } catch (error) {
-      console.error('Error deleting project:', error);
-    }
-  };
+  const handleDelete = () =>
+    deleteProjectMutation.mutateAsync(rowData.id).then(closeModal);
 
   useEffect(() => {
     document.title = 'Projects';
   }, []);
 
-  const { data: projectsData, isLoading } = useFetchProjects();
+  const {
+    data: projectsData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useFetchProjects();
 
   const handleDeleteClick = useCallback((row) => {
     setRowData(row);
-    setDeleteModal(true);
+    setModal('delete');
   }, []);
 
   const handleEditClick = useCallback((row) => {
     setIsEdit(true);
     setRowData(row);
-    setFormModal(true);
+    setModal('form');
   }, []);
 
   const handleAddClick = useCallback(() => {
     setIsEdit(false);
     setRowData(null);
-    setFormModal(true);
+    setModal('form');
   }, []);
 
   const handleViewClick = useCallback((row) => {
     setRowData(row);
-    setDetailModal(true);
+    setModal('detail');
   }, []);
 
   const columns = useMemo(
@@ -87,18 +85,39 @@ function Projects() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="d-flex gap-2">
-            <IconButton
-              icon={<FaEye />}
-              onClick={() => handleViewClick(row.original)}
-            />
-            <IconButton
-              icon={<FaEdit />}
-              onClick={() => handleEditClick(row.original)}
-            />
-            <IconButton
-              icon={<FaTrash />}
-              onClick={() => handleDeleteClick(row.original)}
-            />
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>{t('View')}</Tooltip>}
+            >
+              <span>
+                <IconButton
+                  icon={<FaEye />}
+                  onClick={() => handleViewClick(row.original)}
+                />
+              </span>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>{t('Edit')}</Tooltip>}
+            >
+              <span>
+                <IconButton
+                  icon={<FaEdit />}
+                  onClick={() => handleEditClick(row.original)}
+                />
+              </span>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>{t('Delete')}</Tooltip>}
+            >
+              <span>
+                <IconButton
+                  icon={<FaTrash />}
+                  onClick={() => handleDeleteClick(row.original)}
+                />
+              </span>
+            </OverlayTrigger>
           </div>
         ),
       },
@@ -106,23 +125,23 @@ function Projects() {
     [t, handleEditClick, handleDeleteClick, handleViewClick]
   );
 
+  if (isError) return <FetchErrorHandler error={error} refetch={refetch} />;
+
   return (
     <>
       <DetailModal
-        isOpen={detailModal}
-        toggle={toggleDetailModal}
+        isOpen={modal === 'detail'}
+        toggle={closeModal}
         rowData={rowData}
-        excludeKey={['id', 'created_at', 'updated_at']}
       />
       <DeleteModal
-        isOpen={deleteModal}
+        isOpen={modal === 'delete'}
+        toggle={closeModal}
         onDeleteClick={handleDelete}
-        toggle={toggleDeleteModal}
-        isPending={deleteProjectMutation.isPending}
       />
       <ProjectsForm
-        isOpen={formModal}
-        toggle={toggleFormModal}
+        isOpen={modal === 'form'}
+        toggle={closeModal}
         rowData={rowData}
         isEdit={isEdit}
       />
