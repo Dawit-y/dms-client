@@ -1,14 +1,14 @@
 import { useFormik } from 'formik';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardBody, Col, Row, Collapse, Form } from 'react-bootstrap';
-import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_blue.css';
+import Flatpickr from 'react-flatpickr';
 import { useTranslation } from 'react-i18next';
 
 import { formatDateHyphen } from '../../utils/commonMethods';
 import FetchErrorHandler from './FetchErrorHandler';
 
-const AdvancedSearch = ({
+function AdvancedSearch({
   searchHook,
   textSearchKeys,
   dropdownSearchKeys,
@@ -23,7 +23,7 @@ const AdvancedSearch = ({
   setSearchResults,
   setShowSearchResult,
   children,
-}) => {
+}) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
@@ -391,8 +391,7 @@ const AdvancedSearch = ({
                   )}
                 </Col>
               </Row>
-
-              <Collapse isOpen={isOpen} id="collapseExample">
+              <Collapse appear={isOpen} id="collapseExample">
                 <div>
                   <Row className="">
                     <Col>
@@ -456,11 +455,15 @@ const AdvancedSearch = ({
         </CardBody>
       </Card>
       <div>
-        {children &&
-          React.cloneElement(children, { result: data, isLoading: isFetching })}
+        {typeof children === 'function'
+          ? children({ result: data, isLoading: isFetching })
+          : React.cloneElement(children, {
+              result: data,
+              isLoading: isFetching,
+            })}
       </div>
     </React.Fragment>
   );
-};
+}
 
-export default AdvancedSearch;
+export default memo(AdvancedSearch);

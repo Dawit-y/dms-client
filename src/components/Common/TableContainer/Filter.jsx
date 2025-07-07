@@ -17,7 +17,7 @@ function Filter({ column }) {
             column.setFilterValue((old) => [value, old?.[1]])
           }
           placeholder={`Min`}
-          className="w-24 border shadow rounded"
+          className="w-24 border shadow rounded mb-1"
         />
         <DebouncedInput
           type="number"

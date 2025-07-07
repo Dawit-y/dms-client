@@ -12,7 +12,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (user) {
-      setUserId(user?.usr_id || null);
+      setUserId(user?.id || null);
     }
     setIsLoading(false);
   }, [user]);

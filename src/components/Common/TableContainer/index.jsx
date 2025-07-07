@@ -42,7 +42,7 @@ const TableContainer = ({
   tableClass = '',
   theadClass = 'table-light',
   isLoading = false,
-  isBordered = false,
+  isBordered = true,
   isPagination = true,
   isGlobalFilter = true,
   paginationWrapper = 'dataTables_paginate paging_simple_numbers pagination-rounded',
@@ -356,7 +356,9 @@ const TableContainer = ({
                               }}
                             >
                               {flexRender(
-                                header.column.columnDef.header || t(header.id),
+                                t(header.column.columnDef.accessorKey) ||
+                                  header.column.columnDef.header ||
+                                  t(header.id),
                                 header.getContext()
                               )}
                               {{

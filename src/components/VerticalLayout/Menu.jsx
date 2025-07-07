@@ -13,6 +13,7 @@ const menuItems = [
     submenu: [
       { name: 'All Documents', path: '/documents' },
       { name: 'Projects', path: '/projects' },
+      { name: "Project's List", path: '/projects/list' },
     ],
   },
   {

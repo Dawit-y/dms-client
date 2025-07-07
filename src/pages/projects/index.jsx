@@ -2,7 +2,9 @@ import React, { useMemo, useState, useCallback, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 
+import Breadcrumb from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
+import DetailModal from '../../components/Common/DetailModal';
 import IconButton from '../../components/Common/IconButton';
 import TableContainer from '../../components/Common/TableContainer';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
@@ -15,12 +17,14 @@ import ProjectsForm from './ProjectsForm';
 function Projects() {
   const { t } = useTranslation();
   const [formModal, setFormModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [detailModal, setDetailModal] = useState(false);
   const [rowData, setRowData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
 
   const toggleFormModal = () => setFormModal(!formModal);
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
+  const toggleDetailModal = () => setDetailModal(!detailModal);
 
   const deleteProjectMutation = useDeleteProject();
   const handleDelete = async () => {
@@ -55,6 +59,11 @@ function Projects() {
     setFormModal(true);
   }, []);
 
+  const handleViewClick = useCallback((row) => {
+    setRowData(row);
+    setDetailModal(true);
+  }, []);
+
   const columns = useMemo(
     () => [
       snColumn,
@@ -78,7 +87,10 @@ function Projects() {
         id: 'actions',
         cell: ({ row }) => (
           <div className="d-flex gap-2">
-            <IconButton icon={<FaEye />} onClick={() => console.log('view')} />
+            <IconButton
+              icon={<FaEye />}
+              onClick={() => handleViewClick(row.original)}
+            />
             <IconButton
               icon={<FaEdit />}
               onClick={() => handleEditClick(row.original)}
@@ -91,11 +103,17 @@ function Projects() {
         ),
       },
     ],
-    [handleEditClick, t, handleDeleteClick]
+    [t, handleEditClick, handleDeleteClick, handleViewClick]
   );
 
   return (
     <>
+      <DetailModal
+        isOpen={detailModal}
+        toggle={toggleDetailModal}
+        rowData={rowData}
+        excludeKey={['id', 'created_at', 'updated_at']}
+      />
       <DeleteModal
         isOpen={deleteModal}
         onDeleteClick={handleDelete}
@@ -109,6 +127,7 @@ function Projects() {
         isEdit={isEdit}
       />
       <div className="page-content">
+        <Breadcrumb />
         <TableContainer
           data={projectsData || []}
           columns={columns}

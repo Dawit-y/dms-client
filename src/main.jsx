@@ -1,4 +1,7 @@
+import { NuqsAdapter } from 'nuqs/adapters/react';
 import { StrictMode } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
@@ -12,10 +15,14 @@ import './assets/scss/theme.scss';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider store={store}>
-      <QueryProvider>
-        <App />
-      </QueryProvider>
-    </Provider>
+    <DndProvider backend={HTML5Backend}>
+      <NuqsAdapter>
+        <Provider store={store}>
+          <QueryProvider>
+            <App />
+          </QueryProvider>
+        </Provider>
+      </NuqsAdapter>
+    </DndProvider>
   </StrictMode>
 );
