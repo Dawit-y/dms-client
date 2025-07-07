@@ -194,7 +194,12 @@ function AdvancedSearch({
     <React.Fragment>
       <Card className="p-0 m-0 mb-3">
         <CardBody className="p-1">
-          <form action="#">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
+            }}
+          >
             <Row
               xxl={12}
               lg={12}
@@ -331,9 +336,9 @@ function AdvancedSearch({
                   >
                     <button
                       id="search-icon"
-                      type="button"
+                      type="submit"
                       className="btn btn-primary h-100 w-100 p-2"
-                      onClick={handleSearch}
+                      // onClick={handleSearch}
                       disabled={isButtonDisabled()}
                     >
                       <i className="bx bx-search-alt align-middle"></i>
