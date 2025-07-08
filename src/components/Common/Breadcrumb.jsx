@@ -1,5 +1,4 @@
-import React from 'react';
-import { Row, Col, BreadcrumbItem } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FaArrowCircleLeft, FaHome } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router';
@@ -33,8 +32,8 @@ const Breadcrumb = () => {
       if (
         label.toLowerCase() === 'project' &&
         i + 1 < pathParts.length &&
-        !isNaN(pathParts[i + 1]) && // Ensure the next part is numeric
-        i + 2 === pathParts.length // Ensure there are no further segments
+        !isNaN(pathParts[i + 1]) &&
+        i + 2 === pathParts.length
       ) {
         breadcrumbs.push({
           path: accumulatedPath,
@@ -47,7 +46,6 @@ const Breadcrumb = () => {
         break;
       }
 
-      // Add other meaningful parts as breadcrumbs
       breadcrumbs.push({
         path: accumulatedPath,
         label,
@@ -58,47 +56,60 @@ const Breadcrumb = () => {
   };
 
   const breadcrumbs = generateBreadcrumbs();
+  const lastBreadcrumbLabel = breadcrumbs[breadcrumbs.length - 1]?.label || '';
 
   return (
     <Row>
       <Col xs="12">
         <div className="page-title-box d-sm-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center gap-2">
-            <Link
+            <button
               onClick={() => navigate(-1)}
-              className="d-flex align-items-center justify-content-center"
+              className="d-flex align-items-center justify-content-center btn btn-link p-0 border-0"
+              style={{ background: 'none' }}
             >
-              <FaArrowCircleLeft color="primary" size={25} className="" />
-            </Link>
+              <FaArrowCircleLeft color="primary" size={25} />
+            </button>
             <h4 className="mb-0 font-size-18 align-middle">
-              {t(`${breadcrumbs[breadcrumbs.length - 1]?.label}`) || ''}
+              {t(lastBreadcrumbLabel)}
             </h4>
           </div>
 
           <div className="page-title-right">
-            <ol className="breadcrumb m-0">
-              <BreadcrumbItem active>
-                <Link
-                  to="/dashboard"
-                  className="d-flex align-items-center justify-content-center gap-1 text-decoration-none"
+            <nav aria-label="breadcrumb">
+              <ol className="breadcrumb m-0">
+                <li
+                  className={`breadcrumb-item${breadcrumbs.length === 0 ? ' active' : ''}`}
                 >
-                  <FaHome />
-                  <span>{t('home_page')}</span>
-                </Link>
-              </BreadcrumbItem>
-              {breadcrumbs.map((breadcrumb, index) => (
-                <BreadcrumbItem
-                  key={index}
-                  active={index === breadcrumbs.length - 1}
-                >
-                  {index === breadcrumbs.length - 1 ? (
-                    t(`${breadcrumb.label}`)
+                  {breadcrumbs.length === 0 ? (
+                    <>
+                      <FaHome />
+                      <span>{t('home_page')}</span>
+                    </>
                   ) : (
-                    <Link to={breadcrumb.path}>{t(`${breadcrumb.label}`)}</Link>
+                    <Link to="/dashboard">
+                      <FaHome />
+                      <span>{t('home_page')}</span>
+                    </Link>
                   )}
-                </BreadcrumbItem>
-              ))}
-            </ol>
+                </li>
+                {breadcrumbs.map((breadcrumb, index) => (
+                  <li
+                    key={index}
+                    className={`breadcrumb-item${index === breadcrumbs.length - 1 ? ' active' : ''}`}
+                    aria-current={
+                      index === breadcrumbs.length - 1 ? 'page' : undefined
+                    }
+                  >
+                    {index === breadcrumbs.length - 1 ? (
+                      t(breadcrumb.label)
+                    ) : (
+                      <Link to={breadcrumb.path}>{t(breadcrumb.label)}</Link>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
           </div>
         </div>
       </Col>

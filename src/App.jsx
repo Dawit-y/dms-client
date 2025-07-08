@@ -53,7 +53,7 @@ const App = () => {
   if (!isAuthResolved) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
-        <Spinner />
+        <Spinner variant="primary" />
       </div>
     );
   }

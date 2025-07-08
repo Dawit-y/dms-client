@@ -32,13 +32,7 @@ function Projects() {
     document.title = 'Projects';
   }, []);
 
-  const {
-    data: projectsData,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useFetchProjects();
+  const { data, isLoading, isError, error, refetch } = useFetchProjects();
 
   const handleDeleteClick = useCallback((row) => {
     setRowData(row);
@@ -96,33 +90,39 @@ function Projects() {
                 />
               </span>
             </OverlayTrigger>
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip>{t('Edit')}</Tooltip>}
-            >
-              <span>
-                <IconButton
-                  icon={<FaEdit />}
-                  onClick={() => handleEditClick(row.original)}
-                />
-              </span>
-            </OverlayTrigger>
-            <OverlayTrigger
-              placement="top"
-              overlay={<Tooltip>{t('Delete')}</Tooltip>}
-            >
-              <span>
-                <IconButton
-                  icon={<FaTrash />}
-                  onClick={() => handleDeleteClick(row.original)}
-                />
-              </span>
-            </OverlayTrigger>
+            {data?.previledge?.is_role_editable == 1 &&
+              row.original?.is_editable == 1 && (
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>{t('Edit')}</Tooltip>}
+                >
+                  <span>
+                    <IconButton
+                      icon={<FaEdit />}
+                      onClick={() => handleEditClick(row.original)}
+                    />
+                  </span>
+                </OverlayTrigger>
+              )}
+            {data?.previledge?.is_role_deletable == 1 &&
+              row.original?.is_deletable == 1 && (
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>{t('Delete')}</Tooltip>}
+                >
+                  <span>
+                    <IconButton
+                      icon={<FaTrash />}
+                      onClick={() => handleDeleteClick(row.original)}
+                    />
+                  </span>
+                </OverlayTrigger>
+              )}
           </div>
         ),
       },
     ],
-    [t, handleEditClick, handleDeleteClick, handleViewClick]
+    [t, handleEditClick, handleDeleteClick, handleViewClick, data]
   );
 
   if (isError) return <FetchErrorHandler error={error} refetch={refetch} />;
@@ -148,7 +148,7 @@ function Projects() {
       <div className="page-content">
         <Breadcrumb />
         <TableContainer
-          data={projectsData || []}
+          data={data?.data || []}
           columns={columns}
           isLoading={isLoading}
           isGlobalFilter={true}

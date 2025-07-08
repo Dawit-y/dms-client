@@ -19,7 +19,6 @@ function AdvancedSearch({
   additionalParams,
   setAdditionalParams,
   onSearchResult,
-  setIsSearchLoading,
   setSearchResults,
   setShowSearchResult,
   children,
@@ -100,14 +99,11 @@ function AdvancedSearch({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsSearchLoading(true);
         const result = await refetch();
         const { data, error } = result;
         onSearchResult({ data, error });
       } catch (error) {
         console.error('Error during search:', error);
-      } finally {
-        setIsSearchLoading(false);
       }
     };
 
