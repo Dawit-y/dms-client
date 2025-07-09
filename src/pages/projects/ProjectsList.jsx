@@ -41,6 +41,19 @@ function ProjectsList() {
           <TreeSearchWrapper
             searchHook={useSearchProjects}
             textSearchKeys={['title']}
+            dropdownSearchKeys={[
+              {
+                key: 'status',
+                options: [
+                  {
+                    inactive: 'Inactive',
+                    active: 'Active',
+                    completed: 'Completed',
+                  },
+                ],
+                defaultValue: 'active',
+              },
+            ]}
           >
             {({ result, isLoading }) => {
               return (

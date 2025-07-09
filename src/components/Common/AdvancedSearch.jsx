@@ -292,26 +292,23 @@ function AdvancedSearch({
                           <div className="">
                             <Form.Control
                               name={key}
-                              id={key}
-                              type="select"
+                              as="select"
                               className="form-select"
                               onChange={(event) =>
                                 handleSearchKey(key, event.target.value)
                               }
                               value={params[key] || ''}
-                              style={inputStyles}
                             >
-                              <option value={''}>
-                                {t('Select') + ' ' + t(`${key}`)}
+                              <option value="">
+                                {t('Select')} {t(key)}
                               </option>
-                              {options.map((option) => (
-                                <option
-                                  key={`${option.value}-${key}`}
-                                  value={option.value}
-                                >
-                                  {t(`${option.label}`)}
-                                </option>
-                              ))}
+                              {Object.entries(options[0] || {}).map(
+                                ([value, label]) => (
+                                  <option key={`${value}-${key}`} value={value}>
+                                    {t(label)}
+                                  </option>
+                                )
+                              )}
                             </Form.Control>
                           </div>
                         </div>
