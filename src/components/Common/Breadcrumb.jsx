@@ -82,12 +82,15 @@ const Breadcrumb = () => {
                   className={`breadcrumb-item${breadcrumbs.length === 0 ? ' active' : ''}`}
                 >
                   {breadcrumbs.length === 0 ? (
-                    <>
+                    <div className="d-flex align-items-center gap-1">
                       <FaHome />
                       <span>{t('home_page')}</span>
-                    </>
+                    </div>
                   ) : (
-                    <Link to="/dashboard">
+                    <Link
+                      to="/dashboard"
+                      className="d-flex align-items-center gap-1"
+                    >
                       <FaHome />
                       <span>{t('home_page')}</span>
                     </Link>

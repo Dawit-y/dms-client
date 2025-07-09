@@ -4,6 +4,7 @@ import { Modal, Button, Form, Row, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
+import AsyncSelectField from '../../components/Common/AsyncSelectField';
 import Input from '../../components/Common/Input';
 import NumberField from '../../components/Common/NumberField';
 import { useAddProject, useUpdateProject } from '../../queries/projects_query';
@@ -17,6 +18,8 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t('field_required')),
     budget: Yup.number().required(t('field_required')),
+    status: Yup.string().required(t('field_required')),
+    isApproved: Yup.boolean().required(t('field_required')),
     description: Yup.string().required(t('field_required')),
   });
 
@@ -24,6 +27,8 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
     initialValues: {
       title: isEdit ? rowData.title || '' : '',
       budget: isEdit ? rowData.budget || '' : '',
+      status: isEdit ? rowData.status || '' : '',
+      isApproved: isEdit ? rowData.isApproved || false : false,
       description: isEdit ? rowData.description || '' : '',
     },
     validationSchema,
@@ -34,7 +39,7 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
         : addProjectMutation.mutateAsync(values);
 
       await action;
-      toggle(); // close modal
+      toggle();
       setSubmitting(false);
     },
   });
@@ -48,15 +53,17 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
         <Form noValidate onSubmit={formik.handleSubmit}>
           <Modal.Body>
             <Row>
-              <Input
-                className="col-md-6 mb-3"
+              <Input formik={formik} fieldId={'title'} />
+              <NumberField formik={formik} fieldId={'budget'} />
+              <Input type="checkbox" formik={formik} fieldId={'isApproved'} />
+              <AsyncSelectField
                 formik={formik}
-                fieldId={'title'}
-              />
-              <NumberField
-                className="col-md-6 mb-3"
-                formik={formik}
-                fieldId={'budget'}
+                fieldId={'status'}
+                optionMap={{
+                  active: t('Active'),
+                  inactive: t('Inactive'),
+                  completed: t('Completed'),
+                }}
               />
               <Input
                 className="col-md-12"
