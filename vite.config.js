@@ -18,6 +18,21 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+          quietDeps: true,
+          silenceDeprecations: [
+            'legacy-js-api',
+            'import',
+            'global-builtin',
+            'color-functions',
+            'if-function',
+          ],
+        },
+      },
+    },
     server: {
       proxy: {
         '/api': {
