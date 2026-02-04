@@ -1,9 +1,8 @@
-import React from 'react';
+import { FormGroup, Button, ButtonGroup } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router';
 import SimpleBar from 'simplebar-react';
 
-import '../../components/CommonForBoth/rightbar.scss';
 import {
   layoutTypes,
   layoutModeTypes,
@@ -18,43 +17,49 @@ import {
   changeSidebarType,
   changeTopbarTheme,
   setRightSidebar,
+  layoutSelectors,
 } from '../../store/layout/layoutSlice';
 
 const RightSidebar = () => {
   const dispatch = useDispatch();
 
+  // Use selectors from the layout slice
   const {
-    layoutType,
-    layoutModeType,
-    layoutWidth,
-    topbarTheme,
-    leftSideBarType,
-  } = useSelector((state) => state.layout);
+    selectLayoutType,
+    selectLayoutModeType,
+    selectLayoutWidth,
+    selectLeftSidebarType,
+    selectTopbarTheme,
+  } = layoutSelectors;
 
-  const handleLayoutChange = (layoutType) => {
-    dispatch(changeLayout(layoutType));
+  // Get state values using selectors
+  const layoutType = useSelector(selectLayoutType);
+  const layoutModeType = useSelector(selectLayoutModeType);
+  const layoutWidth = useSelector(selectLayoutWidth);
+  const leftSideBarType = useSelector(selectLeftSidebarType);
+  const topbarTheme = useSelector(selectTopbarTheme);
+
+  const handleLayoutChange = (layout) => {
+    dispatch(changeLayout(layout));
   };
 
-  const handleLayoutWidthChange = (layoutWidth) => {
-    dispatch(changeLayoutWidth(layoutWidth));
+  const handleLayoutWidthChange = (width) => {
+    dispatch(changeLayoutWidth(width));
   };
 
   const handleTopbarThemeChange = (theme) => {
     dispatch(changeTopbarTheme(theme));
   };
 
-  const handleLayoutModeChange = (mode) => {
-    dispatch(changeLayoutMode(mode));
+  const handleSidebarTypeChange = (sidebarType) => {
+    dispatch(changeSidebarType({ sidebarType, isMobile: false }));
   };
 
-  const handleSidebarTypeChange = (type) => {
-    dispatch(changeSidebarType(type));
-  };
-
-  const closeSidebar = (e) => {
-    e.preventDefault();
+  const closeSidebar = () => {
     dispatch(setRightSidebar(false));
   };
+
+  const buttonClass = 'me-2 mb-2 rounded';
 
   return (
     <>
@@ -64,198 +69,223 @@ const RightSidebar = () => {
             <div className="rightbar-title px-3 py-4">
               <Link
                 to="#"
-                onClick={closeSidebar}
+                onClick={(e) => {
+                  e.preventDefault();
+                  closeSidebar();
+                }}
                 className="right-bar-toggle float-end"
               >
                 <i className="mdi mdi-close noti-icon" />
               </Link>
               <h5 className="m-0">Settings</h5>
             </div>
-
             <hr className="my-0" />
-
             <div className="p-4">
-              {/* Layout Type */}
-              <div className="radio-toolbar">
+              {/* Layout */}
+              <FormGroup>
                 <span className="mb-2 d-block">Layouts</span>
-                <input
-                  type="radio"
-                  id="radioVertical"
-                  name="layoutType"
-                  value={layoutTypes.VERTICAL}
-                  checked={layoutType === layoutTypes.VERTICAL}
-                  onChange={(e) => handleLayoutChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioVertical">
-                  Vertical
-                </label>
-                <input
-                  type="radio"
-                  id="radioHorizontal"
-                  name="layoutType"
-                  value={layoutTypes.HORIZONTAL}
-                  checked={layoutType === layoutTypes.HORIZONTAL}
-                  onChange={(e) => handleLayoutChange(e.target.value)}
-                />
-                <label htmlFor="radioHorizontal">Horizontal</label>
-              </div>
-
-              <hr className="mt-1" />
-
+                <ButtonGroup>
+                  <Button
+                    color={
+                      layoutType === layoutTypes.VERTICAL ? 'primary' : 'light'
+                    }
+                    active={layoutType === layoutTypes.VERTICAL}
+                    onClick={() => handleLayoutChange(layoutTypes.VERTICAL)}
+                    className={buttonClass}
+                  >
+                    Vertical
+                  </Button>
+                  <Button
+                    color={
+                      layoutType === layoutTypes.HORIZONTAL
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutType === layoutTypes.HORIZONTAL}
+                    onClick={() => handleLayoutChange(layoutTypes.HORIZONTAL)}
+                    className={buttonClass}
+                  >
+                    Horizontal
+                  </Button>
+                </ButtonGroup>
+              </FormGroup>
+              <hr />
               {/* Layout Mode */}
-              <div className="radio-toolbar">
-                <span className="mb-2 d-block">Layouts Mode</span>
-                <input
-                  type="radio"
-                  id="radioLight"
-                  name="layoutMode"
-                  value={layoutModeTypes.LIGHT}
-                  checked={layoutModeType === layoutModeTypes.LIGHT}
-                  onChange={(e) => handleLayoutModeChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioLight">
-                  Light
-                </label>
-                <input
-                  type="radio"
-                  id="radioDark"
-                  name="layoutMode"
-                  value={layoutModeTypes.DARK}
-                  checked={layoutModeType === layoutModeTypes.DARK}
-                  onChange={(e) => handleLayoutModeChange(e.target.value)}
-                />
-                <label htmlFor="radioDark">Dark</label>
-              </div>
-
-              <hr className="mt-1" />
-
+              <FormGroup>
+                <span className="mb-2 d-block">Layout Mode</span>
+                <ButtonGroup>
+                  <Button
+                    color={
+                      layoutModeType === layoutModeTypes.LIGHT
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutModeType === layoutModeTypes.LIGHT}
+                    onClick={() =>
+                      dispatch(changeLayoutMode(layoutModeTypes.LIGHT))
+                    }
+                    className={buttonClass}
+                  >
+                    Light
+                  </Button>
+                  <Button
+                    color={
+                      layoutModeType === layoutModeTypes.DARK
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutModeType === layoutModeTypes.DARK}
+                    onClick={() =>
+                      dispatch(changeLayoutMode(layoutModeTypes.DARK))
+                    }
+                    className={buttonClass}
+                  >
+                    Dark
+                  </Button>
+                </ButtonGroup>
+              </FormGroup>
+              <hr />
               {/* Layout Width */}
-              <div className="radio-toolbar">
+              <FormGroup>
                 <span className="mb-2 d-block">Layout Width</span>
-                <input
-                  type="radio"
-                  id="radioFluid"
-                  name="layoutWidth"
-                  value={layoutWidthTypes.FLUID}
-                  checked={layoutWidth === layoutWidthTypes.FLUID}
-                  onChange={(e) => handleLayoutWidthChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioFluid">
-                  Fluid
-                </label>
-                <input
-                  type="radio"
-                  id="radioBoxed"
-                  name="layoutWidth"
-                  value={layoutWidthTypes.BOXED}
-                  checked={layoutWidth === layoutWidthTypes.BOXED}
-                  onChange={(e) => handleLayoutWidthChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioBoxed">
-                  Boxed
-                </label>
-                <input
-                  type="radio"
-                  id="radioscrollable"
-                  name="layoutWidth"
-                  value={layoutWidthTypes.SCROLLABLE}
-                  checked={layoutWidth === layoutWidthTypes.SCROLLABLE}
-                  onChange={(e) => handleLayoutWidthChange(e.target.value)}
-                />
-                <label htmlFor="radioscrollable">Scrollable</label>
-              </div>
-
-              <hr className="mt-1" />
-
+                <ButtonGroup>
+                  <Button
+                    color={
+                      layoutWidth === layoutWidthTypes.FLUID
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutWidth === layoutWidthTypes.FLUID}
+                    onClick={() =>
+                      handleLayoutWidthChange(layoutWidthTypes.FLUID)
+                    }
+                    className={buttonClass}
+                  >
+                    Fluid
+                  </Button>
+                  <Button
+                    color={
+                      layoutWidth === layoutWidthTypes.BOXED
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutWidth === layoutWidthTypes.BOXED}
+                    onClick={() =>
+                      handleLayoutWidthChange(layoutWidthTypes.BOXED)
+                    }
+                    className={buttonClass}
+                  >
+                    Boxed
+                  </Button>
+                  <Button
+                    color={
+                      layoutWidth === layoutWidthTypes.SCROLLABLE
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={layoutWidth === layoutWidthTypes.SCROLLABLE}
+                    onClick={() =>
+                      handleLayoutWidthChange(layoutWidthTypes.SCROLLABLE)
+                    }
+                    className={buttonClass}
+                  >
+                    Scrollable
+                  </Button>
+                </ButtonGroup>
+              </FormGroup>
+              <hr />
               {/* Topbar Theme */}
-              <div className="radio-toolbar">
+              <FormGroup>
                 <span className="mb-2 d-block">Topbar Theme</span>
-                <input
-                  type="radio"
-                  id="radioThemeLight"
-                  name="topbarTheme"
-                  value={topBarThemeTypes.LIGHT}
-                  checked={topbarTheme === topBarThemeTypes.LIGHT}
-                  onChange={(e) => handleTopbarThemeChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioThemeLight">
-                  Light
-                </label>
-                <input
-                  type="radio"
-                  id="radioThemeDark"
-                  name="topbarTheme"
-                  value={topBarThemeTypes.DARK}
-                  checked={topbarTheme === topBarThemeTypes.DARK}
-                  onChange={(e) => handleTopbarThemeChange(e.target.value)}
-                />
-                <label className="me-1" htmlFor="radioThemeDark">
-                  Dark
-                </label>
-                {layoutType !== layoutTypes.VERTICAL && (
-                  <>
-                    <input
-                      type="radio"
-                      id="radioThemeColored"
-                      name="topbarTheme"
-                      value={topBarThemeTypes.COLORED}
-                      checked={topbarTheme === topBarThemeTypes.COLORED}
-                      onChange={(e) => handleTopbarThemeChange(e.target.value)}
-                    />
-                    <label className="me-1" htmlFor="radioThemeColored">
-                      Colored
-                    </label>
-                  </>
-                )}
-              </div>
-
-              {/* Sidebar Type */}
+                <ButtonGroup>
+                  <Button
+                    color={
+                      topbarTheme === topBarThemeTypes.LIGHT
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={topbarTheme === topBarThemeTypes.LIGHT}
+                    onClick={() =>
+                      handleTopbarThemeChange(topBarThemeTypes.LIGHT)
+                    }
+                    className={buttonClass}
+                  >
+                    Light
+                  </Button>
+                  <Button
+                    color={
+                      topbarTheme === topBarThemeTypes.DARK
+                        ? 'primary'
+                        : 'light'
+                    }
+                    active={topbarTheme === topBarThemeTypes.DARK}
+                    onClick={() =>
+                      handleTopbarThemeChange(topBarThemeTypes.DARK)
+                    }
+                    className={buttonClass}
+                  >
+                    Dark
+                  </Button>
+                </ButtonGroup>
+              </FormGroup>
+              {/* Sidebar Type (Vertical only) */}
               {layoutType === layoutTypes.VERTICAL && (
                 <>
-                  <hr className="mt-1" />
-                  <div className="radio-toolbar">
+                  <hr />
+                  <FormGroup>
                     <span className="mb-2 d-block">Left Sidebar Type</span>
-                    <input
-                      type="radio"
-                      id="sidebarDefault"
-                      name="sidebarType"
-                      value={leftSidebarTypes.DEFAULT}
-                      checked={leftSideBarType === leftSidebarTypes.DEFAULT}
-                      onChange={(e) => handleSidebarTypeChange(e.target.value)}
-                    />
-                    <label className="me-1" htmlFor="sidebarDefault">
-                      Default
-                    </label>
-                    <input
-                      type="radio"
-                      id="sidebarCompact"
-                      name="sidebarType"
-                      value={leftSidebarTypes.COMPACT}
-                      checked={leftSideBarType === leftSidebarTypes.COMPACT}
-                      onChange={(e) => handleSidebarTypeChange(e.target.value)}
-                    />
-                    <label className="me-1" htmlFor="sidebarCompact">
-                      Compact
-                    </label>
-                    <input
-                      type="radio"
-                      id="sidebarIcon"
-                      name="sidebarType"
-                      value={leftSidebarTypes.ICON}
-                      checked={leftSideBarType === leftSidebarTypes.ICON}
-                      onChange={(e) => handleSidebarTypeChange(e.target.value)}
-                    />
-                    <label className="me-1" htmlFor="sidebarIcon">
-                      Icon
-                    </label>
-                  </div>
+                    <ButtonGroup>
+                      <Button
+                        color={
+                          leftSideBarType === leftSidebarTypes.DEFAULT
+                            ? 'primary'
+                            : 'light'
+                        }
+                        active={leftSideBarType === leftSidebarTypes.DEFAULT}
+                        onClick={() =>
+                          handleSidebarTypeChange(leftSidebarTypes.DEFAULT)
+                        }
+                        className={buttonClass}
+                      >
+                        Default
+                      </Button>
+                      <Button
+                        color={
+                          leftSideBarType === leftSidebarTypes.COMPACT
+                            ? 'primary'
+                            : 'light'
+                        }
+                        active={leftSideBarType === leftSidebarTypes.COMPACT}
+                        onClick={() =>
+                          handleSidebarTypeChange(leftSidebarTypes.COMPACT)
+                        }
+                        className={buttonClass}
+                      >
+                        Compact
+                      </Button>
+                      <Button
+                        color={
+                          leftSideBarType === leftSidebarTypes.ICON
+                            ? 'primary'
+                            : 'light'
+                        }
+                        active={leftSideBarType === leftSidebarTypes.ICON}
+                        onClick={() =>
+                          handleSidebarTypeChange(leftSidebarTypes.ICON)
+                        }
+                        className={buttonClass}
+                      >
+                        Icon
+                      </Button>
+                    </ButtonGroup>
+                  </FormGroup>
                 </>
               )}
             </div>
           </div>
         </SimpleBar>
       </div>
-      <div className="rightbar-overlay"></div>
+      <div className="rightbar-overlay" />
     </>
   );
 };
