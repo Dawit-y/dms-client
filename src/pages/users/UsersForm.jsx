@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
 import AsyncSelectField from '../../components/Common/AsyncSelectField';
-import FileUploader from '../../components/Common/FileUploader';
 import Input from '../../components/Common/Input';
 import NumberField from '../../components/Common/NumberField';
 

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
 import AsyncSelectField from '../../components/Common/AsyncSelectField';
-import FileUploader from '../../components/Common/FileUploader';
 import Input from '../../components/Common/Input';
 
 const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
@@ -57,13 +56,6 @@ const DocumentsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
               }}
             />
           </Row>
-          <Form.Group as={Col} controlId="file" className="mb-3">
-            <Form.Label>File</Form.Label>
-            <FileUploader />
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.file}
-            </Form.Control.Feedback>
-          </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={toggle}>
