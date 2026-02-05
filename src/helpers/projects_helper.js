@@ -13,4 +13,6 @@ export const addProject = async (data) => post(PROJECTS_URL, data);
 
 export const updateProject = (data) => put(`${PROJECTS_URL}${data?.id}/`, data);
 
+export const getProject = (id) => get(`${PROJECTS_URL}${id}/`);
+
 export const deleteProject = (id) => del(`${PROJECTS_URL}${id}/`);

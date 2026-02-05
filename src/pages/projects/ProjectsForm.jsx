@@ -1,7 +1,8 @@
 import { useFormik } from 'formik';
 import { memo } from 'react';
-import { Modal, Button, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Form, Row, Spinner, Card, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import * as Yup from 'yup';
 
 import AsyncSelectField from '../../components/Common/AsyncSelectField';
@@ -9,8 +10,9 @@ import Input from '../../components/Common/Input';
 import NumberField from '../../components/Common/NumberField';
 import { useAddProject, useUpdateProject } from '../../queries/projects_query';
 
-const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
+const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const addProjectMutation = useAddProject();
   const updateProjectMutation = useUpdateProject();
@@ -39,42 +41,41 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
         : addProjectMutation.mutateAsync(values);
 
       await action;
-      toggle();
       setSubmitting(false);
+      navigate('/projects');
     },
   });
 
   return (
-    <>
-      <Modal show={isOpen} onHide={toggle} size="xl" centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{isEdit ? 'Edit Project' : 'Add Project'}</Modal.Title>
-        </Modal.Header>
+    <Card>
+      <Card.Body>
         <Form noValidate onSubmit={formik.handleSubmit}>
-          <Modal.Body>
-            <Row>
-              <Input formik={formik} fieldId={'title'} />
-              <NumberField formik={formik} fieldId={'budget'} />
-              <Input type="checkbox" formik={formik} fieldId={'isApproved'} />
-              <AsyncSelectField
-                formik={formik}
-                fieldId={'status'}
-                optionMap={{
-                  active: t('Active'),
-                  inactive: t('Inactive'),
-                  completed: t('Completed'),
-                }}
-              />
-              <Input
-                className="col-md-12"
-                formik={formik}
-                fieldId={'description'}
-                type="textarea"
-              />
-            </Row>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={toggle}>
+          <Row>
+            <Input formik={formik} fieldId={'title'} />
+            <NumberField formik={formik} fieldId={'budget'} />
+            <Input type="checkbox" formik={formik} fieldId={'isApproved'} />
+            <AsyncSelectField
+              formik={formik}
+              fieldId={'status'}
+              optionMap={{
+                active: t('Active'),
+                inactive: t('Inactive'),
+                completed: t('Completed'),
+              }}
+            />
+            <Input
+              className="col-md-12"
+              formik={formik}
+              fieldId={'description'}
+              type="textarea"
+            />
+          </Row>
+          <div className="d-flex justify-content-end mt-3">
+            <Button
+              variant="secondary"
+              className="me-2"
+              onClick={() => navigate('/projects')}
+            >
               Cancel
             </Button>
             <Button
@@ -92,10 +93,10 @@ const ProjectsForm = ({ isOpen, toggle, isEdit = false, rowData = {} }) => {
               )}
               {isEdit ? 'Update Project' : 'Add Project'}
             </Button>
-          </Modal.Footer>
+          </div>
         </Form>
-      </Modal>
-    </>
+      </Card.Body>
+    </Card>
   );
 };
 
