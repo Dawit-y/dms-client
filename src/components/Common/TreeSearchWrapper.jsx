@@ -59,6 +59,8 @@ export default function TreeSearchWrapper({
       <div
         style={{
           flex: isCollapsed ? '1 1 auto' : '0 0 75%',
+          minWidth: 0,
+          overflow: 'hidden',
           transition: 'all 0.3s ease',
         }}
       >

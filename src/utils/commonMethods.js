@@ -246,3 +246,10 @@ export function formatLargeNumber(num) {
 
   return number.toString();
 }
+
+export const truncateText = (text, maxLength) => {
+  if (typeof text !== 'string') {
+    return text;
+  }
+  return text.length <= maxLength ? text : `${text.substring(0, maxLength)}...`;
+};
