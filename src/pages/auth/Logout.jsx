@@ -20,7 +20,7 @@ const Logout = () => {
     mutation.mutate();
     navigate('/login');
     queryClient.clear();
-  }, []);
+  }, [mutation, navigate, queryClient]);
 
   return <></>;
 };

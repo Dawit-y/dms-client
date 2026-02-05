@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
-import React, { useState, useEffect, useRef, memo } from 'react';
-import { Card, CardBody, Col, Row, Collapse, Form } from 'react-bootstrap';
+import React, { useState, useEffect, useRef, memo, useMemo } from 'react';
 import 'flatpickr/dist/themes/material_blue.css';
+import { Card, CardBody, Col, Row, Collapse, Form } from 'react-bootstrap';
 import Flatpickr from 'react-flatpickr';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +26,17 @@ function AdvancedSearch({
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  const [params, setParams] = useState({});
+  const [params, setParams] = useState(() => {
+    if (!dropdownSearchKeys) return {};
+
+    return dropdownSearchKeys.reduce((acc, { key, defaultValue }) => {
+      if (defaultValue !== undefined) {
+        acc[key] = defaultValue;
+      }
+      return acc;
+    }, {});
+  });
+
   const [searchParams, setSearchParams] = useState({});
   const {
     data = [],
@@ -40,12 +50,14 @@ function AdvancedSearch({
   const flatpickrStartRef = useRef(null);
   const flatpickrEndRef = useRef(null);
 
-  const initialValues = component_params
-    ? Object.keys(component_params).reduce((acc, key) => {
-        acc[component_params[key]] = ''; // Default value for form fields
-        return acc;
-      }, {})
-    : {};
+  const initialValues = useMemo(() => {
+    if (!component_params) return {};
+    return Object.keys(component_params).reduce((acc, key) => {
+      acc[component_params[key]] = '';
+      return acc;
+    }, {});
+  }, [component_params]);
+
   // Initialize useFormik with dynamically generated initialValues
   const validation = useFormik({
     initialValues,
@@ -110,19 +122,7 @@ function AdvancedSearch({
     if (Object.keys(searchParams).length > 0) {
       fetchData();
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (dropdownSearchKeys) {
-      const defaultParams = {};
-      dropdownSearchKeys.forEach(({ key, defaultValue }) => {
-        if (defaultValue !== undefined) {
-          defaultParams[key] = defaultValue;
-        }
-      });
-      setParams((prev) => ({ ...defaultParams, ...prev }));
-    }
-  }, []);
+  }, [searchParams, refetch, onSearchResult]);
 
   const handleClear = () => {
     setParams({});

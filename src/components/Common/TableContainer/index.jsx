@@ -71,6 +71,9 @@ const TableContainer = ({
 
   const { t } = useTranslation();
 
+  ('use no memo');
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -488,4 +491,4 @@ const TableContainer = ({
   );
 };
 
-export default React.memo(TableContainer);
+export default TableContainer;

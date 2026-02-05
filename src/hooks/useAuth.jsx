@@ -1,21 +1,13 @@
-import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectIsAuthenticated, selectUserData } from '../store/auth/authSlice';
 
 export const useAuth = () => {
-  const [userId, setUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   const user = useSelector(selectUserData);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  useEffect(() => {
-    if (user) {
-      setUserId(user?.id || null);
-    }
-    setIsLoading(false);
-  }, [user]);
+  const userId = user?.id ?? null;
+  const isLoading = user === undefined || user === null;
 
   return { user, userId, isAuthenticated, isLoading };
 };

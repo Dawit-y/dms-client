@@ -1,7 +1,6 @@
 import React from 'react';
 import { Col, FormControl } from 'react-bootstrap';
 
-// A typical debounced input react component
 function DebouncedInput({
   value: initialValue,
   onChange,
@@ -11,14 +10,28 @@ function DebouncedInput({
 }) {
   const [value, setValue] = React.useState(initialValue);
 
+  const onChangeRef = React.useRef(onChange);
+  const debounceRef = React.useRef(debounce);
+
+  // Keep refs up to date
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  React.useEffect(() => {
+    debounceRef.current = debounce;
+  }, [debounce]);
+
+  // Sync external value → local state
   React.useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
 
+  // Debounced effect (only depends on value)
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
+      onChangeRef.current(value);
+    }, debounceRef.current);
 
     return () => clearTimeout(timeout);
   }, [value]);

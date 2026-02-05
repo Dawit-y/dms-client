@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, memo } from 'react';
+import { useMemo, useEffect, useState, useCallback, useRef, memo } from 'react';
 import { Tree } from 'react-arborist';
 import {
   Card,
@@ -42,31 +42,28 @@ const TreeForLists = ({
   const { userId } = useAuth();
   const { data, isLoading, isError, error, refetch } =
     useFetchAddressStructure(userId);
-  const [treeData, setTreeData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNode, setSelectedNode] = useState({});
   const [includeChecked, setIncludeChecked] = useState(false);
   const { ref, width, height } = useResizeObserver();
 
-  useEffect(() => {
-    if (data) {
-      const transformData = (regions) =>
-        regions.map((region) => ({
-          ...region,
-          id: region.id?.toString() || uuidv4(),
+  const treeData = useMemo(() => {
+    if (!data) return [];
+
+    return data.map((region) => ({
+      ...region,
+      id: region.id?.toString() || uuidv4(),
+      children:
+        region.children?.map((zone) => ({
+          ...zone,
+          id: zone.id?.toString() || uuidv4(),
           children:
-            region.children?.map((zone) => ({
-              ...zone,
-              id: zone.id?.toString() || uuidv4(),
-              children:
-                zone.children?.map((woreda) => ({
-                  ...woreda,
-                  id: woreda.id?.toString() || uuidv4(),
-                })) || [],
+            zone.children?.map((woreda) => ({
+              ...woreda,
+              id: woreda.id?.toString() || uuidv4(),
             })) || [],
-        }));
-      setTreeData(transformData(data));
-    }
+        })) || [],
+    }));
   }, [data]);
 
   const handleCheckboxChange = (e) => {
@@ -123,7 +120,13 @@ const TreeForLists = ({
   }, []);
 
   const lang = i18n.language;
-  if (isError) setIsCollapsed(false);
+
+  useEffect(() => {
+    if (isError) {
+      setIsCollapsed(false);
+    }
+  }, [isError, setIsCollapsed]);
+
   if (isLoading || isError) {
     return (
       <div

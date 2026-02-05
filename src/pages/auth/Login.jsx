@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import {
   Container,
   Row,
@@ -30,11 +31,14 @@ import { setAuthData } from '../../store/auth/authSlice';
 const loginUser = async (credentials) => await post('/token/', credentials);
 
 const Login = () => {
-  document.title = 'Login';
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    document.title = 'Login';
+  }, []);
 
   const togglePasswordVisibility = () =>
     setShowPassword((prevState) => !prevState);

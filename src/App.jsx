@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import {
@@ -11,45 +11,50 @@ import { ToastContainer } from 'react-toastify';
 
 import ErrorElement from './components/Common/ErrorElement';
 import NotFound from './components/Common/NotFound';
-import HorizontalLayout from './components/HorizontalLayout/index';
+import HorizontalLayout from './components/HorizontalLayout';
 import NonAuthLayout from './components/NonAuthLayout';
 import ProtectedLayout from './components/ProtectedLayout';
-import VerticalLayout from './components/VerticalLayout/index';
+import VerticalLayout from './components/VerticalLayout';
 import { refreshAccessToken } from './helpers/axios';
 import { authProtectedRoutes, publicRoutes } from './routes';
 import { selectAccessToken } from './store/auth/authSlice';
 import { layoutSelectors } from './store/layout/layoutSlice';
 
-function getLayout(layoutType) {
-  let layoutCls = VerticalLayout;
-  switch (layoutType) {
-    case 'horizontal':
-      layoutCls = HorizontalLayout;
-      break;
-    default:
-      layoutCls = VerticalLayout;
-      break;
-  }
-  return layoutCls;
-}
+const AppLayout = ({ layoutType, children }) => {
+  return layoutType === 'horizontal' ? (
+    <HorizontalLayout>{children}</HorizontalLayout>
+  ) : (
+    <VerticalLayout>{children}</VerticalLayout>
+  );
+};
 
 const App = () => {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);
-  const Layout = useMemo(() => getLayout(layoutType), [layoutType]);
   const accessToken = useSelector(selectAccessToken);
   const [isAuthResolved, setIsAuthResolved] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const resolveAuth = async () => {
       if (!accessToken) {
-        await refreshAccessToken();
+        try {
+          await refreshAccessToken();
+        } finally {
+          if (isMounted) setIsAuthResolved(true);
+        }
+      } else {
+        setIsAuthResolved(true);
       }
-      setIsAuthResolved(true);
     };
-    resolveAuth();
-  }, []);
 
-  // Wait for refresh check to complete
+    resolveAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken]);
+
   if (!isAuthResolved) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -66,7 +71,6 @@ const App = () => {
             key={idx}
             path={route.path}
             element={<NonAuthLayout>{route.element}</NonAuthLayout>}
-            exact={true}
             errorElement={<ErrorElement />}
           />
         ))}
@@ -76,7 +80,6 @@ const App = () => {
             key={idx}
             path={route.path}
             element={<ProtectedLayout>{route.element}</ProtectedLayout>}
-            exact={true}
             errorElement={<ErrorElement />}
           />
         ))}
@@ -84,20 +87,19 @@ const App = () => {
         <Route
           path="/not_found"
           element={
-            <Layout>
+            <AppLayout layoutType={layoutType}>
               <NotFound />
-            </Layout>
+            </AppLayout>
           }
-          errorElement={<ErrorElement />}
         />
+
         <Route
           path="*"
           element={
-            <Layout>
+            <AppLayout layoutType={layoutType}>
               <NotFound />
-            </Layout>
+            </AppLayout>
           }
-          errorElement={<ErrorElement />}
         />
       </>
     )
