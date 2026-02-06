@@ -1,11 +1,12 @@
 import { useFormik } from 'formik';
 import { memo } from 'react';
-import { Button, Form, Row, Spinner, Card, Col } from 'react-bootstrap';
+import { Form, Row, Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import * as Yup from 'yup';
 
 import AsyncSelectField from '../../components/Common/AsyncSelectField';
+import FormActionButtons from '../../components/Common/FormActionButtons';
 import Input from '../../components/Common/Input';
 import NumberField from '../../components/Common/NumberField';
 import { useAddProject, useUpdateProject } from '../../queries/projects_query';
@@ -13,6 +14,7 @@ import { useAddProject, useUpdateProject } from '../../queries/projects_query';
 const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const addProjectMutation = useAddProject();
   const updateProjectMutation = useUpdateProject();
@@ -36,15 +38,65 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values, { setSubmitting }) => {
-      const action = isEdit
-        ? updateProjectMutation.mutateAsync({ id: rowData?.id, ...values })
-        : addProjectMutation.mutateAsync(values);
-
-      await action;
-      setSubmitting(false);
-      navigate('/projects');
+      try {
+        if (isEdit) {
+          await updateProjectMutation.mutateAsync({
+            id: id || rowData?.id,
+            ...values,
+          });
+        } else {
+          await addProjectMutation.mutateAsync(values);
+        }
+      } catch (error) {
+        console.error('Form submission error:', error);
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
+
+  // Handle Save & Close
+  const handleSaveAndClose = async (e) => {
+    e?.preventDefault();
+    await formik.submitForm();
+    navigate('/projects');
+  };
+
+  // Handle Save & View
+  const handleSaveAndView = async (e) => {
+    e?.preventDefault();
+    try {
+      let projectId;
+
+      if (isEdit) {
+        await updateProjectMutation.mutateAsync({
+          id: id || rowData?.id,
+          ...formik.values,
+        });
+        projectId = id || rowData?.id;
+      } else {
+        const result = await addProjectMutation.mutateAsync(formik.values);
+        projectId = result?.id;
+      }
+
+      if (projectId) {
+        navigate(`/projects/${projectId}`);
+      } else {
+        navigate('/projects');
+      }
+    } catch (error) {
+      console.error('Error saving and viewing:', error);
+    }
+  };
+
+  // Handle Cancel
+  const handleCancel = () => {
+    navigate('/projects');
+  };
+
+  // Check if any mutation is pending
+  const isMutationPending =
+    addProjectMutation.isPending || updateProjectMutation.isPending;
 
   return (
     <Card>
@@ -70,30 +122,17 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
               type="textarea"
             />
           </Row>
-          <div className="d-flex justify-content-end mt-3">
-            <Button
-              variant="secondary"
-              className="me-2"
-              onClick={() => navigate('/projects')}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="success"
-              type="submit"
-              disabled={
-                formik.isSubmitting ||
-                addProjectMutation.isPending ||
-                updateProjectMutation.isPending
-              }
-            >
-              {(addProjectMutation.isPending ||
-                updateProjectMutation.isPending) && (
-                <Spinner animation="border" size="sm" className="me-2" />
-              )}
-              {isEdit ? 'Update Project' : 'Add Project'}
-            </Button>
-          </div>
+
+          <FormActionButtons
+            isSubmitting={formik.isSubmitting}
+            isPending={isMutationPending}
+            isEdit={isEdit}
+            onCancel={handleCancel}
+            onSaveAndClose={handleSaveAndClose}
+            onSaveAndView={handleSaveAndView}
+            showSaveAndView={true}
+            showSaveAndClose={true}
+          />
         </Form>
       </Card.Body>
     </Card>
