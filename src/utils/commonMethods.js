@@ -1,40 +1,12 @@
-// import { convertToEthiopian } from "react-ethiopian-calendar";
+import { convertToEthiopian } from 'react-ethiopian-calendar';
 
-// Converts JS Date or dayjs → "yyyy/mm/dd"
-export function formatDayJs(date) {
-  if (!date) {
-    console.log('formatDayJs received null/undefined date');
-    return '';
-  }
-
-  let year, month, day;
-
-  if (date.$isDayjsObject) {
-    // Handle dayjs object
-    year = date.$y;
-    month = String(date.$M + 1).padStart(2, '0');
-    day = String(date.$D).padStart(2, '0');
-  } else if (date instanceof Date && !isNaN(date)) {
-    // Handle JS Date object
-    year = date.getFullYear();
-    month = String(date.getMonth() + 1).padStart(2, '0');
-    day = String(date.getDate()).padStart(2, '0');
-  } else {
-    console.log('formatDate received invalid date:', date);
-    return '';
-  }
-
-  const formatted = `${year}/${month}/${day}`;
-  return formatted;
-}
-
-export function formatDate(date) {
+export const formatDate = (date) => {
   if (!date || !(date instanceof Date) || isNaN(date)) return '';
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
   const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
-}
+  return `${year}-${month}-${day}`;
+};
 
 // Converts "yyyy/mm/dd" → JS Date
 export function parseDateString(dateStr) {
@@ -51,6 +23,37 @@ export function parseDateString(dateStr) {
   return parsed;
 }
 
+/**
+ * Converts Date or Dayjs-like object → 'YYYY-MM-DD'
+ */
+export function toYMDDateString(date) {
+  if (!date) return '';
+
+  let year, month, day;
+
+  // Dayjs-like object (without importing dayjs)
+  if (typeof date === 'object' && date.$d instanceof Date) {
+    const d = date.$d;
+    if (isNaN(d.getTime())) return '';
+
+    year = d.getFullYear();
+    month = String(d.getMonth() + 1).padStart(2, '0');
+    day = String(d.getDate()).padStart(2, '0');
+  }
+  // Native JS Date
+  else if (date instanceof Date) {
+    if (isNaN(date.getTime())) return '';
+
+    year = date.getFullYear();
+    month = String(date.getMonth() + 1).padStart(2, '0');
+    day = String(date.getDate()).padStart(2, '0');
+  } else {
+    return '';
+  }
+
+  return `${year}-${month}-${day}`;
+}
+
 // Converts "yyyy/mm/dd" GC → dd/mm/yyyy" EC
 // export const toEthiopian = (date) => {
 // 	if (!date) return "";
@@ -58,6 +61,15 @@ export function parseDateString(dateStr) {
 // 	const ethiopian = convertToEthiopian(parsedDate);
 // 	return `${ethiopian.day}/${ethiopian.month}/${ethiopian.year}`;
 // };
+
+export const toEthiopian = (date) => {
+  if (!date) return '';
+  if (typeof date !== 'string') return '';
+
+  const clean = date.replace(/\//g, '-');
+  const ethiopian = convertToEthiopian(clean);
+  return `${ethiopian.day}/${ethiopian.month}/${ethiopian.year}`;
+};
 
 export const addMonths = (date, months) => {
   const newDate = new Date(date);
@@ -126,15 +138,23 @@ export function createMultiSelectOptions(data, valueKey, labelKeys, filterFn) {
  * @param {Array} data - The array of objects to transform.
  * @param {string} keyProp - The property to use as the key in the map.
  * @param {string} valueProp - The property to use as the value in the map.
+ * @param {Function} [filterFn] - Optional function to filter items before mapping.
  * @returns {Object} - A key-value map.
  */
-export function createKeyValueMap(data, keyProp, valueProp) {
+export function createKeyValueMap(
+  data,
+  keyProp,
+  valueProp,
+  filterFn = () => true
+) {
   if (!Array.isArray(data)) {
     throw new Error('The first argument must be an array.');
   }
 
   return data.reduce((acc, item) => {
-    acc[item[keyProp]] = item[valueProp];
+    if (filterFn(item)) {
+      acc[item[keyProp]] = item[valueProp];
+    }
     return acc;
   }, {});
 }
@@ -245,6 +265,17 @@ export function formatLargeNumber(num) {
   if (number >= 1e3) return (number / 1e3).toFixed(1) + 'K';
 
   return number.toString();
+}
+
+export function transformTableName(name) {
+  if (!name || typeof name !== 'string') return 'report';
+
+  return name
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .toLowerCase();
 }
 
 export const truncateText = (text, maxLength) => {

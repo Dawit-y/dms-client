@@ -73,16 +73,15 @@ function Projects() {
           <TreeSearchWrapper
             searchHook={useSearchProjects}
             textSearchKeys={['title']}
+            dateSearchKeys={['created']}
             dropdownSearchKeys={[
               {
                 key: 'status',
-                options: [
-                  {
-                    inactive: 'Inactive',
-                    active: 'Active',
-                    completed: 'Completed',
-                  },
-                ],
+                options: {
+                  inactive: 'Inactive',
+                  active: 'Active',
+                  completed: 'Completed',
+                },
                 defaultValue: 'active',
               },
             ]}
