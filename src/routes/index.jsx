@@ -8,10 +8,12 @@ import Users from '../pages/users';
 
 const authProtectedRoutes = [
   { path: '/users', element: <Users /> },
+
   { path: '/projects', element: <Projects /> },
   { path: '/projects/add', element: <AddProject /> },
   { path: '/projects/:id', element: <ProjectDetails /> },
   { path: '/projects/:id/edit', element: <EditProject /> },
+
   { path: '/dashboard', element: <Dashboard /> },
   { path: '/', element: <Dashboard /> },
 ];

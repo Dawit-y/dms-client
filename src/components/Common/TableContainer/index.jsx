@@ -6,7 +6,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
   Table,
   Button,
@@ -21,6 +21,8 @@ import {
   Tooltip,
   Card,
   CardBody,
+  InputGroup,
+  FormControl,
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import {
@@ -41,15 +43,10 @@ import Filter from './Filter';
 const TableContainer = ({
   columns,
   data,
-  tableClass = '',
-  theadClass = 'table-light',
   isLoading = false,
   isBordered = true,
   isPagination = true,
   isGlobalFilter = true,
-  paginationWrapper = 'dataTables_paginate paging_simple_numbers pagination-rounded',
-  SearchPlaceholder = 'Search...',
-  pagination = 'pagination',
   buttonName = 'Add New',
   isAddButton = false,
   rowHeight = 35,
@@ -63,37 +60,101 @@ const TableContainer = ({
   infoIcon = false,
   refetch,
   isFetching = false,
+  // Server-side pagination props
+  isServerSidePagination = false,
+  totalRows = 0,
+  pageCount = 0,
+  paginationState: externalPaginationState, // External pagination state from URL
+  onPaginationChange, // Callback for server-side pagination
 }) => {
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [showColumnDropdown, setShowColumnDropdown] = React.useState(false);
 
+  // Use external pagination state for server-side, internal for client-side
+  const [internalPaginationState, setInternalPaginationState] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // Use external pagination state when server-side pagination is enabled
+  const paginationState =
+    isServerSidePagination && externalPaginationState
+      ? externalPaginationState
+      : internalPaginationState;
+
   const { t } = useTranslation();
 
-  ('use no memo');
+  // Sync internal state with external state when it changes
+  React.useEffect(() => {
+    if (isServerSidePagination && externalPaginationState) {
+      // External state is controlled by parent, no need to sync
+    } else {
+      // For client-side, use internal state
+    }
+  }, [isServerSidePagination, externalPaginationState]);
 
+  // Calculate page count based on mode
+  const calculatedPageCount = isServerSidePagination
+    ? pageCount
+    : Math.ceil(data.length / paginationState.pageSize);
+
+  // Handle pagination change for both modes
+  const handlePaginationChange = React.useCallback(
+    (updater) => {
+      const newState =
+        typeof updater === 'function' ? updater(paginationState) : updater;
+
+      // Call server-side callback if enabled (this updates URL)
+      if (isServerSidePagination && onPaginationChange) {
+        onPaginationChange(newState);
+      } else {
+        // Update internal state for client-side pagination
+        setInternalPaginationState(newState);
+      }
+    },
+    [isServerSidePagination, onPaginationChange, paginationState]
+  );
+
+  ('use no memo');
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     defaultColumn: { size: 200 },
+    // For server-side pagination, we need rowCount
+    ...(isServerSidePagination && { rowCount: totalRows }),
     state: {
       columnFilters,
       globalFilter,
       columnVisibility,
+      pagination: paginationState,
     },
+    onPaginationChange: handlePaginationChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(!isServerSidePagination && {
+      getPaginationRowModel: getPaginationRowModel(),
+    }),
+    manualPagination: isServerSidePagination,
+    pageCount: calculatedPageCount,
     debugTable: false,
     debugHeaders: false,
     debugColumns: false,
   });
+
+  // Go to specific page handler
+  const handleGoToPage = (e) => {
+    const page = e.target.value ? Number(e.target.value) - 1 : 0;
+    if (page >= 0 && page < table.getPageCount()) {
+      table.setPageIndex(page);
+    }
+  };
 
   const exportTooltip = (props) => (
     <Tooltip id="export-tooltip" {...props}>
@@ -109,7 +170,7 @@ const TableContainer = ({
   return (
     <Card className="">
       <CardBody className="p-2">
-        <Row className="mb-2 d-flex align-items-center justify-content-between border-1 border-danger">
+        <Row className="mb-2 d-flex align-items-center justify-content-between">
           <>
             {isCustomPageSize && (
               <Col sm={2} className="">
@@ -117,8 +178,12 @@ const TableContainer = ({
                   className="form-select pageSize my-auto"
                   value={table.getState().pagination.pageSize}
                   onChange={(e) => {
-                    // setPageSize(Number(e.target.value));
-                    table.setPageSize(Number(e.target.value));
+                    const newPageSize = Number(e.target.value);
+                    // Reset to first page when changing page size
+                    handlePaginationChange({
+                      pageIndex: 0,
+                      pageSize: newPageSize,
+                    });
                   }}
                 >
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -134,7 +199,7 @@ const TableContainer = ({
                 value={globalFilter ?? ''}
                 onChange={(value) => setGlobalFilter(String(value))}
                 className="form-control search-box me-2 my-auto d-inline-block"
-                placeholder={SearchPlaceholder}
+                placeholder={'Filter...'}
                 globalFilter={true}
               />
             )}
@@ -334,11 +399,10 @@ const TableContainer = ({
           >
             <Table
               hover
-              className={`${tableClass} table-sm table-bordered table-striped h-100`}
+              className={`table-sm table-bordered table-striped h-100`}
               bordered={isBordered}
-              // style={{ minHeight: '400px' }}
             >
-              <thead className={theadClass}>
+              <thead className={'table-light'}>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
@@ -393,7 +457,7 @@ const TableContainer = ({
                       className="text-center py-5 h-100"
                       style={{ maxHeight: rowHeight }}
                     >
-                      {!isLoading && 'No data availaible.'}
+                      {!isLoading && 'No data available.'}
                     </td>
                   </tr>
                 ) : (
@@ -417,70 +481,134 @@ const TableContainer = ({
               </tbody>
             </Table>
           </div>
-          {isPagination && table.getRowModel().rows.length > 0 && (
+
+          {/* Pagination Section */}
+          {isPagination && (
             <Row className="my-2">
-              <Col sm={12} md={5}>
+              <Col sm={12} md={4}>
                 <div className="dataTables_info">
-                  {table.getPrePaginationRowModel().rows.length <
-                  table.getState().pagination.pageSize
-                    ? `Showing ${table.getRowModel().rows.length} of ${table.getPrePaginationRowModel().rows.length}`
-                    : `Showing ${table.getState().pagination.pageSize} of ${table.getPrePaginationRowModel().rows.length}`}
+                  {isServerSidePagination
+                    ? `Showing ${table.getRowModel().rows.length} of ${totalRows.toLocaleString()} entries`
+                    : data.length > table.getState().pagination.pageSize
+                      ? `Showing ${table.getRowModel().rows.length} of ${data.length} entries`
+                      : `Showing ${table.getRowModel().rows.length} entries`}
                 </div>
               </Col>
-              <Col sm={12} md={7}>
-                <div className={paginationWrapper}>
-                  <ul className={pagination}>
-                    <li
-                      className={`paginate_button page-item previous ${
-                        !table.getCanPreviousPage() ? 'disabled' : ''
-                      }`}
-                    >
-                      <Link
-                        className="page-link"
-                        onClick={() => table.previousPage()}
-                      >
-                        <i className="mdi mdi-chevron-left"></i>
-                      </Link>
-                    </li>
+              <Col sm={12} md={8}>
+                <div className="d-flex align-items-center justify-content-between">
+                  {/* Go to page input */}
+                  <div className="d-flex align-items-center gap-2 me-3">
+                    <span>Go to page:</span>
+                    <InputGroup size="sm" style={{ width: '100px' }}>
+                      <FormControl
+                        type="number"
+                        min="1"
+                        max={table.getPageCount()}
+                        defaultValue={table.getState().pagination.pageIndex + 1}
+                        onChange={handleGoToPage}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleGoToPage(e);
+                          }
+                        }}
+                      />
+                    </InputGroup>
+                  </div>
 
-                    {Array.from({ length: table.getPageCount() }, (_, i) => i)
-                      .filter(
-                        (pageIndex) =>
-                          Math.abs(
-                            pageIndex - table.getState().pagination.pageIndex
-                          ) <= 2
-                      )
-                      .map((pageIndex) => (
-                        <li
-                          key={pageIndex}
-                          className={`paginate_button page-item ${
-                            table.getState().pagination.pageIndex === pageIndex
-                              ? 'active'
-                              : ''
-                          }`}
+                  {/* Pagination buttons */}
+                  <div
+                    className={
+                      'dataTables_paginate paging_simple_numbers pagination-rounded'
+                    }
+                  >
+                    <ul className={'pagination'}>
+                      <li
+                        className={`paginate_button page-item previous ${
+                          !table.getCanPreviousPage() ? 'disabled' : ''
+                        }`}
+                      >
+                        <Link
+                          className="page-link"
+                          onClick={() => table.previousPage()}
                         >
-                          <Link
-                            className="page-link"
-                            onClick={() => table.setPageIndex(pageIndex)}
-                          >
-                            {pageIndex + 1}
-                          </Link>
-                        </li>
-                      ))}
+                          <i className="mdi mdi-chevron-left"></i>
+                        </Link>
+                      </li>
 
-                    <li
-                      className={`paginate_button page-item next ${
-                        !table.getCanNextPage() ? 'disabled' : ''
-                      }`}
-                    >
-                      <Link
-                        className="page-link"
-                        onClick={() => table.nextPage()}
+                      {/* Show limited page numbers */}
+                      {(() => {
+                        const currentPage =
+                          table.getState().pagination.pageIndex;
+                        const totalPages = table.getPageCount();
+                        const pages = [];
+
+                        // Always show first page
+                        if (currentPage > 2) {
+                          pages.push(0);
+                          if (currentPage > 3) {
+                            pages.push('...');
+                          }
+                        }
+
+                        // Show pages around current page
+                        for (
+                          let i = Math.max(0, currentPage - 1);
+                          i <= Math.min(totalPages - 1, currentPage + 1);
+                          i++
+                        ) {
+                          if (!pages.includes(i)) {
+                            pages.push(i);
+                          }
+                        }
+
+                        // Always show last page
+                        if (currentPage < totalPages - 3) {
+                          if (currentPage < totalPages - 4) {
+                            pages.push('...');
+                          }
+                          pages.push(totalPages - 1);
+                        }
+
+                        return pages.map((pageIndex, idx) => (
+                          <li
+                            key={idx}
+                            className={`paginate_button page-item ${
+                              pageIndex === '...'
+                                ? 'disabled'
+                                : table.getState().pagination.pageIndex ===
+                                    pageIndex
+                                  ? 'active'
+                                  : ''
+                            }`}
+                          >
+                            {pageIndex === '...' ? (
+                              <span className="page-link">...</span>
+                            ) : (
+                              <Link
+                                className="page-link"
+                                onClick={() => table.setPageIndex(pageIndex)}
+                              >
+                                {pageIndex + 1}
+                              </Link>
+                            )}
+                          </li>
+                        ));
+                      })()}
+
+                      <li
+                        className={`paginate_button page-item next ${
+                          !table.getCanNextPage() ? 'disabled' : ''
+                        }`}
                       >
-                        <i className="mdi mdi-chevron-right"></i>
-                      </Link>
-                    </li>
-                  </ul>
+                        <Link
+                          className="page-link"
+                          onClick={() => table.nextPage()}
+                        >
+                          <i className="mdi mdi-chevron-right"></i>
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </Col>
             </Row>

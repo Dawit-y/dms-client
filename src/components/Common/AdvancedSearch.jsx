@@ -26,6 +26,7 @@ import FetchErrorHandler from './FetchErrorHandler';
 const AdvancedSearch = ({
   ref,
   searchHook,
+  pageFilter,
   textSearchKeys,
   dropdownSearchKeys,
   dropdownSearchKeys2,
@@ -42,28 +43,59 @@ const AdvancedSearch = ({
   setShowSearchResult,
   getSearchParams,
   setExportSearchParams,
-  onPaginationChange,
-  pagination = { currentPage: 1, pageSize: 10 },
   setPaginationInfo,
   onClear,
   children,
-
-  initialSearchParams = {},
-  initialAdditionalParams = {},
-  initialPagination = { currentPage: 1, pageSize: 10 },
+  onSearchClick, // Callback to get tree selection values
+  onClearClick, // Callback to clear tree selection
+  treeSelection, // Current tree selection state
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
-  const [params, setParams] = useState(initialSearchParams ?? {});
-  const [searchParams, setSearchParams] = useState({});
-  const [paramsWithLabels, setParamsWithLabels] = useState({});
+  // Use URL state from usePageFilters with dynamic search keys
+  const { filters, setFilters, getApiParams, hasActiveFilters } = pageFilter;
 
-  const [initialized, setInitialized] = useState(false);
+  // Local state for form inputs (not synced to URL until Search is clicked)
+  const [localParams, setLocalParams] = useState(() => {
+    const initial = {};
+    if (textSearchKeys) {
+      textSearchKeys.forEach((key) => {
+        initial[key] = filters[key] || '';
+      });
+    }
+    if (dropdownSearchKeys) {
+      dropdownSearchKeys.forEach(({ key, defaultValue }) => {
+        initial[key] = filters[key] || defaultValue || '';
+      });
+    }
+    if (dateSearchKeys) {
+      dateSearchKeys.forEach((key) => {
+        initial[`${key}_start`] = filters[`${key}_start`] || '';
+        initial[`${key}_end`] = filters[`${key}_end`] || '';
+      });
+    }
+    return initial;
+  });
+
+  const [paramsWithLabels, setParamsWithLabels] = useState({});
 
   const { userId } = useAuth();
   const { regions, zones, woredas } = useFetchAddressStructure(userId);
+
+  // Build search params from URL filters + additional params
+  // Only include search params if there are active filters (prevent initial load)
+  const searchParams = useMemo(() => {
+    if (!hasActiveFilters) {
+      return null; // Return null to prevent initial data fetch
+    }
+    const apiParams = getApiParams();
+    return {
+      ...apiParams,
+      ...(additionalParams || {}),
+    };
+  }, [getApiParams, additionalParams, hasActiveFilters]);
 
   const {
     data = [],
@@ -84,25 +116,25 @@ const AdvancedSearch = ({
       });
     }
 
-    // Add text search fields
+    // Add text search fields from local params
     if (textSearchKeys) {
       textSearchKeys.forEach((key) => {
-        values[key] = initialSearchParams[key] || '';
+        values[key] = localParams[key] || '';
       });
     }
 
-    // Add dropdown search fields
+    // Add dropdown search fields from local params
     if (dropdownSearchKeys) {
       dropdownSearchKeys.forEach(({ key, defaultValue }) => {
-        values[key] = initialSearchParams[key] || defaultValue || '';
+        values[key] = localParams[key] || defaultValue || '';
       });
     }
 
-    // Add date search fields
+    // Add date search fields from local params
     if (dateSearchKeys) {
       dateSearchKeys.forEach((key) => {
-        values[`${key}_start`] = initialSearchParams[`${key}_start`] || '';
-        values[`${key}_end`] = initialSearchParams[`${key}_end`] || '';
+        values[`${key}_start`] = localParams[`${key}_start`] || '';
+        values[`${key}_end`] = localParams[`${key}_end`] || '';
       });
     }
 
@@ -111,14 +143,15 @@ const AdvancedSearch = ({
 
   const validation = useFormik({
     initialValues: createInitialValues(),
+    enableReinitialize: true,
   });
 
-  // Handle updates for all input types
+  // Handle updates for all input types (only updates local state, not URL)
   const handleSearchKey = (key, value, type = 'text', label = '') => {
     validation.setFieldValue(key, value);
 
-    // Update params (values)
-    setParams((prevParams) => {
+    // Update local params (not URL yet)
+    setLocalParams((prevParams) => {
       if (type === 'checkbox') {
         const currentValues = prevParams[key] || [];
         const updatedValues = Array.isArray(currentValues)
@@ -153,29 +186,52 @@ const AdvancedSearch = ({
   const handleSearch = (resetToPageOne = false) => {
     const allValues = validation.values;
 
-    // Filter out empty values and convert numbers
+    // Filter out empty values
     const transformedValues = Object.fromEntries(
       Object.entries(allValues)
         // eslint-disable-next-line no-unused-vars
         .filter(([_key, value]) => value !== '' && value != null)
-        .map(([key, value]) => [
-          key,
-          /^\d+$/.test(value) ? parseInt(value, 10) : value,
-        ])
     );
 
-    // Use current pagination from Redux, unless we're resetting to page 1
-    const currentPage = resetToPageOne ? 1 : pagination.currentPage;
-    const pageSize = pagination.pageSize;
+    // Update URL state with search values using actual key names (shallow: false for server-side fetch)
+    const urlUpdates = {};
 
-    // Combine values (IDs)
-    const combinedParams = {
-      ...params,
-      ...transformedValues,
-      ...(additionalParams || {}),
-      page: currentPage,
-      per_page: pageSize,
+    // Map text search keys to URL using actual key names (e.g., 'title', 'name', etc.)
+    if (textSearchKeys) {
+      textSearchKeys.forEach((key) => {
+        urlUpdates[key] = transformedValues[key] || null;
+      });
+    }
+
+    // Map dropdown search keys using actual key names
+    if (dropdownSearchKeys) {
+      dropdownSearchKeys.forEach(({ key }) => {
+        urlUpdates[key] = transformedValues[key] || null;
+      });
+    }
+
+    // Map date search keys using actual key names with _start/_end suffixes
+    if (dateSearchKeys) {
+      dateSearchKeys.forEach((key) => {
+        urlUpdates[`${key}_start`] = transformedValues[`${key}_start`] || null;
+        urlUpdates[`${key}_end`] = transformedValues[`${key}_end`] || null;
+      });
+    }
+
+    // Get tree selection values from callback (if provided) and combine with search values
+    const treeSelectionValues = onSearchClick ? onSearchClick() : {};
+
+    // Combine all updates: tree selection + search values
+    // setFilters here is actually updateFilters which handles merging internally
+    const finalUpdates = {
+      ...treeSelectionValues,
+      ...urlUpdates,
+      page: resetToPageOne ? 1 : filters.page || 1,
+      pageSize: filters.pageSize || 10,
     };
+
+    // Update URL (setFilters is updateFilters wrapper that merges internally)
+    setFilters(finalUpdates, { shallow: false });
 
     // Map helper
     const findLabel = (list, id) => {
@@ -206,95 +262,155 @@ const AdvancedSearch = ({
       }),
     };
 
-    // Update states
-    setSearchParams(combinedParams);
     if (onSearchLabels) {
       onSearchLabels(combinedParamsLabels);
     }
     if (getSearchParams) {
-      getSearchParams(combinedParams);
-    }
-
-    // Only reset to page 1 if explicitly requested (for new searches)
-    if (resetToPageOne && onPaginationChange) {
-      onPaginationChange({
-        ...pagination,
-        currentPage: 1,
-      });
+      getSearchParams(searchParams);
     }
   };
 
-  // Refetch whenever searchParams changes
+  // Ref to track previous searchParams to prevent duplicate refetches
+  const prevSearchParamsRef = React.useRef(null);
+
+  // Refetch whenever searchParams changes (only if hasActiveFilters)
   useEffect(() => {
+    // Serialize searchParams for comparison
+    const searchParamsStr = searchParams ? JSON.stringify(searchParams) : null;
+
+    // Skip if searchParams haven't actually changed
+    if (prevSearchParamsRef.current === searchParamsStr) {
+      return;
+    }
+
+    prevSearchParamsRef.current = searchParamsStr;
+
     const fetchData = async () => {
       try {
-        setIsSearchLoading(true);
+        if (setIsSearchLoading) setIsSearchLoading(true);
         const result = await refetch();
         const { data, error } = result;
-        onSearchResult({ data, error });
+        if (onSearchResult) onSearchResult({ data, error });
       } catch (error) {
         console.error('Error during search:', error);
       } finally {
-        setIsSearchLoading(false);
+        if (setIsSearchLoading) setIsSearchLoading(false);
       }
     };
 
-    if (Object.keys(searchParams).length > 0) {
+    // Only fetch if searchParams exists and has values (hasActiveFilters ensures this)
+    if (searchParams && Object.keys(searchParams).length > 0) {
       fetchData();
     }
   }, [searchParams, refetch, onSearchResult, setIsSearchLoading]);
 
-  // Initialize with existing search params and pagination
+  // Sync local params with URL state when URL changes (e.g., browser back/forward)
   useEffect(() => {
-    if (
-      !initialized &&
-      (Object.keys(initialSearchParams).length > 0 ||
-        Object.keys(initialAdditionalParams).length > 0)
-    ) {
-      // Set form values from initial search params
-      Object.entries(initialSearchParams).forEach(([key, value]) => {
-        if (value !== '' && value != null) {
-          validation.setFieldValue(key, value);
+    const updatedLocalParams = { ...localParams };
+    let hasChanges = false;
+
+    // Sync text search from URL using actual key names
+    if (textSearchKeys) {
+      textSearchKeys.forEach((key) => {
+        const urlValue = filters[key] || '';
+        if (updatedLocalParams[key] !== urlValue) {
+          updatedLocalParams[key] = urlValue;
+          hasChanges = true;
         }
       });
-
-      // Set params state
-      setParams(initialSearchParams);
-
-      // Trigger search with current pagination
-      const searchParamsToSet = {
-        ...initialSearchParams,
-        ...initialAdditionalParams,
-        page: initialPagination.currentPage,
-        per_page: initialPagination.pageSize,
-      };
-
-      setSearchParams(searchParamsToSet);
-      setInitialized(true);
     }
-  }, [
-    initialSearchParams,
-    initialAdditionalParams,
-    initialized,
-    initialPagination,
-    validation,
-  ]);
 
-  const handleClear = () => {
-    setParams({});
-    setSearchParams({});
-    setParamsWithLabels({});
-    setSearchResults(null);
-    setShowSearchResult(false);
-    validation.resetForm();
-
-    // Clear date range parameters
-    if (dateSearchKeys) {
-      dateSearchKeys.forEach((key) => {
-        handleSearchKey(`${key}_start`, '');
-        handleSearchKey(`${key}_end`, '');
+    // Sync dropdown from URL using actual key names
+    if (dropdownSearchKeys) {
+      dropdownSearchKeys.forEach(({ key }) => {
+        const urlValue = filters[key] || '';
+        if (updatedLocalParams[key] !== urlValue) {
+          updatedLocalParams[key] = urlValue;
+          hasChanges = true;
+        }
       });
     }
+
+    // Sync date from URL using actual key names
+    if (dateSearchKeys) {
+      dateSearchKeys.forEach((key) => {
+        const startValue = filters[`${key}_start`] || '';
+        const endValue = filters[`${key}_end`] || '';
+        if (
+          updatedLocalParams[`${key}_start`] !== startValue ||
+          updatedLocalParams[`${key}_end`] !== endValue
+        ) {
+          updatedLocalParams[`${key}_start`] = startValue;
+          updatedLocalParams[`${key}_end`] = endValue;
+          hasChanges = true;
+        }
+      });
+    }
+
+    if (hasChanges) {
+      setLocalParams(updatedLocalParams);
+    }
+    // Depend on filters object and search key configs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, textSearchKeys, dropdownSearchKeys, dateSearchKeys]);
+
+  const handleClear = () => {
+    // Clear local params
+    const clearedLocalParams = {};
+    if (textSearchKeys) {
+      textSearchKeys.forEach((key) => {
+        clearedLocalParams[key] = '';
+      });
+    }
+    if (dropdownSearchKeys) {
+      dropdownSearchKeys.forEach(({ key }) => {
+        clearedLocalParams[key] = '';
+      });
+    }
+    if (dateSearchKeys) {
+      dateSearchKeys.forEach((key) => {
+        clearedLocalParams[`${key}_start`] = '';
+        clearedLocalParams[`${key}_end`] = '';
+      });
+    }
+    setLocalParams(clearedLocalParams);
+
+    // Clear tree selection
+    if (onClearClick) {
+      onClearClick();
+    }
+
+    // Clear URL state including tree selection
+    const clearedFilters = {
+      regionId: null,
+      zoneId: null,
+      woredaId: null,
+      include: 0,
+      page: 1,
+    };
+    if (textSearchKeys) {
+      textSearchKeys.forEach((key) => {
+        clearedFilters[key] = null;
+      });
+    }
+    if (dropdownSearchKeys) {
+      dropdownSearchKeys.forEach(({ key }) => {
+        clearedFilters[key] = null;
+      });
+    }
+    if (dateSearchKeys) {
+      dateSearchKeys.forEach((key) => {
+        clearedFilters[`${key}_start`] = null;
+        clearedFilters[`${key}_end`] = null;
+      });
+    }
+    setFilters(clearedFilters, { shallow: false });
+
+    setParamsWithLabels({});
+    if (setSearchResults) setSearchResults(null);
+    if (setShowSearchResult) setShowSearchResult(false);
+    validation.resetForm();
+
     if (setAdditionalParams) {
       setAdditionalParams({});
     }
@@ -318,8 +434,16 @@ const AdvancedSearch = ({
   };
 
   const isButtonDisabled = useMemo(() => {
+    // Check if there's any tree selection
+    const hasTreeSelection =
+      treeSelection &&
+      (treeSelection.regionId ||
+        treeSelection.zoneId ||
+        treeSelection.woredaId);
+
+    // Check if there's any search value
     const hasAnyValue = Object.entries({
-      ...params,
+      ...localParams,
       ...validation.values,
       ...additionalParams,
     }).some(([key, value]) => {
@@ -333,26 +457,15 @@ const AdvancedSearch = ({
       return value != null && value !== '';
     });
 
-    return !hasAnyValue;
-  }, [params, validation.values, additionalParams]);
+    // Button is enabled if there's tree selection OR search values
+    return !hasTreeSelection && !hasAnyValue;
+  }, [localParams, validation.values, additionalParams, treeSelection]);
 
   // Expose method to get search values
   useImperativeHandle(ref, () => ({
     refreshSearch: async () => refetch(),
     searchWithCurrentPagination: () => handleSearch(false),
   }));
-
-  // Refetch when pagination changes - use current pagination
-  useEffect(() => {
-    if (Object.keys(searchParams).length > 0 && initialized) {
-      const updatedSearchParams = {
-        ...searchParams,
-        page: pagination.currentPage,
-        per_page: pagination.pageSize,
-      };
-      setSearchParams(updatedSearchParams);
-    }
-  }, [pagination.currentPage, pagination.pageSize, initialized, searchParams]);
 
   const inputStyles = {
     width: '100%',
@@ -430,13 +543,14 @@ const AdvancedSearch = ({
                                 }
                               }}
                               value={
-                                params[`${key}_start`] && params[`${key}_end`]
+                                localParams[`${key}_start`] &&
+                                localParams[`${key}_end`]
                                   ? {
                                       startDate: parseDateString(
-                                        params[`${key}_start`]
+                                        localParams[`${key}_start`]
                                       ),
                                       endDate: parseDateString(
-                                        params[`${key}_end`]
+                                        localParams[`${key}_end`]
                                       ),
                                     }
                                   : null
@@ -456,7 +570,7 @@ const AdvancedSearch = ({
                             name={key}
                             autoComplete="off"
                             placeholder={t(key)}
-                            value={params[key] || ''}
+                            value={localParams[key] || ''}
                             onChange={(e) =>
                               handleSearchKey(
                                 key,
@@ -474,7 +588,7 @@ const AdvancedSearch = ({
                       dropdownSearchKeys.map(({ key, options }) => (
                         <div key={key} style={{ minWidth: 0 }}>
                           <Form.Select
-                            value={params[key] || ''}
+                            value={localParams[key] || ''}
                             onChange={(event) => {
                               const value = event.target.value;
                               const label =
@@ -617,7 +731,7 @@ const AdvancedSearch = ({
                           dropdownSearchKeys2.map(({ key, options }) => (
                             <div key={key} style={{ minWidth: 0 }}>
                               <Form.Select
-                                value={params[key] || ''}
+                                value={localParams[key] || ''}
                                 onChange={(event) => {
                                   const value = event.target.value;
                                   const label =
@@ -663,7 +777,9 @@ const AdvancedSearch = ({
                               id={`${key}-checkbox-${index}`}
                               label={item.label}
                               value={item.value}
-                              checked={(params[key] || []).includes(item.value)}
+                              checked={(localParams[key] || []).includes(
+                                item.value
+                              )}
                               onChange={(e) =>
                                 handleSearchKey(
                                   key,

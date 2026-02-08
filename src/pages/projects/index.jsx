@@ -1,17 +1,36 @@
 import { useMemo, useCallback, useEffect, memo } from 'react';
-import { useState } from 'react';
-import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 
 import Breadcrumb from '../../components/Common/Breadcrumb';
 import TableContainer from '../../components/Common/TableContainer';
-import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 import TreeSearchWrapper from '../../components/Common/TreeSearchWrapper';
+import { usePageFilters } from '../../hooks/usePageFilters';
+import { useUrlPagination } from '../../hooks/useUrlPagination';
 import { useSearchProjects } from '../../queries/projects_query';
-import { truncateText } from '../../utils/commonMethods';
+import { projectColumns } from './columns';
 
 function Projects() {
   const navigate = useNavigate();
+  const searchConfig = {
+    textSearchKeys: ['title'],
+    dropdownSearchKeys: [
+      {
+        key: 'status',
+        options: {
+          inactive: 'Inactive',
+          active: 'Active',
+          completed: 'Completed',
+        },
+        // defaultValue: 'active',
+      },
+    ],
+    dateSearchKeys: ['created'],
+  };
+  const pageFilter = usePageFilters(searchConfig);
+  const { pagination, onChange } = useUrlPagination(
+    pageFilter.filters,
+    pageFilter.setFilters
+  );
 
   useEffect(() => {
     document.title = 'Projects';
@@ -21,49 +40,7 @@ function Projects() {
     navigate('/projects/add');
   }, [navigate]);
 
-  const [pagination, setPagination] = useState({
-    pageIndex: 0, // TanStack is 0-based
-    pageSize: 40,
-  });
-
-  const columns = useMemo(
-    () => [
-      snColumn,
-      {
-        accessorKey: 'title',
-        cell: (info) => info.getValue(),
-      },
-      {
-        accessorKey: 'budget',
-        cell: (info) => info.getValue(),
-        meta: {
-          filterVariant: 'range',
-        },
-      },
-      {
-        accessorKey: 'status',
-        cell: (info) => info.getValue(),
-      },
-      {
-        accessorKey: 'description',
-        cell: (info) => truncateText(info.getValue(), 50) ?? '-',
-      },
-      {
-        header: 'Actions',
-        id: 'actions',
-        cell: (info) => (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate(`/projects/${info.row.original.id}`)}
-          >
-            View
-          </Button>
-        ),
-      },
-    ],
-    [navigate]
-  );
+  const columns = useMemo(() => projectColumns(navigate), [navigate]);
 
   return (
     <>
@@ -72,19 +49,8 @@ function Projects() {
         <>
           <TreeSearchWrapper
             searchHook={useSearchProjects}
-            textSearchKeys={['title']}
-            dateSearchKeys={['created']}
-            dropdownSearchKeys={[
-              {
-                key: 'status',
-                options: {
-                  inactive: 'Inactive',
-                  active: 'Active',
-                  completed: 'Completed',
-                },
-                defaultValue: 'active',
-              },
-            ]}
+            pageFilter={pageFilter}
+            searchConfig={searchConfig}
           >
             {({ result, isLoading }) => {
               return (
@@ -97,19 +63,12 @@ function Projects() {
                   isCustomPageSize={true}
                   isPagination={true}
                   handleUserClick={handleAddClick}
-                  SearchPlaceholder={'filter'}
-                  buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
-                  buttonName={'Add Project'}
-                  tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
-                  theadClass="table-light"
-                  pagination="pagination"
-                  paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
-                  divClassName="-"
                   isExcelExport
                   manualPagination={true}
                   paginationState={pagination}
-                  onPaginationChange={setPagination}
-                  rowCount={result?.pagination?.total}
+                  isServerSidePagination={true}
+                  onPaginationChange={onChange}
+                  totalRows={result?.pagination?.total}
                   pageCount={result?.pagination?.total_pages}
                 />
               );

@@ -1,3 +1,4 @@
+import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useState, useEffect } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
@@ -107,7 +108,9 @@ const App = () => {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <NuqsAdapter>
+        <RouterProvider router={router} />
+      </NuqsAdapter>
       <ToastContainer />
     </>
   );

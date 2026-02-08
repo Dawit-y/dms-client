@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import { Form, Row, Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
@@ -12,6 +12,8 @@ import NumberField from '../../components/Common/NumberField';
 import { useAddProject, useUpdateProject } from '../../queries/projects_query';
 
 const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
+  const submitActionRef = useRef(null);
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -23,7 +25,7 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
     title: Yup.string().required(t('field_required')),
     budget: Yup.number().required(t('field_required')),
     status: Yup.string().required(t('field_required')),
-    isApproved: Yup.boolean().required(t('field_required')),
+    isApproved: Yup.boolean(),
     description: Yup.string().required(t('field_required')),
   });
 
@@ -32,61 +34,51 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
       title: isEdit ? rowData.title || '' : '',
       budget: isEdit ? rowData.budget || '' : '',
       status: isEdit ? rowData.status || '' : '',
-      isApproved: isEdit ? rowData.isApproved || false : false,
+      isApproved: isEdit ? !!rowData.isApproved : false,
       description: isEdit ? rowData.description || '' : '',
     },
     validationSchema,
     enableReinitialize: true,
+
     onSubmit: async (values, { setSubmitting }) => {
       try {
+        let projectId;
+
         if (isEdit) {
           await updateProjectMutation.mutateAsync({
-            id: id || rowData?.id,
+            id: id || rowData.id,
             ...values,
           });
+          projectId = id || rowData.id;
         } else {
-          await addProjectMutation.mutateAsync(values);
+          const result = await addProjectMutation.mutateAsync(values);
+          projectId = result?.id;
+        }
+
+        if (submitActionRef.current === 'close') {
+          navigate('/projects');
+        }
+
+        if (submitActionRef.current === 'view') {
+          navigate(projectId ? `/projects/${projectId}` : '/projects');
         }
       } catch (error) {
-        console.error('Form submission error:', error);
+        console.error(error);
       } finally {
         setSubmitting(false);
+        submitActionRef.current = null;
       }
     },
   });
 
-  // Handle Save & Close
-  const handleSaveAndClose = async (e) => {
-    e?.preventDefault();
-    await formik.submitForm();
-    navigate('/projects');
+  const handleSaveAndClose = () => {
+    submitActionRef.current = 'close';
+    formik.submitForm();
   };
 
-  // Handle Save & View
-  const handleSaveAndView = async (e) => {
-    e?.preventDefault();
-    try {
-      let projectId;
-
-      if (isEdit) {
-        await updateProjectMutation.mutateAsync({
-          id: id || rowData?.id,
-          ...formik.values,
-        });
-        projectId = id || rowData?.id;
-      } else {
-        const result = await addProjectMutation.mutateAsync(formik.values);
-        projectId = result?.id;
-      }
-
-      if (projectId) {
-        navigate(`/projects/${projectId}`);
-      } else {
-        navigate('/projects');
-      }
-    } catch (error) {
-      console.error('Error saving and viewing:', error);
-    }
+  const handleSaveAndView = () => {
+    submitActionRef.current = 'view';
+    formik.submitForm();
   };
 
   // Handle Cancel
@@ -127,11 +119,13 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
             isSubmitting={formik.isSubmitting}
             isPending={isMutationPending}
             isEdit={isEdit}
+            isValid={formik.isValid}
+            dirty={formik.dirty}
             onCancel={handleCancel}
             onSaveAndClose={handleSaveAndClose}
             onSaveAndView={handleSaveAndView}
-            showSaveAndView={true}
-            showSaveAndClose={true}
+            showSaveAndView
+            showSaveAndClose
           />
         </Form>
       </Card.Body>

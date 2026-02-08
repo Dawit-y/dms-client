@@ -34,6 +34,10 @@ const TreeForLists = ({
   setInclude,
   isCollapsed,
   setIsCollapsed,
+  activeRegionId,
+  activeZoneId,
+  activeWoredaId,
+  include,
 }) => {
   const { t, i18n } = useTranslation();
   const dndManager = useDragDropManager();
@@ -44,7 +48,7 @@ const TreeForLists = ({
     useFetchAddressStructure(userId);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNode, setSelectedNode] = useState({});
-  const [includeChecked, setIncludeChecked] = useState(false);
+  const includeChecked = include === 1;
   const { ref, width, height } = useResizeObserver();
 
   const treeData = useMemo(() => {
@@ -68,7 +72,6 @@ const TreeForLists = ({
 
   const handleCheckboxChange = (e) => {
     const checked = e.target.checked;
-    setIncludeChecked(checked);
     if (setInclude) {
       setInclude(checked ? 1 : 0);
     }
@@ -88,6 +91,47 @@ const TreeForLists = ({
       };
     });
   };
+
+  // Determine active node ID based on URL state
+  const activeNodeId = useMemo(() => {
+    if (activeWoredaId) return activeWoredaId.toString();
+    if (activeZoneId) return activeZoneId.toString();
+    if (activeRegionId) return activeRegionId.toString();
+    return null;
+  }, [activeRegionId, activeZoneId, activeWoredaId]);
+
+  // Sync selected node with URL state and highlight active node
+  useEffect(() => {
+    if (activeNodeId && treeRef.current && treeData.length > 0) {
+      // Find the node in treeData
+      const findNode = (nodes, targetId) => {
+        for (const node of nodes) {
+          if (node.id?.toString() === targetId) {
+            return node;
+          }
+          if (node.children) {
+            const found = findNode(node.children, targetId);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const node = findNode(treeData, activeNodeId);
+      if (node) {
+        // Use setTimeout to avoid synchronous setState in effect
+        setTimeout(() => {
+          setSelectedNode({
+            ...node,
+            level: node.level || 'unknown',
+          });
+          // Select and scroll to the active node
+          treeRef.current?.select(activeNodeId);
+          treeRef.current?.scrollTo(activeNodeId);
+        }, 100);
+      }
+    }
+  }, [activeNodeId, treeData]);
 
   const handleExpandAndFocusSearch = () => {
     setIsCollapsed(false);
@@ -381,6 +425,9 @@ const TreeForLists = ({
                           style={style}
                           dragHandle={dragHandle}
                           onNodeSelect={handleNodeSelect}
+                          isActive={
+                            activeNodeId && node.id?.toString() === activeNodeId
+                          }
                         />
                       )}
                     </Tree>
@@ -395,7 +442,7 @@ const TreeForLists = ({
   );
 };
 
-const Node = ({ node, style, dragHandle, onNodeSelect }) => {
+const Node = ({ node, style, dragHandle, onNodeSelect, isActive }) => {
   const { i18n } = useTranslation();
 
   const lang = i18n.language;
@@ -413,8 +460,8 @@ const Node = ({ node, style, dragHandle, onNodeSelect }) => {
       style={{ ...style, display: 'flex', cursor: 'pointer' }}
       ref={dragHandle}
       className={`${
-        node.isSelected ? 'bg-info-subtle' : ''
-      } py-1 rounded hover-zoom`}
+        node.isSelected || isActive ? 'bg-info-subtle' : ''
+      } py-1 rounded hover-zoom ${isActive ? 'border-start border-primary border-3' : ''}`}
     >
       {!isLeafNode && node.data.level !== 'woreda' && (
         <span className="me-2 ps-2">{chevronIcon}</span>
