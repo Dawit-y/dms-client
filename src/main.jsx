@@ -1,4 +1,10 @@
 import { StrictMode } from 'react';
+
+if (import.meta.env.VITE_NODE_ENV !== 'production') {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/react-scan/dist/auto.global.js';
+  document.head.appendChild(script);
+}
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { createRoot } from 'react-dom/client';

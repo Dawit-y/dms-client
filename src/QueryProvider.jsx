@@ -89,7 +89,9 @@ const QueryProvider = ({ children }) => {
       }}
     >
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {import.meta.env.VITE_NODE_ENV !== 'production' && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </PersistQueryClientProvider>
   );
 };
