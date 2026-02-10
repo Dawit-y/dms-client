@@ -158,10 +158,10 @@ const TableContainer = ({
     setGoToPageValue(''); // Reset local state after applying
   };
 
-  // Sync goToPageValue when page changes
+  const currentPageIndex = table.getState().pagination.pageIndex;
   React.useEffect(() => {
-    setGoToPageValue(table.getState().pagination.pageIndex + 1);
-  }, [table.getState().pagination.pageIndex]);
+    setGoToPageValue(currentPageIndex + 1);
+  }, [currentPageIndex]);
 
   const exportTooltip = (props) => (
     <Tooltip id="export-tooltip" {...props}>
