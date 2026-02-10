@@ -528,7 +528,7 @@ const TableContainer = ({
                   {/* Pagination buttons */}
                   <div
                     className={
-                      'dataTables_paginate paging_simple_numbers pagination-rounded'
+                      'dataTables_paginate paging_simple_numbers pagination-rounded mt-2'
                     }
                   >
                     <ul className={'pagination'}>

@@ -5,25 +5,38 @@ import Projects from '../pages/projects';
 import AddProject from '../pages/projects/AddProject';
 import EditProject from '../pages/projects/EditProject';
 import ProjectDetails from '../pages/projects/ProjectDetails';
+import ProjectsLayout from '../pages/projects/ProjectsLayout';
 import Users from '../pages/users';
 import AddUser from '../pages/users/AddUser';
 import EditUser from '../pages/users/EditUser';
 import UserDetails from '../pages/users/UserDetails';
+import UsersLayout from '../pages/users/UsersLayout';
 
 const authProtectedRoutes = [
-  { path: '/users', element: <Users /> },
-  { path: '/users/add', element: <AddUser /> },
-  { path: '/users/:id', element: <UserDetails /> },
-  { path: '/users/:id/edit', element: <EditUser /> },
-
-  { path: '/projects', element: <Projects /> },
-  { path: '/projects/add', element: <AddProject /> },
-  { path: '/projects/:id/:tab?', element: <ProjectDetails /> },
-  { path: '/projects/:id/edit', element: <EditProject /> },
+  {
+    path: '/users',
+    element: <UsersLayout />,
+    children: [
+      { index: true, element: <Users /> },
+      { path: 'add', element: <AddUser /> },
+      { path: ':id', element: <UserDetails /> },
+      { path: ':id/edit', element: <EditUser /> },
+    ],
+  },
 
   {
-    path: '/projects/:projectId/payments/:paymentId',
-    element: <PaymentDetails />,
+    path: '/projects',
+    element: <ProjectsLayout />,
+    children: [
+      { index: true, element: <Projects /> },
+      { path: 'add', element: <AddProject /> },
+      { path: ':id/:tab?', element: <ProjectDetails /> },
+      { path: ':id/edit', element: <EditProject /> },
+      {
+        path: ':projectId/payments/:paymentId',
+        element: <PaymentDetails />,
+      },
+    ],
   },
 
   { path: '/dashboard', element: <Dashboard /> },

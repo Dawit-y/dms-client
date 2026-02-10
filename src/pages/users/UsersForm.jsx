@@ -49,11 +49,12 @@ const UsersForm = ({ isEdit = false, rowData = {} }) => {
         }
 
         if (submitActionRef.current === 'close') {
-          navigate('/users');
+          navigate(-1);
         }
 
         if (submitActionRef.current === 'view') {
-          navigate(userId ? `/users/${userId}` : '/users');
+          const search = window.location.search;
+          navigate(userId ? `/users/${userId}${search}` : `/users${search}`);
         }
       } catch (error) {
         console.error(error);
@@ -75,7 +76,7 @@ const UsersForm = ({ isEdit = false, rowData = {} }) => {
   };
 
   const handleCancel = () => {
-    navigate('/users');
+    navigate(-1);
   };
 
   const isMutationPending =

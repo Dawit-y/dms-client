@@ -1,26 +1,41 @@
-import { useMemo, useCallback, useEffect, memo } from 'react';
+import { useCallback, useEffect, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 
 import Breadcrumb from '../../components/Common/Breadcrumb';
+import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
-import { usePageFilters } from '../../hooks/usePageFilters';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
-import { useFetchUsers } from '../../queries/users_query';
-import { userColumns } from './columns';
+import { useFetchUsers, useDeleteUser } from '../../queries/users_query';
+import { useUserColumns } from './columns';
 
 function Users() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { pageFilter } = useOutletContext();
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
-  const searchConfig = {
-    textSearchKeys: ['first_name', 'last_name', 'email'],
-    dropdownSearchKeys: [],
-    dateSearchKeys: [],
+  const deleteUserMutation = useDeleteUser();
+
+  const handleDeleteClick = useCallback((id) => {
+    setUserToDelete(id);
+    setDeleteModal(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (userToDelete) {
+      try {
+        await deleteUserMutation.mutateAsync(userToDelete);
+        setDeleteModal(false);
+        setUserToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+      }
+    }
   };
 
-  const pageFilter = usePageFilters(searchConfig);
   const { pagination, onChange } = useUrlPagination(
     pageFilter.filters,
     pageFilter.setFilters
@@ -35,10 +50,10 @@ function Users() {
   const { data, isLoading, isError, error, refetch } = useFetchUsers(param);
 
   const handleAddClick = useCallback(() => {
-    navigate('/users/add');
+    navigate(`/users/add${window.location.search}`);
   }, [navigate]);
 
-  const columns = useMemo(() => userColumns(navigate), [navigate]);
+  const columns = useUserColumns(handleDeleteClick);
 
   if (isError) {
     return <FetchErrorHandler error={error} refetch={refetch} />;
@@ -64,6 +79,12 @@ function Users() {
           totalRows={data?.pagination?.total}
           pageCount={data?.pagination?.total_pages}
           refetch={refetch}
+        />
+        <DeleteModal
+          isOpen={deleteModal}
+          toggle={() => setDeleteModal(false)}
+          onDeleteClick={confirmDelete}
+          isPending={deleteUserMutation.isPending}
         />
       </div>
     </>

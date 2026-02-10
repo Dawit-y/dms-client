@@ -1,32 +1,43 @@
-import { useMemo, useCallback, useEffect, memo } from 'react';
+import { useCallback, useEffect, memo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useOutletContext } from 'react-router';
 
 import Breadcrumb from '../../components/Common/Breadcrumb';
+import DeleteModal from '../../components/Common/DeleteModal';
 import TableContainer from '../../components/Common/TableContainer';
 import TreeSearchWrapper from '../../components/Common/TreeSearchWrapper';
-import { usePageFilters } from '../../hooks/usePageFilters';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
-import { useSearchProjects } from '../../queries/projects_query';
-import { projectColumns } from './columns';
+import {
+  useDeleteProject,
+  useSearchProjects,
+} from '../../queries/projects_query';
+import { useProjectColumns } from './columns';
 
 function Projects() {
   const navigate = useNavigate();
-  const searchConfig = {
-    textSearchKeys: ['title'],
-    dropdownSearchKeys: [
-      {
-        key: 'status',
-        options: {
-          inactive: 'Inactive',
-          active: 'Active',
-          completed: 'Completed',
-        },
-        // defaultValue: 'active',
-      },
-    ],
-    dateSearchKeys: ['created'],
+  const { pageFilter, searchConfig } = useOutletContext();
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+
+  const deleteProjectMutation = useDeleteProject();
+
+  const handleDeleteClick = useCallback((id) => {
+    setProjectToDelete(id);
+    setDeleteModal(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (projectToDelete) {
+      try {
+        await deleteProjectMutation.mutateAsync(projectToDelete);
+        setDeleteModal(false);
+        setProjectToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete project:', error);
+      }
+    }
   };
-  const pageFilter = usePageFilters(searchConfig);
+
   const { pagination, onChange } = useUrlPagination(
     pageFilter.filters,
     pageFilter.setFilters
@@ -37,10 +48,10 @@ function Projects() {
   }, []);
 
   const handleAddClick = useCallback(() => {
-    navigate('/projects/add');
+    navigate(`/projects/add${window.location.search}`);
   }, [navigate]);
 
-  const columns = useMemo(() => projectColumns(navigate), [navigate]);
+  const columns = useProjectColumns(handleDeleteClick);
 
   return (
     <>
@@ -74,6 +85,12 @@ function Projects() {
             }}
           </TreeSearchWrapper>
         </>
+        <DeleteModal
+          isOpen={deleteModal}
+          toggle={() => setDeleteModal(false)}
+          onDeleteClick={confirmDelete}
+          isPending={deleteProjectMutation.isPending}
+        />
       </div>
     </>
   );

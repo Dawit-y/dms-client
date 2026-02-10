@@ -1,33 +1,42 @@
-import { FaEye } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
 
-import IconButton from '../../components/Common/IconButton';
+import ActionsCell from '../../components/Common/ActionsCell';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
-export const projectColumns = (navigate) => [
-  snColumn,
-  {
-    accessorKey: 'title',
-    cell: (info) => info.getValue(),
-  },
-  {
-    accessorKey: 'budget',
-    cell: (info) => info.getValue(),
-    meta: {
-      filterVariant: 'range',
+export const useProjectColumns = (onDelete) => {
+  const navigate = useNavigate();
+
+  return [
+    snColumn,
+    {
+      accessorKey: 'title',
+      cell: (info) => info.getValue(),
     },
-  },
-  {
-    accessorKey: 'status',
-    cell: (info) => info.getValue(),
-  },
-  {
-    header: 'Actions',
-    id: 'actions',
-    cell: (info) => (
-      <IconButton
-        icon={<FaEye />}
-        onClick={() => navigate(`/projects/${info.row.original.id}`)}
-      />
-    ),
-  },
-];
+    {
+      accessorKey: 'budget',
+      cell: (info) => info.getValue(),
+      meta: {
+        filterVariant: 'range',
+      },
+    },
+    {
+      accessorKey: 'status',
+      cell: (info) => info.getValue(),
+    },
+    {
+      header: 'Actions',
+      id: 'actions',
+      size: 100,
+      cell: (info) => (
+        <ActionsCell
+          id={info.row.original.id}
+          onView={(id) => navigate(`/projects/${id}${window.location.search}`)}
+          onEdit={(id) =>
+            navigate(`/projects/${id}/edit${window.location.search}`)
+          }
+          onDelete={onDelete}
+        />
+      ),
+    },
+  ];
+};

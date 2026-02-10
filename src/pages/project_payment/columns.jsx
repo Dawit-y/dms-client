@@ -1,60 +1,64 @@
-import { FaEye } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
 
-import IconButton from '../../components/Common/IconButton';
+import ActionsCell from '../../components/Common/ActionsCell';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
-export const paymentColumns = (navigate, projectId) => [
-  snColumn,
-  {
-    accessorKey: 'amount',
-    header: 'Amount',
-    cell: (info) => {
-      const value = info.getValue();
-      return value ? `$${Number(value).toLocaleString()}` : '-';
+export const usePaymentColumns = (projectId, onEdit, onDelete) => {
+  const navigate = useNavigate();
+
+  return [
+    snColumn,
+    {
+      accessorKey: 'amount',
+      header: 'Amount',
+      cell: (info) => {
+        const value = info.getValue();
+        return value ? `$${Number(value).toLocaleString()}` : '-';
+      },
+      meta: {
+        filterVariant: 'range',
+      },
     },
-    meta: {
-      filterVariant: 'range',
+    {
+      accessorKey: 'payment_date',
+      header: 'Payment Date',
+      cell: (info) => {
+        const value = info.getValue();
+        return value ? new Date(value).toLocaleDateString() : '-';
+      },
     },
-  },
-  {
-    accessorKey: 'payment_date',
-    header: 'Payment Date',
-    cell: (info) => {
-      const value = info.getValue();
-      return value ? new Date(value).toLocaleDateString() : '-';
+    {
+      accessorKey: 'payment_method',
+      header: 'Payment Method',
+      cell: (info) => {
+        const value = info.getValue();
+        return value || '-';
+      },
     },
-  },
-  {
-    accessorKey: 'payment_method',
-    header: 'Payment Method',
-    cell: (info) => {
-      const value = info.getValue();
-      return value || '-';
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: (info) => {
+        const value = info.getValue();
+        return value || '-';
+      },
     },
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: (info) => {
-      const value = info.getValue();
-      return value || '-';
+    {
+      accessorKey: 'receipt_number',
+      header: 'Receipt Number',
+      cell: (info) => info.getValue() || '-',
     },
-  },
-  {
-    accessorKey: 'receipt_number',
-    header: 'Receipt Number',
-    cell: (info) => info.getValue() || '-',
-  },
-  {
-    header: 'Actions',
-    id: 'actions',
-    cell: (info) => (
-      <IconButton
-        icon={<FaEye />}
-        onClick={() =>
-          navigate(`/projects/${projectId}/payments/${info.row.original.id}`)
-        }
-      />
-    ),
-  },
-];
+    {
+      header: 'Actions',
+      id: 'actions',
+      cell: (info) => (
+        <ActionsCell
+          id={info.row.original.id}
+          onView={(id) => navigate(`/projects/${projectId}/payments/${id}`)}
+          onEdit={() => onEdit(info.row.original)}
+          onDelete={() => onDelete(info.row.original.id)}
+        />
+      ),
+    },
+  ];
+};

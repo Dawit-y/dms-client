@@ -31,7 +31,7 @@ const UserDetails = () => {
   const handleDelete = async () => {
     if (user?.id) {
       await deleteUserMutation.mutateAsync(user.id);
-      navigate('/users');
+      navigate(-1);
     }
   };
 
@@ -101,7 +101,9 @@ const UserDetails = () => {
           <div className="d-flex gap-2">
             <Button
               variant="success"
-              onClick={() => navigate(`/users/${user?.id}/edit`)}
+              onClick={() =>
+                navigate(`/users/${user?.id}/edit${window.location.search}`)
+              }
             >
               <i className="mdi mdi-pencil me-1"></i> {t('Edit')}
             </Button>

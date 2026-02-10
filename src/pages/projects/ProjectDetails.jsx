@@ -13,6 +13,7 @@ import { FaBars, FaHome, FaDollarSign } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
+import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import { useFetchProject } from '../../queries/projects_query';
 import ProjectPayments from '../project_payment/index';
 import OverviewTab from './OverviewTab';
@@ -40,7 +41,13 @@ const ProjectDetails = () => {
 
   const { id, tab } = useParams();
   const navigate = useNavigate();
-  const { data: project, isLoading } = useFetchProject(id);
+  const {
+    data: project,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useFetchProject(id);
 
   // State for sidebar
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -67,19 +74,8 @@ const ProjectDetails = () => {
     );
   }
 
-  if (!project) {
-    return (
-      <div className="page-content">
-        <Container fluid>
-          <div className="text-center py-5">
-            <h4 className="mb-3">Project not found</h4>
-            <Button variant="primary" onClick={() => navigate('/projects')}>
-              Back to Projects
-            </Button>
-          </div>
-        </Container>
-      </div>
-    );
+  if (isError) {
+    return <FetchErrorHandler error={error} refetch={refetch} />;
   }
 
   return (

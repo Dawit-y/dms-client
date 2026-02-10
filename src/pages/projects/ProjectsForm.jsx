@@ -56,11 +56,14 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
         }
 
         if (submitActionRef.current === 'close') {
-          navigate('/projects');
+          navigate(-1);
         }
 
         if (submitActionRef.current === 'view') {
-          navigate(projectId ? `/projects/${projectId}` : '/projects');
+          const search = window.location.search;
+          navigate(
+            projectId ? `/projects/${projectId}${search}` : `/projects${search}`
+          );
         }
       } catch (error) {
         console.error(error);
@@ -83,7 +86,7 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
 
   // Handle Cancel
   const handleCancel = () => {
-    navigate('/projects');
+    navigate(-1);
   };
 
   // Check if any mutation is pending

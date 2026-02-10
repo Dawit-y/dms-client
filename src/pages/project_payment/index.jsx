@@ -1,17 +1,47 @@
-import { useMemo, useCallback, useEffect, memo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useCallback, useEffect, memo, useState } from 'react';
+import { useParams } from 'react-router';
 
+import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
-import { useFetchProjectPayments } from '../../queries/project_payments_query';
-import { paymentColumns } from './columns';
+import {
+  useFetchProjectPayments,
+  useDeleteProjectPayment,
+} from '../../queries/project_payments_query';
+import { usePaymentColumns } from './columns';
 import PaymentFormModal from './PaymentFormModal';
 
 function ProjectPayments({ isActive }) {
-  const navigate = useNavigate();
   const { id: projectId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log('ProjectPayments render', { projectId });
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState(null);
+  const [paymentToEdit, setPaymentToEdit] = useState(null);
+
+  const deletePaymentMutation = useDeleteProjectPayment(projectId);
+
+  const handleEditClick = useCallback((payment) => {
+    setPaymentToEdit(payment);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleDeleteClick = useCallback((id) => {
+    setPaymentToDelete(id);
+    setDeleteModal(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (paymentToDelete) {
+      try {
+        await deletePaymentMutation.mutateAsync(paymentToDelete);
+        setDeleteModal(false);
+        setPaymentToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete payment:', error);
+      }
+    }
+  };
+
   const {
     data: result,
     isLoading,
@@ -30,11 +60,13 @@ function ProjectPayments({ isActive }) {
 
   const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
+    setPaymentToEdit(null);
   }, []);
 
-  const columns = useMemo(
-    () => paymentColumns(navigate, projectId),
-    [navigate, projectId]
+  const columns = usePaymentColumns(
+    projectId,
+    handleEditClick,
+    handleDeleteClick
   );
 
   if (isError) {
@@ -62,6 +94,15 @@ function ProjectPayments({ isActive }) {
         isOpen={isModalOpen}
         toggle={handleModalClose}
         projectId={projectId}
+        isEdit={!!paymentToEdit}
+        paymentData={paymentToEdit}
+      />
+
+      <DeleteModal
+        isOpen={deleteModal}
+        toggle={() => setDeleteModal(false)}
+        onDeleteClick={confirmDelete}
+        isPending={deletePaymentMutation.isPending}
       />
     </>
   );

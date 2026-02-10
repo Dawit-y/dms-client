@@ -21,6 +21,41 @@ import { authProtectedRoutes, publicRoutes } from './routes';
 import { selectAccessToken } from './store/auth/authSlice';
 import { layoutSelectors } from './store/layout/layoutSlice';
 
+const renderRoute = (route, idx, parentPath = '') => {
+  const fullPath = route.path
+    ? route.path.startsWith('/')
+      ? route.path
+      : `${parentPath}/${route.path}`.replace(/\/+/g, '/')
+    : parentPath;
+
+  const element = route.element;
+
+  if (route.children) {
+    return (
+      <Route
+        key={idx}
+        path={route.path}
+        element={element}
+        errorElement={<ErrorElement />}
+      >
+        {route.children.map((childRoute, childIdx) =>
+          renderRoute(childRoute, childIdx, fullPath)
+        )}
+      </Route>
+    );
+  }
+
+  return (
+    <Route
+      key={idx}
+      path={route.path}
+      index={route.index}
+      element={element}
+      errorElement={<ErrorElement />}
+    />
+  );
+};
+
 const AppLayout = ({ layoutType, children }) => {
   return layoutType === 'horizontal' ? (
     <HorizontalLayout>{children}</HorizontalLayout>
@@ -76,14 +111,9 @@ const App = () => {
           />
         ))}
 
-        {authProtectedRoutes.map((route, idx) => (
-          <Route
-            key={idx}
-            path={route.path}
-            element={<ProtectedLayout>{route.element}</ProtectedLayout>}
-            errorElement={<ErrorElement />}
-          />
-        ))}
+        <Route element={<ProtectedLayout />}>
+          {authProtectedRoutes.map((route, idx) => renderRoute(route, idx))}
+        </Route>
 
         <Route
           path="/not_found"

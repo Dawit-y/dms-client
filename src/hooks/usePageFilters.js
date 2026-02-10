@@ -1,15 +1,6 @@
 import { useQueryStates, parseAsString, parseAsInteger } from 'nuqs';
 import { useEffect, useCallback, useRef, useMemo } from 'react';
 
-/**
- * Custom hook that centralizes all URL state management using nuqs
- * Automatically resets page to 1 when regionId or any search key changes
- *
- * @param {Object} searchKeysConfig - Configuration for dynamic search keys
- * @param {string[]} searchKeysConfig.textSearchKeys - Array of text search field names (e.g., ['title', 'name'])
- * @param {Array} searchKeysConfig.dropdownSearchKeys - Array of dropdown search configs (e.g., [{key: 'status', ...}])
- * @param {string[]} searchKeysConfig.dateSearchKeys - Array of date search field names (e.g., ['created'])
- */
 export const usePageFilters = (searchKeysConfig = {}) => {
   const {
     textSearchKeys = [],
@@ -17,10 +8,11 @@ export const usePageFilters = (searchKeysConfig = {}) => {
     dateSearchKeys = [],
   } = searchKeysConfig;
 
-  // Build dynamic URL schema based on search keys
+  // -----------------------------
+  // URL schema
+  // -----------------------------
   const urlSchema = useMemo(() => {
     const schema = {
-      // Tree/Location filters (same across all pages)
       regionId: parseAsString,
       zoneId: parseAsString,
       woredaId: parseAsString,
@@ -31,17 +23,14 @@ export const usePageFilters = (searchKeysConfig = {}) => {
       pageSize: parseAsInteger.withDefault(10),
     };
 
-    // Add dynamic text search keys (e.g., 'title', 'name', etc.)
     textSearchKeys.forEach((key) => {
       schema[key] = parseAsString;
     });
 
-    // Add dynamic dropdown search keys
     dropdownSearchKeys.forEach(({ key }) => {
       schema[key] = parseAsString;
     });
 
-    // Add dynamic date search keys (with _start and _end suffixes)
     dateSearchKeys.forEach((key) => {
       schema[`${key}_start`] = parseAsString;
       schema[`${key}_end`] = parseAsString;
@@ -50,19 +39,20 @@ export const usePageFilters = (searchKeysConfig = {}) => {
     return schema;
   }, [textSearchKeys, dropdownSearchKeys, dateSearchKeys]);
 
-  // Define all URL search params with parsers
   const [filters, setFilters] = useQueryStates(urlSchema, {
-    shallow: false, // Use false for server-side data fetch
-    clearOnDefault: false, // Remove from URL if value is default
+    shallow: false,
+    clearOnDefault: false,
   });
 
-  // Track previous values to detect changes
+  // -----------------------------
+  // Track previous values
+  // -----------------------------
   const prevRegionIdRef = useRef(filters.regionId);
-  const prevSearchKeysRef = useRef({});
+  const prevSearchValuesRef = useRef({});
 
-  // Build array of all search key values for comparison
   const currentSearchValues = useMemo(() => {
     const values = {};
+
     textSearchKeys.forEach((key) => {
       values[key] = filters[key];
     });
@@ -73,149 +63,131 @@ export const usePageFilters = (searchKeysConfig = {}) => {
       values[`${key}_start`] = filters[`${key}_start`];
       values[`${key}_end`] = filters[`${key}_end`];
     });
+
     return values;
   }, [filters, textSearchKeys, dropdownSearchKeys, dateSearchKeys]);
 
-  // Reset page to 1 when regionId or any search key changes (but NOT when only page changes)
+  // -----------------------------
+  // Reset page ONLY after user-driven filter changes
+  // -----------------------------
   useEffect(() => {
-    const regionIdChanged = prevRegionIdRef.current !== filters.regionId;
+    const regionChanged = prevRegionIdRef.current !== filters.regionId;
 
-    // Check if any search key changed
-    const searchKeysChanged = Object.keys(currentSearchValues).some(
-      (key) => prevSearchKeysRef.current[key] !== currentSearchValues[key]
+    const searchChanged = Object.keys(currentSearchValues).some(
+      (key) => prevSearchValuesRef.current[key] !== currentSearchValues[key]
     );
 
-    // Only reset page if regionId or search keys changed (not if only page changed)
-    if ((regionIdChanged || searchKeysChanged) && filters.page !== 1) {
+    if (
+      (regionChanged || searchChanged) &&
+      filters.page &&
+      filters.page !== 1
+    ) {
       setFilters({ page: 1 }, { shallow: false });
     }
 
     prevRegionIdRef.current = filters.regionId;
-    prevSearchKeysRef.current = currentSearchValues;
-    // Note: filters.page is intentionally NOT in dependencies to prevent reset on page-only changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filters.regionId,
-    setFilters,
-    currentSearchValues,
-    textSearchKeys,
-    dropdownSearchKeys,
-    dateSearchKeys,
-  ]);
+    prevSearchValuesRef.current = currentSearchValues;
+  }, [filters.regionId, filters.page, currentSearchValues, setFilters]);
 
-  // Helper function to update filters and reset page if needed
-  // This merges updates with existing filters (nuqs setFilters needs all values)
+  // -----------------------------
+  // Public setter (user actions only)
+  // -----------------------------
   const updateFilters = useCallback(
     (updates, options = {}) => {
       const shouldResetPage =
-        updates.regionId !== undefined ||
-        updates.zoneId !== undefined ||
-        updates.woredaId !== undefined ||
-        // Check if any search key is being updated
-        textSearchKeys.some((key) => updates[key] !== undefined) ||
-        dropdownSearchKeys.some(({ key }) => updates[key] !== undefined) ||
+        'regionId' in updates ||
+        'zoneId' in updates ||
+        'woredaId' in updates ||
+        textSearchKeys.some((key) => key in updates) ||
+        dropdownSearchKeys.some(({ key }) => key in updates) ||
         dateSearchKeys.some(
-          (key) =>
-            updates[`${key}_start`] !== undefined ||
-            updates[`${key}_end`] !== undefined
+          (key) => `${key}_start` in updates || `${key}_end` in updates
         );
 
-      // Get current filters at call time (not from closure)
       setFilters(
-        (currentFilters) => {
-          // Merge updates with current filters to preserve all values
-          const mergedUpdates = shouldResetPage
-            ? { ...currentFilters, ...updates, page: 1 }
-            : { ...currentFilters, ...updates };
-
-          return mergedUpdates;
-        },
+        (current) => ({
+          ...current,
+          ...updates,
+          ...(shouldResetPage ? { page: 1 } : {}),
+        }),
         {
           shallow: options.shallow ?? false,
-          ...options,
         }
       );
     },
     [setFilters, textSearchKeys, dropdownSearchKeys, dateSearchKeys]
   );
 
-  // Helper to clear all filters
+  // -----------------------------
+  // Clear filters (explicit action)
+  // -----------------------------
   const clearFilters = useCallback(() => {
-    const clearedFilters = {
+    const cleared = {
       regionId: null,
       zoneId: null,
       woredaId: null,
-      include: 0,
+      include: null,
       page: 1,
-      pageSize: 10,
+      pageSize: null,
     };
 
-    // Clear all dynamic search keys
-    textSearchKeys.forEach((key) => {
-      clearedFilters[key] = null;
-    });
-    dropdownSearchKeys.forEach(({ key }) => {
-      clearedFilters[key] = null;
-    });
+    textSearchKeys.forEach((key) => (cleared[key] = null));
+    dropdownSearchKeys.forEach(({ key }) => (cleared[key] = null));
     dateSearchKeys.forEach((key) => {
-      clearedFilters[`${key}_start`] = null;
-      clearedFilters[`${key}_end`] = null;
+      cleared[`${key}_start`] = null;
+      cleared[`${key}_end`] = null;
     });
 
-    setFilters(clearedFilters, { shallow: false });
+    setFilters(cleared, { shallow: false });
   }, [setFilters, textSearchKeys, dropdownSearchKeys, dateSearchKeys]);
 
-  // Convert filters to API params format
+  // -----------------------------
+  // API params (DEFAULTS LIVE HERE)
+  // -----------------------------
   const getApiParams = useCallback(() => {
-    const params = {
-      page: filters.page,
-      per_page: filters.pageSize,
+    return {
+      page: filters.page ?? 1,
+      per_page: filters.pageSize ?? 10,
+
+      ...(filters.regionId && {
+        prj_location_region_id: filters.regionId,
+      }),
+      ...(filters.zoneId && {
+        prj_location_zone_id: filters.zoneId,
+      }),
+      ...(filters.woredaId && {
+        prj_location_woreda_id: filters.woredaId,
+      }),
+      ...(filters.include === 1 && { include: 1 }),
+
+      ...Object.fromEntries(
+        textSearchKeys
+          .filter((key) => filters[key])
+          .map((key) => [key, filters[key]])
+      ),
+
+      ...Object.fromEntries(
+        dropdownSearchKeys
+          .filter(({ key }) => filters[key])
+          .map(({ key }) => [key, filters[key]])
+      ),
+
+      ...Object.fromEntries(
+        dateSearchKeys.flatMap((key) =>
+          [
+            filters[`${key}_start`] && [
+              `${key}_start`,
+              filters[`${key}_start`],
+            ],
+            filters[`${key}_end`] && [`${key}_end`, filters[`${key}_end`]],
+          ].filter(Boolean)
+        )
+      ),
     };
-
-    // Tree/Location params
-    if (filters.regionId) {
-      params.prj_location_region_id = filters.regionId;
-    }
-    if (filters.zoneId) {
-      params.prj_location_zone_id = filters.zoneId;
-    }
-    if (filters.woredaId) {
-      params.prj_location_woreda_id = filters.woredaId;
-    }
-    if (filters.include === 1) {
-      params.include = filters.include;
-    }
-
-    // Dynamic text search keys (use the actual key name for API)
-    textSearchKeys.forEach((key) => {
-      if (filters[key]) {
-        params[key] = filters[key];
-      }
-    });
-
-    // Dynamic dropdown search keys (use the actual key name for API)
-    dropdownSearchKeys.forEach(({ key }) => {
-      if (filters[key]) {
-        params[key] = filters[key];
-      }
-    });
-
-    // Dynamic date search keys (use the actual key name with _start/_end for API)
-    dateSearchKeys.forEach((key) => {
-      if (filters[`${key}_start`]) {
-        params[`${key}_start`] = filters[`${key}_start`];
-      }
-      if (filters[`${key}_end`]) {
-        params[`${key}_end`] = filters[`${key}_end`];
-      }
-    });
-
-    return params;
   }, [filters, textSearchKeys, dropdownSearchKeys, dateSearchKeys]);
 
-  // Check if there are any active filters (for preventing initial data load)
   const hasActiveFilters = useMemo(() => {
-    return (
+    return Boolean(
       filters.regionId ||
       filters.zoneId ||
       filters.woredaId ||

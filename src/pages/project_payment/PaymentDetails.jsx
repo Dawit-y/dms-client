@@ -25,7 +25,6 @@ const PaymentDetails = () => {
   }, []);
 
   const { projectId, paymentId } = useParams();
-  console.log('PaymentDetails render', { projectId, paymentId });
   const navigate = useNavigate();
   const { data: payment, isLoading: isPaymentLoading } = useFetchProjectPayment(
     projectId,

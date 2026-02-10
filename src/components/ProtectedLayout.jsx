@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import { Outlet } from 'react-router';
 
 import HorizontalLayout from '../components/HorizontalLayout';
 import VerticalLayout from '../components/VerticalLayout';
@@ -17,7 +18,7 @@ export default function ProtectedLayout({ children }) {
 
   return (
     <AuthMiddleware>
-      <AppLayout layoutType={layoutType}>{children}</AppLayout>
+      <AppLayout layoutType={layoutType}>{children || <Outlet />}</AppLayout>
     </AuthMiddleware>
   );
 }
