@@ -1,7 +1,7 @@
-import { Button } from 'react-bootstrap';
+import { FaEye } from 'react-icons/fa';
 
+import IconButton from '../../components/Common/IconButton';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
-// import { truncateText } from '../../utils/commonMethods';
 
 export const projectColumns = (navigate) => [
   snColumn,
@@ -20,21 +20,14 @@ export const projectColumns = (navigate) => [
     accessorKey: 'status',
     cell: (info) => info.getValue(),
   },
-  // {
-  //   accessorKey: 'description',
-  //   cell: (info) => truncateText(info.getValue(), 50) ?? '-',
-  // },
   {
     header: 'Actions',
     id: 'actions',
     cell: (info) => (
-      <Button
-        variant="primary"
-        size="sm"
+      <IconButton
+        icon={<FaEye />}
         onClick={() => navigate(`/projects/${info.row.original.id}`)}
-      >
-        View
-      </Button>
+      />
     ),
   },
 ];

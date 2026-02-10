@@ -62,9 +62,8 @@ function Projects() {
                   isAddButton={true}
                   isCustomPageSize={true}
                   isPagination={true}
-                  handleUserClick={handleAddClick}
+                  onAddClick={handleAddClick}
                   isExcelExport
-                  manualPagination={true}
                   paginationState={pagination}
                   isServerSidePagination={true}
                   onPaginationChange={onChange}

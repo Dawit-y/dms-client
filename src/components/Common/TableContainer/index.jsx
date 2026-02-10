@@ -51,7 +51,7 @@ const TableContainer = ({
   isAddButton = false,
   rowHeight = 35,
   isCustomPageSize = true,
-  handleUserClick,
+  onAddClick,
   isExcelExport = false,
   isPdfExport = false,
   isPrint = false,
@@ -71,6 +71,7 @@ const TableContainer = ({
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [showColumnDropdown, setShowColumnDropdown] = React.useState(false);
+  const [goToPageValue, setGoToPageValue] = React.useState(''); // Local state for go-to-page input
 
   // Use external pagination state for server-side, internal for client-side
   const [internalPaginationState, setInternalPaginationState] = React.useState({
@@ -149,12 +150,18 @@ const TableContainer = ({
   });
 
   // Go to specific page handler
-  const handleGoToPage = (e) => {
-    const page = e.target.value ? Number(e.target.value) - 1 : 0;
+  const handleGoToPage = (val) => {
+    const page = val ? Number(val) - 1 : 0;
     if (page >= 0 && page < table.getPageCount()) {
       table.setPageIndex(page);
     }
+    setGoToPageValue(''); // Reset local state after applying
   };
+
+  // Sync goToPageValue when page changes
+  React.useEffect(() => {
+    setGoToPageValue(table.getState().pagination.pageIndex + 1);
+  }, [table.getState().pagination.pageIndex]);
 
   const exportTooltip = (props) => (
     <Tooltip id="export-tooltip" {...props}>
@@ -211,7 +218,7 @@ const TableContainer = ({
                 <Button
                   type="button"
                   className="btn-soft-success"
-                  onClick={handleUserClick}
+                  onClick={onAddClick}
                 >
                   <i className="mdi mdi-plus me-1"></i> {buttonName}
                 </Button>
@@ -451,11 +458,10 @@ const TableContainer = ({
               </thead>
               <tbody style={{ height: 'auto' }}>
                 {data.length === 0 ? (
-                  <tr style={{ maxHeight: rowHeight }}>
+                  <tr>
                     <td
-                      colSpan={columns.length + 2}
-                      className="text-center py-5 h-100"
-                      style={{ maxHeight: rowHeight }}
+                      colSpan={table.getAllColumns().length}
+                      className="text-center py-5 bg-white shadow-none border-0"
                     >
                       {!isLoading && 'No data available.'}
                     </td>
@@ -484,9 +490,9 @@ const TableContainer = ({
 
           {/* Pagination Section */}
           {isPagination && (
-            <Row className="my-2">
-              <Col sm={12} md={4}>
-                <div className="dataTables_info">
+            <Row className="my-3 d-flex align-items-center bg-light p-2 rounded-3 mx-0 shadow-sm border">
+              <Col sm={12} md={4} className="d-flex align-items-center">
+                <div className="dataTables_info text-muted fw-medium mb-0">
                   {isServerSidePagination
                     ? `Showing ${table.getRowModel().rows.length} of ${totalRows.toLocaleString()} entries`
                     : data.length > table.getState().pagination.pageSize
@@ -495,22 +501,26 @@ const TableContainer = ({
                 </div>
               </Col>
               <Col sm={12} md={8}>
-                <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center justify-content-end gap-4">
                   {/* Go to page input */}
-                  <div className="d-flex align-items-center gap-2 me-3">
-                    <span>Go to page:</span>
-                    <InputGroup size="sm" style={{ width: '100px' }}>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="text-muted small fw-bold text-nowrap">
+                      Go to page:
+                    </span>
+                    <InputGroup size="sm" style={{ width: '80px' }}>
                       <FormControl
                         type="number"
                         min="1"
                         max={table.getPageCount()}
-                        defaultValue={table.getState().pagination.pageIndex + 1}
-                        onChange={handleGoToPage}
+                        value={goToPageValue}
+                        onChange={(e) => setGoToPageValue(e.target.value)}
+                        onBlur={(e) => handleGoToPage(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            handleGoToPage(e);
+                            handleGoToPage(e.target.value);
                           }
                         }}
+                        className="text-center"
                       />
                     </InputGroup>
                   </div>

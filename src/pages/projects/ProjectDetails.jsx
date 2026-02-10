@@ -4,43 +4,63 @@ import {
   Col,
   Container,
   Row,
-  Badge,
   Spinner,
   Button,
+  Nav,
+  Tab,
 } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import { FaBars, FaHome, FaDollarSign } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
-import DeleteModal from '../../components/Common/DeleteModal';
-import {
-  useFetchProject,
-  useDeleteProject,
-} from '../../queries/projects_query';
+import { useFetchProject } from '../../queries/projects_query';
+import ProjectPayments from '../project_payment/index';
+import OverviewTab from './OverviewTab';
+
+// Navigation items configuration
+const navItems = [
+  {
+    key: 'overview',
+    label: 'Overview',
+    icon: FaHome,
+    component: OverviewTab,
+  },
+  {
+    key: 'payments',
+    label: 'Payments',
+    icon: FaDollarSign,
+    component: ProjectPayments,
+  },
+];
 
 const ProjectDetails = () => {
   useEffect(() => {
     document.title = 'Project Details';
   }, []);
-  const { id } = useParams();
+
+  const { id, tab } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { data: project, isLoading } = useFetchProject(id);
-  const deleteProjectMutation = useDeleteProject();
 
-  const [deleteModal, setDeleteModal] = useState(false);
+  // State for sidebar
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const sidebarWidthPercent = 20;
 
-  const handleDelete = async () => {
-    if (project?.id) {
-      await deleteProjectMutation.mutateAsync(project.id);
-      navigate('/projects');
-    }
+  // State for active tab - use URL parameter or default to 'overview'
+  const activeKey = tab || 'overview';
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
   if (isLoading) {
     return (
       <div className="page-content">
-        <Container fluid>
+        <Container
+          fluid
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: '50vh' }}
+        >
           <Spinner animation="border" variant="primary" />
         </Container>
       </div>
@@ -51,8 +71,8 @@ const ProjectDetails = () => {
     return (
       <div className="page-content">
         <Container fluid>
-          <div className="text-center">
-            <h4>Project not found</h4>
+          <div className="text-center py-5">
+            <h4 className="mb-3">Project not found</h4>
             <Button variant="primary" onClick={() => navigate('/projects')}>
               Back to Projects
             </Button>
@@ -62,127 +82,126 @@ const ProjectDetails = () => {
     );
   }
 
-  // Demo data for construction project theme
-  const demoData = {
-    location: 'Addis Ababa, Ethiopia',
-    contractor: 'Construction Co. Ltd.',
-    startDate: '2023-01-01',
-    endDate: '2024-12-31',
-    progress: 65,
-  };
-
   return (
     <div className="page-content">
-      <Container fluid>
+      <>
         <Breadcrumbs title="Projects" breadcrumbItem="Project Details" />
 
         <Row>
           <Col lg={12}>
             <Card>
-              <Card.Body>
-                <div className="d-flex align-items-center mb-4">
-                  <h4 className="card-title mb-0 me-auto">{project.title}</h4>
-                  <div className="flex-shrink-0">
-                    <Button
-                      variant="primary"
-                      className="me-2"
-                      onClick={() => navigate(`/projects/${id}/edit`)}
+              <Card.Body className="p-0">
+                <Row
+                  className="g-0"
+                  style={{ minHeight: 'calc(100vh - 200px)' }}
+                >
+                  {/* Sidebar */}
+                  <Col
+                    xs="auto"
+                    className="bg-light border-end d-flex flex-column"
+                    style={{
+                      flexBasis: isSidebarCollapsed
+                        ? '60px'
+                        : `${sidebarWidthPercent}%`,
+                      maxWidth: isSidebarCollapsed
+                        ? '60px'
+                        : `${sidebarWidthPercent}%`,
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <div
+                      className="d-flex justify-content-between align-items-center p-3 border-bottom"
+                      style={{ minHeight: '60px' }}
                     >
-                      <i className="mdi mdi-pencil me-1"></i> Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => setDeleteModal(true)}
-                    >
-                      <i className="mdi mdi-trash-can me-1"></i> Delete
-                    </Button>
-                  </div>
-                </div>
-
-                <Row>
-                  <Col md={6}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Description</h6>
-                      <p>{project.description}</p>
-                    </div>
-                  </Col>
-                  <Col md={6}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Status</h6>
-                      <Badge
-                        bg={
-                          project.status === 'active'
-                            ? 'success'
-                            : project.status === 'completed'
-                              ? 'primary'
-                              : 'warning'
+                      {!isSidebarCollapsed && (
+                        <h6 className="mb-0 fw-semibold">Navigation</h6>
+                      )}
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={toggleSidebar}
+                        className="p-0"
+                        title={
+                          isSidebarCollapsed
+                            ? 'Expand sidebar'
+                            : 'Collapse sidebar'
                         }
-                        className="font-size-12"
                       >
-                        {project.status ? t(project.status) : '-'}
-                      </Badge>
+                        <FaBars size={18} />
+                      </Button>
                     </div>
-                  </Col>
-                </Row>
 
-                <hr />
+                    <Nav
+                      variant="pills"
+                      className="flex-column p-2 flex-grow-1"
+                      activeKey={activeKey}
+                    >
+                      {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeKey === item.key;
 
-                <Row>
-                  <Col md={3}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Budget</h6>
-                      <h5 className="mb-0">
-                        ${Number(project.budget).toLocaleString()}
-                      </h5>
-                    </div>
+                        return (
+                          <Nav.Item key={item.key} className="mb-1">
+                            <Nav.Link
+                              eventKey={item.key}
+                              onClick={() =>
+                                navigate(`/projects/${id}/${item.key}`)
+                              }
+                              className={`d-flex align-items-center rounded-2 ${
+                                isActive
+                                  ? 'bg-primary text-white fw-semibold'
+                                  : 'text-dark bg-hover-light'
+                              }`}
+                              style={{
+                                padding: '10px 12px',
+                                transition: 'all 0.2s ease',
+                                justifyContent: isSidebarCollapsed
+                                  ? 'center'
+                                  : 'flex-start',
+                              }}
+                            >
+                              <Icon
+                                size={16}
+                                className={isSidebarCollapsed ? '' : 'me-2'}
+                              />
+                              {!isSidebarCollapsed && item.label}
+                            </Nav.Link>
+                          </Nav.Item>
+                        );
+                      })}
+                    </Nav>
                   </Col>
-                  <Col md={3}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Location</h6>
-                      <p className="mb-0">{demoData.location}</p>
-                    </div>
-                  </Col>
-                  <Col md={3}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Contractor</h6>
-                      <p className="mb-0">{demoData.contractor}</p>
-                    </div>
-                  </Col>
-                  <Col md={3}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Timeline</h6>
-                      <p className="mb-0">
-                        {demoData.startDate} - {demoData.endDate}
-                      </p>
-                    </div>
-                  </Col>
-                </Row>
-                <Row className="mt-3">
-                  <Col md={3}>
-                    <div className="mb-3">
-                      <h6 className="text-muted">Approval Status</h6>
-                      <p className="mb-0">
-                        {project.isApproved ? (
-                          <span className="text-success">Approved</span>
-                        ) : (
-                          <span className="text-danger">Not Approved</span>
-                        )}
-                      </p>
-                    </div>
+
+                  {/* Main Content */}
+                  <Col className="flex-grow-1" style={{ overflowY: 'auto' }}>
+                    <Tab.Content className="h-100">
+                      {navItems.map((item) => {
+                        const TabComponent = item.component;
+
+                        return (
+                          <Tab.Pane
+                            key={item.key}
+                            eventKey={item.key}
+                            className="h-100"
+                            active={activeKey === item.key}
+                          >
+                            <div className="p-4 h-100">
+                              <TabComponent
+                                project={project}
+                                isActive={activeKey === item.key}
+                              />
+                            </div>
+                          </Tab.Pane>
+                        );
+                      })}
+                    </Tab.Content>
                   </Col>
                 </Row>
               </Card.Body>
             </Card>
           </Col>
         </Row>
-
-        <DeleteModal
-          isOpen={deleteModal}
-          toggle={() => setDeleteModal(false)}
-          onDeleteClick={handleDelete}
-          isPending={deleteProjectMutation.isPending}
-        />
-      </Container>
+      </>
     </div>
   );
 };

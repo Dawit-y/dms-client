@@ -123,7 +123,7 @@ function Users() {
           isGlobalFilter={true}
           isAddButton={true}
           isCustomPageSize={true}
-          handleUserClick={handleAddClick}
+          onAddClick={handleAddClick}
           isPagination={true}
           SearchPlaceholder={'filter'}
           buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
