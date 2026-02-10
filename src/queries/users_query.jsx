@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   getUsers,
+  getUser,
   addUser,
   updateUser,
   deleteUser,
@@ -9,7 +10,6 @@ import {
 
 const USER_QUERY_KEY = ['user'];
 
-// Fetch users
 export const useFetchUsers = (param = {}) => {
   return useQuery({
     queryKey: [...USER_QUERY_KEY, 'fetch', param],
@@ -20,7 +20,17 @@ export const useFetchUsers = (param = {}) => {
   });
 };
 
-// Search users
+export const useFetchUser = (id) => {
+  return useQuery({
+    queryKey: [...USER_QUERY_KEY, 'fetch', id],
+    queryFn: () => getUser(id),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    enabled: !!id,
+  });
+};
+
 export const useSearchUsers = (searchParams) => {
   return useQuery({
     queryKey: [...USER_QUERY_KEY, 'search', searchParams],
@@ -32,13 +42,15 @@ export const useSearchUsers = (searchParams) => {
   });
 };
 
-// Add user
 export const useAddUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: addUser,
-
+    meta: {
+      successMessage: 'User added successfully',
+      errorMessage: 'Failed to add user',
+    },
     onMutate: async (newUserPayload) => {
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
 
@@ -50,7 +62,7 @@ export const useAddUser = () => {
           ...oldData,
           data: [
             {
-              id: Date.now(), // Temporary ID
+              id: Date.now(),
               ...newUserPayload,
               isPending: true,
             },
@@ -74,12 +86,15 @@ export const useAddUser = () => {
   });
 };
 
-// Update user
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateUser,
+    meta: {
+      successMessage: 'User updated successfully',
+      errorMessage: 'Failed to update user',
+    },
 
     onMutate: async (updatedUser) => {
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });
@@ -111,12 +126,16 @@ export const useUpdateUser = () => {
   });
 };
 
-// Delete user
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteUser,
+
+    meta: {
+      successMessage: 'User deleted successfully',
+      errorMessage: 'Failed to delete user',
+    },
 
     onMutate: async (userId) => {
       await queryClient.cancelQueries({ queryKey: USER_QUERY_KEY });

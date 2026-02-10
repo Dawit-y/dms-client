@@ -1,143 +1,73 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { useEffect } from 'react';
+import { useMemo, useCallback, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
 
-import IconButton from '../../components/Common/IconButton';
+import Breadcrumb from '../../components/Common/Breadcrumb';
+import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
-import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
+import { usePageFilters } from '../../hooks/usePageFilters';
+import { useUrlPagination } from '../../hooks/useUrlPagination';
 import { useFetchUsers } from '../../queries/users_query';
-import { makeData } from '../../utils/makeUserData';
-import UsersForm from './UsersForm';
+import { userColumns } from './columns';
 
 function Users() {
   const { t } = useTranslation();
-  const [formModal, setFormModal] = useState(false);
-  const [rowData, setRowData] = useState(null);
-  const [isEdit, setIsEdit] = useState(false);
-  const toggleFormModal = () => setFormModal(!formModal);
+  const navigate = useNavigate();
+
+  const searchConfig = {
+    textSearchKeys: ['first_name', 'last_name', 'email'],
+    dropdownSearchKeys: [],
+    dateSearchKeys: [],
+  };
+
+  const pageFilter = usePageFilters(searchConfig);
+  const { pagination, onChange } = useUrlPagination(
+    pageFilter.filters,
+    pageFilter.setFilters
+  );
 
   useEffect(() => {
-    document.title = 'Users';
-  }, []);
+    document.title = t('Users');
+  }, [t]);
 
-  const handleEditClick = useCallback((row) => {
-    setIsEdit(true);
-    setRowData(row);
-    setFormModal(true);
-  }, []);
+  const param = pageFilter.getApiParams();
+
+  const { data, isLoading, isError, error, refetch } = useFetchUsers(param);
+
   const handleAddClick = useCallback(() => {
-    setIsEdit(false);
-    setRowData(null);
-    setFormModal(true);
-  }, []);
+    navigate('/users/add');
+  }, [navigate]);
 
-  const { data: usersData } = useFetchUsers();
-  console.log('usersData', usersData);
+  const columns = useMemo(() => userColumns(navigate), [navigate]);
 
-  const data = useMemo(() => makeData(500), []);
-  const columns = useMemo(
-    () => [
-      snColumn,
-      {
-        accessorKey: 'firstName',
-        cell: (info) => info.getValue(),
-      },
-      {
-        accessorKey: 'lastName',
-        cell: (info) => info.getValue(),
-      },
-      {
-        accessorFn: (row) => `${row.firstName} ${row.lastName}`,
-        id: 'fullName',
-        header: 'Full Name',
-        cell: (info) => info.getValue(),
-        filterFn: 'custom',
-      },
-      {
-        accessorKey: 'age',
-        header: () => 'Age',
-        meta: {
-          filterVariant: 'range',
-        },
-      },
-      {
-        accessorKey: 'visits',
-        header: () => <span>Visits</span>,
-        meta: {
-          filterVariant: 'range',
-        },
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        meta: {
-          filterVariant: 'select',
-          options: [
-            { value: 'single', label: 'single' },
-            { value: 'complicated', label: 'complicated' },
-            { value: 'relationship', label: 'relationship' },
-          ],
-        },
-      },
-      {
-        accessorKey: 'progress',
-        header: 'Profile Progress',
-        meta: {
-          filterVariant: 'range',
-        },
-      },
-      {
-        header: t('actions'),
-        id: 'actions',
-        cell: ({ row }) => (
-          <div className="d-flex gap-2">
-            <IconButton icon={<FaEye />} onClick={() => console.log('view')} />
-            <IconButton
-              icon={<FaEdit />}
-              onClick={() => handleEditClick(row.original)}
-            />
-            <IconButton
-              icon={<FaTrash />}
-              onClick={() => console.log('Delete')}
-            />
-          </div>
-        ),
-      },
-    ],
-    [handleEditClick, t]
-  );
+  if (isError) {
+    return <FetchErrorHandler error={error} refetch={refetch} />;
+  }
 
   return (
     <>
-      <UsersForm
-        isOpen={formModal}
-        toggle={toggleFormModal}
-        rowData={rowData}
-        isEdit={isEdit}
-      />
       <div className="page-content">
+        <Breadcrumb />
         <TableContainer
-          data={data}
+          data={data?.results ?? []}
           columns={columns}
+          isLoading={isLoading}
           isGlobalFilter={true}
           isAddButton={true}
           isCustomPageSize={true}
-          onAddClick={handleAddClick}
           isPagination={true}
-          SearchPlaceholder={'filter'}
-          buttonClass="btn btn-success waves-effect waves-light mb-2 me-2 addOrder-modal"
-          buttonName={'Add User'}
-          tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
-          theadClass="table-secondary"
-          pagination="pagination"
-          paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
-          divClassName="-"
+          onAddClick={handleAddClick}
           isExcelExport
+          paginationState={pagination}
+          isServerSidePagination={true}
+          onPaginationChange={onChange}
+          totalRows={data?.pagination?.total}
+          pageCount={data?.pagination?.total_pages}
+          refetch={refetch}
         />
       </div>
     </>
   );
 }
 
-export default Users;
+export default memo(Users);

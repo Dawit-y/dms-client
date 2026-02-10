@@ -6,9 +6,15 @@ import AddProject from '../pages/projects/AddProject';
 import EditProject from '../pages/projects/EditProject';
 import ProjectDetails from '../pages/projects/ProjectDetails';
 import Users from '../pages/users';
+import AddUser from '../pages/users/AddUser';
+import EditUser from '../pages/users/EditUser';
+import UserDetails from '../pages/users/UserDetails';
 
 const authProtectedRoutes = [
   { path: '/users', element: <Users /> },
+  { path: '/users/add', element: <AddUser /> },
+  { path: '/users/:id', element: <UserDetails /> },
+  { path: '/users/:id/edit', element: <EditUser /> },
 
   { path: '/projects', element: <Projects /> },
   { path: '/projects/add', element: <AddProject /> },
