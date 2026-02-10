@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 
 import HorizontalLayout from '../components/HorizontalLayout';
 import VerticalLayout from '../components/VerticalLayout';
-import AuthMiddleware from '../routes/authMiddleware';
+import AuthMiddleware from '../routes/AuthMiddleware';
 import { layoutSelectors } from '../store/layout/layoutSlice';
 
 const AppLayout = ({ layoutType, children }) => {
