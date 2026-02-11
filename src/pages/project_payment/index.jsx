@@ -8,6 +8,7 @@ import {
   useFetchProjectPayments,
   useDeleteProjectPayment,
 } from '../../queries/project_payments_query';
+import { projectPaymentExportColumns } from '../../utils/exportColumnsForLists';
 import { usePaymentColumns } from './columns';
 import PaymentFormModal from './PaymentFormModal';
 
@@ -84,9 +85,8 @@ function ProjectPayments({ isActive }) {
         isCustomPageSize={true}
         isPagination={true}
         onAddClick={handleAddClick}
-        isExcelExport={true}
-        isPdfExport={true}
-        isPrint={true}
+        tableName="Project Payments"
+        exportColumns={projectPaymentExportColumns}
         refetch={refetch}
       />
 

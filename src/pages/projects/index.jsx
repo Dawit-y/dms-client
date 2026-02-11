@@ -11,6 +11,7 @@ import {
   useDeleteProject,
   useSearchProjects,
 } from '../../queries/projects_query';
+import { projectExportColumns } from '../../utils/exportColumnsForLists';
 import { useProjectColumns } from './columns';
 
 function Projects() {
@@ -74,7 +75,8 @@ function Projects() {
                   isCustomPageSize={true}
                   isPagination={true}
                   onAddClick={handleAddClick}
-                  isExcelExport
+                  tableName="Projects"
+                  exportColumns={projectExportColumns}
                   paginationState={pagination}
                   isServerSidePagination={true}
                   onPaginationChange={onChange}

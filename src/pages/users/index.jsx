@@ -8,6 +8,7 @@ import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
 import { useFetchUsers, useDeleteUser } from '../../queries/users_query';
+import { userExportColumns } from '../../utils/exportColumnsForLists';
 import { useUserColumns } from './columns';
 
 function Users() {
@@ -72,7 +73,8 @@ function Users() {
           isCustomPageSize={true}
           isPagination={true}
           onAddClick={handleAddClick}
-          isExcelExport
+          tableName="Users"
+          exportColumns={userExportColumns}
           paginationState={pagination}
           isServerSidePagination={true}
           onPaginationChange={onChange}
