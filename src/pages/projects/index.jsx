@@ -6,6 +6,7 @@ import Breadcrumb from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
 import TableContainer from '../../components/Common/TableContainer';
 import TreeSearchWrapper from '../../components/Common/TreeSearchWrapper';
+import { usePermissions } from '../../hooks/usePermissions';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
 import {
   useDeleteProject,
@@ -17,6 +18,7 @@ import { useProjectColumns } from './columns';
 function Projects() {
   const navigate = useNavigate();
   const { pageFilter, searchConfig } = useOutletContext();
+  const { hasPermission } = usePermissions();
   const [deleteModal, setDeleteModal] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
@@ -52,7 +54,7 @@ function Projects() {
     navigate(`/projects/add${window.location.search}`);
   }, [navigate]);
 
-  const columns = useProjectColumns(handleDeleteClick);
+  const columns = useProjectColumns(handleDeleteClick, hasPermission);
 
   return (
     <>
@@ -71,7 +73,7 @@ function Projects() {
                   columns={columns}
                   isLoading={isLoading}
                   isGlobalFilter={true}
-                  isAddButton={true}
+                  isAddButton={hasPermission('accounts.add_project')}
                   isCustomPageSize={true}
                   isPagination={true}
                   onAddClick={handleAddClick}

@@ -6,6 +6,7 @@ import Breadcrumb from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
+import { usePermissions } from '../../hooks/usePermissions';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
 import { useFetchUsers, useDeleteUser } from '../../queries/users_query';
 import { userExportColumns } from '../../utils/exportColumnsForLists';
@@ -15,6 +16,7 @@ function Users() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pageFilter } = useOutletContext();
+  const { hasPermission } = usePermissions();
   const [deleteModal, setDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
@@ -54,7 +56,7 @@ function Users() {
     navigate(`/users/add${window.location.search}`);
   }, [navigate]);
 
-  const columns = useUserColumns(handleDeleteClick);
+  const columns = useUserColumns(handleDeleteClick, hasPermission);
 
   if (isError) {
     return <FetchErrorHandler error={error} refetch={refetch} />;
@@ -69,7 +71,7 @@ function Users() {
           columns={columns}
           isLoading={isLoading}
           isGlobalFilter={true}
-          isAddButton={true}
+          isAddButton={hasPermission('accounts.add_user')}
           isCustomPageSize={true}
           isPagination={true}
           onAddClick={handleAddClick}

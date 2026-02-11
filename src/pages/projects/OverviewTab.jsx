@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import DeleteModal from '../../components/Common/DeleteModal';
+import { usePermissions } from '../../hooks/usePermissions';
 import { useDeleteProject } from '../../queries/projects_query';
 
 // Demo data for construction project theme
@@ -18,6 +19,7 @@ const demoData = {
 function OverviewTab({ project }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { hasPermission } = usePermissions();
   const [deleteModal, setDeleteModal] = useState(false);
   const deleteProjectMutation = useDeleteProject();
 
@@ -39,15 +41,19 @@ function OverviewTab({ project }) {
           <p className="text-muted mb-0">Project ID: {project.id}</p>
         </div>
         <div className="d-flex gap-2">
-          <Button
-            variant="success"
-            onClick={() => navigate(`/projects/${project.id}/edit`)}
-          >
-            <i className="mdi mdi-pencil me-1"></i> Edit
-          </Button>
-          <Button variant="danger" onClick={() => setDeleteModal(true)}>
-            <i className="mdi mdi-trash-can me-1"></i> Delete
-          </Button>
+          {hasPermission('accounts.change_project') && (
+            <Button
+              variant="success"
+              onClick={() => navigate(`/projects/${project.id}/edit`)}
+            >
+              <i className="mdi mdi-pencil me-1"></i> Edit
+            </Button>
+          )}
+          {hasPermission('accounts.delete_project') && (
+            <Button variant="danger" onClick={() => setDeleteModal(true)}>
+              <i className="mdi mdi-trash-can me-1"></i> Delete
+            </Button>
+          )}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
+import { usePermissions } from '../../hooks/usePermissions';
 import {
   useFetchProjectPayments,
   useDeleteProjectPayment,
@@ -14,6 +15,7 @@ import PaymentFormModal from './PaymentFormModal';
 
 function ProjectPayments({ isActive }) {
   const { id: projectId } = useParams();
+  const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
@@ -67,7 +69,8 @@ function ProjectPayments({ isActive }) {
   const columns = usePaymentColumns(
     projectId,
     handleEditClick,
-    handleDeleteClick
+    handleDeleteClick,
+    hasPermission
   );
 
   if (isError) {
@@ -81,7 +84,7 @@ function ProjectPayments({ isActive }) {
         columns={columns}
         isLoading={isLoading}
         isGlobalFilter={true}
-        isAddButton={true}
+        isAddButton={hasPermission('accounts.add_projectpayment')}
         isCustomPageSize={true}
         isPagination={true}
         onAddClick={handleAddClick}

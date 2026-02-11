@@ -14,6 +14,7 @@ import { useParams, useNavigate } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
+import { usePermissions } from '../../hooks/usePermissions';
 import { useFetchProject } from '../../queries/projects_query';
 import ProjectPayments from '../project_payment/index';
 import OverviewTab from './OverviewTab';
@@ -25,12 +26,14 @@ const navItems = [
     label: 'Overview',
     icon: FaHome,
     component: OverviewTab,
+    permission: 'accounts.view_project',
   },
   {
     key: 'payments',
     label: 'Payments',
     icon: FaDollarSign,
     component: ProjectPayments,
+    permission: 'accounts.view_projectpayment',
   },
 ];
 
@@ -41,6 +44,8 @@ const ProjectDetails = () => {
 
   const { id, tab } = useParams();
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
+
   const {
     data: project,
     isLoading,
@@ -53,8 +58,26 @@ const ProjectDetails = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarWidthPercent = 20;
 
-  // State for active tab - use URL parameter or default to 'overview'
-  const activeKey = tab || 'overview';
+  // Filter nav items based on permissions
+  const accessibleNavItems = navItems.filter((item) => {
+    if (!item.permission) return true;
+    return hasPermission(item.permission);
+  });
+
+  // State for active tab - use URL parameter or default to first accessible tab
+  const defaultTab =
+    accessibleNavItems.length > 0 ? accessibleNavItems[0].key : '';
+  const activeKey =
+    tab && accessibleNavItems.some((item) => item.key === tab)
+      ? tab
+      : defaultTab;
+
+  // Redirect if current tab is not accessible
+  useEffect(() => {
+    if (tab && !accessibleNavItems.some((item) => item.key === tab)) {
+      navigate(`/projects/${id}/${defaultTab}`, { replace: true });
+    }
+  }, [tab, accessibleNavItems, id, defaultTab, navigate]);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -76,6 +99,29 @@ const ProjectDetails = () => {
 
   if (isError) {
     return <FetchErrorHandler error={error} refetch={refetch} />;
+  }
+
+  // If no accessible tabs, show message
+  if (accessibleNavItems.length === 0) {
+    return (
+      <div className="page-content">
+        <Breadcrumbs title="Projects" breadcrumbItem="Project Details" />
+        <Row>
+          <Col lg={12}>
+            <Card>
+              <Card.Body>
+                <div className="text-center p-5">
+                  <h5>No Access</h5>
+                  <p className="text-muted">
+                    You don't have permission to view any project details.
+                  </p>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    );
   }
 
   return (
@@ -132,7 +178,7 @@ const ProjectDetails = () => {
                       className="flex-column p-2 flex-grow-1"
                       activeKey={activeKey}
                     >
-                      {navItems.map((item) => {
+                      {accessibleNavItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeKey === item.key;
 
@@ -171,7 +217,7 @@ const ProjectDetails = () => {
                   {/* Main Content */}
                   <Col className="flex-grow-1" style={{ overflowY: 'auto' }}>
                     <Tab.Content className="h-100">
-                      {navItems.map((item) => {
+                      {accessibleNavItems.map((item) => {
                         const TabComponent = item.component;
 
                         return (

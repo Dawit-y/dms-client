@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 import { logo } from '../../constants/constantTexts';
 import { layoutSelectors } from '../../store/layout/layoutSlice';
-import { menuItems } from './Menu';
+import { menuItems } from '../Menu';
 import SidebarContent from './SidebarContent';
 
 const Sidebar = () => {

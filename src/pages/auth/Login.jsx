@@ -50,6 +50,7 @@ const Login = () => {
         setAuthData({
           accessToken: data.access,
           userData: data.user,
+          permissions: data.permissions,
         })
       );
       localStorage.setItem('I18N_LANGUAGE', 'en');

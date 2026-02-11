@@ -5,11 +5,31 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router';
 
-import { menuItems } from '../VerticalLayout/Menu';
+import { usePermissions } from '../../hooks/usePermissions';
+import { menuItems } from '../Menu';
 
 const Navbar = () => {
   const { t } = useTranslation();
+  const { hasPermission } = usePermissions();
   const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+
+  // Filter menu data based on permissions
+  const filteredMenuData = React.useMemo(() => {
+    return menuItems
+      .filter((menu) => !menu.permission || hasPermission(menu.permission))
+      .map((menu) => {
+        if (menu.submenu) {
+          return {
+            ...menu,
+            submenu: menu.submenu.filter(
+              (sub) => !sub.permission || hasPermission(sub.permission)
+            ),
+          };
+        }
+        return menu;
+      })
+      .filter((menu) => !menu.submenu || menu.submenu.length > 0);
+  }, [hasPermission]);
 
   const handleMenuClick = (index) => {
     setActiveMenuIndex(index === activeMenuIndex ? null : index);
@@ -35,7 +55,7 @@ const Navbar = () => {
               id="topnav-menu-content"
             >
               <ul className="navbar-nav">
-                {menuItems.map((menu, index) => (
+                {filteredMenuData.map((menu, index) => (
                   <li key={index} className="nav-item dropdown">
                     <div
                       className="nav-link arrow-none"

@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router';
 import ActionsCell from '../../components/Common/ActionsCell';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
-export const usePaymentColumns = (projectId, onEdit, onDelete) => {
+export const usePaymentColumns = (
+  projectId,
+  onEdit,
+  onDelete,
+  hasPermission
+) => {
   const navigate = useNavigate();
 
   return [
@@ -55,8 +60,16 @@ export const usePaymentColumns = (projectId, onEdit, onDelete) => {
         <ActionsCell
           id={info.row.original.id}
           onView={(id) => navigate(`/projects/${projectId}/payments/${id}`)}
-          onEdit={() => onEdit(info.row.original)}
-          onDelete={() => onDelete(info.row.original.id)}
+          onEdit={
+            hasPermission('accounts.change_projectpayment')
+              ? () => onEdit(info.row.original)
+              : undefined
+          }
+          onDelete={
+            hasPermission('accounts.delete_projectpayment')
+              ? () => onDelete(info.row.original.id)
+              : undefined
+          }
         />
       ),
     },

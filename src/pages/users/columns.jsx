@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import ActionsCell from '../../components/Common/ActionsCell';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
-export const useUserColumns = (onDelete) => {
+export const useUserColumns = (onDelete, hasPermission) => {
   const navigate = useNavigate();
 
   return [
@@ -36,10 +36,14 @@ export const useUserColumns = (onDelete) => {
         <ActionsCell
           id={info.row.original.id}
           onView={(id) => navigate(`/users/${id}${window.location.search}`)}
-          onEdit={(id) =>
-            navigate(`/users/${id}/edit${window.location.search}`)
+          onEdit={
+            hasPermission('accounts.change_user')
+              ? (id) => navigate(`/users/${id}/edit${window.location.search}`)
+              : undefined
           }
-          onDelete={onDelete}
+          onDelete={
+            hasPermission('accounts.delete_user') ? onDelete : undefined
+          }
         />
       ),
     },

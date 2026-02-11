@@ -20,22 +20,37 @@ const logout = () => {
   }
 };
 
+let refreshTokenPromise = null;
+
 // Function to refresh access token
 export const refreshAccessToken = async () => {
-  try {
-    const response = await post(`/token/refresh/`, null, {
-      withCredentials: true,
-    });
-
-    store.dispatch(
-      setAuthData({
-        accessToken: response.access,
-        userData: response.user,
-      })
-    );
-  } catch {
-    logout();
+  if (refreshTokenPromise) {
+    return refreshTokenPromise;
   }
+
+  refreshTokenPromise = (async () => {
+    try {
+      const response = await post(`/token/refresh/`, null, {
+        withCredentials: true,
+      });
+
+      store.dispatch(
+        setAuthData({
+          accessToken: response.access,
+          userData: response.user,
+          permissions: response.permissions,
+        })
+      );
+      return response;
+    } catch (error) {
+      logout();
+      throw error;
+    } finally {
+      refreshTokenPromise = null;
+    }
+  })();
+
+  return refreshTokenPromise;
 };
 
 // Attach Authorization Header in Requests

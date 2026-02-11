@@ -4,12 +4,33 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import SimpleBar from 'simplebar-react';
 
+import { usePermissions } from '../../hooks/usePermissions';
+
 const SidebarContent = (props) => {
   const ref = useRef();
   const path = useLocation();
   const { t } = useTranslation();
+  const { hasPermission } = usePermissions();
   const [openItems, setOpenItems] = useState({});
   const [activeItem, setActiveItem] = useState(null); // Track the active item
+
+  // Filter menu data based on permissions
+  const filteredMenuData = React.useMemo(() => {
+    return props.sidedata
+      .filter((menu) => !menu.permission || hasPermission(menu.permission))
+      .map((menu) => {
+        if (menu.submenu) {
+          return {
+            ...menu,
+            submenu: menu.submenu.filter(
+              (sub) => !sub.permission || hasPermission(sub.permission)
+            ),
+          };
+        }
+        return menu;
+      })
+      .filter((menu) => !menu.submenu || menu.submenu.length > 0);
+  }, [props.sidedata, hasPermission]);
 
   // Helper function to check if a submenu is open
   const isOpen = (index) => openItems[index] || false;
@@ -28,7 +49,7 @@ const SidebarContent = (props) => {
   // Function to open parent dropdown based on current path
   const openParentDropdown = useCallback(() => {
     const pathName = path.pathname;
-    const menuData = props.sidedata;
+    const menuData = filteredMenuData;
 
     // Iterate over the menu to find the matching submenu
     menuData.forEach((menu, index) => {
@@ -44,7 +65,7 @@ const SidebarContent = (props) => {
         });
       }
     });
-  }, [path.pathname, props.sidedata]);
+  }, [path.pathname, filteredMenuData]);
 
   useEffect(() => {
     openParentDropdown();
@@ -119,7 +140,7 @@ const SidebarContent = (props) => {
       <SimpleBar className="h-100" ref={ref}>
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
-            {renderMenu(props.sidedata)}
+            {renderMenu(filteredMenuData)}
           </ul>
         </div>
       </SimpleBar>

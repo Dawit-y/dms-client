@@ -3,6 +3,7 @@ import { createSlice, createSelector } from '@reduxjs/toolkit';
 const initialState = {
   accessToken: null,
   userData: null,
+  permissions: [],
   isAuthenticated: false,
 };
 
@@ -13,11 +14,13 @@ const authSlice = createSlice({
     setAuthData: (state, action) => {
       state.accessToken = action.payload.accessToken;
       state.userData = action.payload.userData;
+      state.permissions = action.payload.permissions || [];
       state.isAuthenticated = true;
     },
     clearAuthData: (state) => {
       state.accessToken = null;
       state.userData = null;
+      state.permissions = [];
       state.isAuthenticated = false;
     },
   },
@@ -35,6 +38,10 @@ export const selectUserData = createSelector(
 export const selectAccessToken = createSelector(
   [selectAuth],
   (auth) => auth?.accessToken
+);
+export const selectPermissions = createSelector(
+  [selectAuth],
+  (auth) => auth?.permissions || []
 );
 
 export const { setAuthData, clearAuthData } = authSlice.actions;

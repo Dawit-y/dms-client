@@ -16,7 +16,10 @@ const EditProject = () => {
   if (isLoading) {
     return (
       <div className="page-content">
-        <Container fluid>
+        <Container
+          fluid
+          className="w-100 h-100 d-flex align-items-center justify-content-center"
+        >
           <Spinner animation="border" variant="primary" />
         </Container>
       </div>

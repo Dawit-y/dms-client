@@ -2,18 +2,10 @@ import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 
 import IconButton from './IconButton';
 
-const ActionsCell = ({
-  id,
-  onView,
-  onEdit,
-  onDelete,
-  showView = true,
-  showEdit = true,
-  showDelete = true,
-}) => {
+const ActionsCell = ({ id, onView, onEdit, onDelete }) => {
   return (
     <div className="d-flex gap-2">
-      {showView && (
+      {onView !== undefined && (
         <IconButton
           icon={<FaEye />}
           onClick={() => onView(id)}
@@ -21,7 +13,7 @@ const ActionsCell = ({
           title="View"
         />
       )}
-      {showEdit && (
+      {onEdit !== undefined && (
         <IconButton
           icon={<FaEdit />}
           onClick={() => onEdit(id)}
@@ -29,7 +21,7 @@ const ActionsCell = ({
           title="Edit"
         />
       )}
-      {showDelete && (
+      {onDelete !== undefined && (
         <IconButton
           icon={<FaTrash />}
           onClick={() => onDelete(id)}
