@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 
 import HorizontalLayout from '../components/HorizontalLayout';
 import VerticalLayout from '../components/VerticalLayout';
-import AuthMiddleware from '../routes/AuthMiddleware';
+import AccessGuard from '../routes/AccessGuard';
 import { layoutSelectors } from '../store/layout/layoutSlice';
 
 const AppLayout = ({ layoutType, children }) => {
@@ -17,8 +17,8 @@ export default function ProtectedLayout({ children }) {
   const layoutType = useSelector(layoutSelectors.selectLayoutType);
 
   return (
-    <AuthMiddleware>
+    <AccessGuard>
       <AppLayout layoutType={layoutType}>{children || <Outlet />}</AppLayout>
-    </AuthMiddleware>
+    </AccessGuard>
   );
 }
