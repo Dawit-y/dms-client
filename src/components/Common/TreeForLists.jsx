@@ -7,7 +7,8 @@ import {
   Row,
   Button,
   Form,
-  // UncontrolledTooltip,
+  OverlayTrigger,
+  Tooltip,
   FormLabel,
   FormCheck,
   Spinner,
@@ -185,20 +186,19 @@ const TreeForLists = ({
         {isCollapsed ? (
           <div className="d-flex justify-content-center align-items-center mb-2 mx-auto w-100">
             <>
-              <Button
-                id="expand-tree-button"
-                size="sm"
-                variant="light"
-                onClick={handleExpandAndFocusSearch}
-              >
-                <FaBars />
-              </Button>
-              {/* <UncontrolledTooltip
+              <OverlayTrigger
                 placement="right"
-                target="expand-tree-button"
+                overlay={<Tooltip id="expand-tooltip">Expand</Tooltip>}
               >
-                Expand
-              </UncontrolledTooltip> */}
+                <Button
+                  id="expand-tree-button"
+                  size="sm"
+                  variant="light"
+                  onClick={handleExpandAndFocusSearch}
+                >
+                  <FaBars />
+                </Button>
+              </OverlayTrigger>
             </>
           </div>
         ) : (
@@ -242,40 +242,38 @@ const TreeForLists = ({
             {isCollapsed ? (
               <div className="d-flex justify-content-center align-items-center mb-2 mx-auto w-100">
                 <>
-                  <Button
-                    id="expand-tree-button"
-                    size="sm"
-                    variant="light"
-                    onClick={handleExpandAndFocusSearch}
-                  >
-                    <FaBars />
-                  </Button>
-                  {/* <UncontrolledTooltip
+                  <OverlayTrigger
                     placement="right"
-                    target="expand-tree-button"
+                    overlay={<Tooltip id="expand-tooltip">Expand</Tooltip>}
                   >
-                    Expand
-                  </UncontrolledTooltip> */}
+                    <Button
+                      id="expand-tree-button"
+                      size="sm"
+                      variant="light"
+                      onClick={handleExpandAndFocusSearch}
+                    >
+                      <FaBars />
+                    </Button>
+                  </OverlayTrigger>
                 </>
               </div>
             ) : (
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <h5 className="mb-0">{t('regional_structure')}</h5>
-                <Button
-                  id="collapse-tree-button"
-                  size="sm"
-                  variant="light"
-                  onClick={() => setIsCollapsed(true)}
-                  className="ms-auto"
-                >
-                  <FaBars />
-                </Button>
-                {/* <UncontrolledTooltip
+                <OverlayTrigger
                   placement="top"
-                  target="collapse-tree-button"
+                  overlay={<Tooltip id="collapse-tooltip">Collapse</Tooltip>}
                 >
-                  Collapse
-                </UncontrolledTooltip> */}
+                  <Button
+                    id="collapse-tree-button"
+                    size="sm"
+                    variant="light"
+                    onClick={() => setIsCollapsed(true)}
+                    className="ms-auto"
+                  >
+                    <FaBars />
+                  </Button>
+                </OverlayTrigger>
               </div>
             )}
 
@@ -283,63 +281,68 @@ const TreeForLists = ({
               <div className="d-flex justify-content-center align-items-start mb-2 mt-3 mx-auto h-100">
                 <div className="d-flex flex-column align-items-center gap-3">
                   <>
-                    <FormCheck
-                      id="collapsed-include"
-                      type="checkbox"
-                      checked={includeChecked}
-                      onChange={handleCheckboxChange}
-                    />
-                    {/* <UncontrolledTooltip
+                    <OverlayTrigger
                       placement="right"
-                      target="collapsed-include"
+                      overlay={
+                        <Tooltip id="include-tooltip">
+                          {t('include_sub_address')}
+                        </Tooltip>
+                      }
                     >
-                      {t('include_sub_address')}
-                    </UncontrolledTooltip> */}
+                      <FormCheck
+                        id="collapsed-include"
+                        type="checkbox"
+                        checked={includeChecked}
+                        onChange={handleCheckboxChange}
+                      />
+                    </OverlayTrigger>
                   </>
                   <>
-                    <Button
-                      id="collapsed-search-button"
-                      size="sm"
-                      variant="light"
-                      onClick={handleExpandAndFocusSearch}
-                    >
-                      <FaSearch />
-                    </Button>
-                    {/* <UncontrolledTooltip
+                    <OverlayTrigger
                       placement="right"
-                      target="collapsed-search-button"
+                      overlay={<Tooltip id="search-tooltip">Search</Tooltip>}
                     >
-                      Search
-                    </UncontrolledTooltip> */}
+                      <Button
+                        id="collapsed-search-button"
+                        size="sm"
+                        variant="light"
+                        onClick={handleExpandAndFocusSearch}
+                      >
+                        <FaSearch />
+                      </Button>
+                    </OverlayTrigger>
                   </>
                   {selectedNode && Object.keys(selectedNode).length > 0 && (
                     <>
-                      <div
-                        id="selected-node-tooltip"
-                        className="d-flex align-items-center gap-1 bg-info-subtle px-2 py-1 rounded"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleNodeSelect({})}
-                      >
-                        <span className="text-warning">
-                          <FaFolder />
-                        </span>
-                        <span
-                          className="text-danger"
-                          style={{ fontWeight: 900, fontSize: '0.9rem' }}
-                        >
-                          {selectedNode.level.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      {/* <UncontrolledTooltip
+                      <OverlayTrigger
                         placement="right"
-                        target="selected-node-tooltip"
+                        overlay={
+                          <Tooltip id="selected-node-tooltip-overlay">
+                            {lang === 'en' && selectedNode.add_name_en
+                              ? selectedNode.add_name_en
+                              : lang === 'am' && selectedNode.add_name_am
+                                ? selectedNode.add_name_am
+                                : selectedNode.name}
+                          </Tooltip>
+                        }
                       >
-                        {lang === 'en' && selectedNode.add_name_en
-                          ? selectedNode.add_name_en
-                          : lang === 'am' && selectedNode.add_name_am
-                            ? selectedNode.add_name_am
-                            : selectedNode.name}
-                      </UncontrolledTooltip> */}
+                        <div
+                          id="selected-node-tooltip"
+                          className="d-flex align-items-center gap-1 bg-info-subtle px-2 py-1 rounded"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleNodeSelect({})}
+                        >
+                          <span className="text-warning">
+                            <FaFolder />
+                          </span>
+                          <span
+                            className="text-danger"
+                            style={{ fontWeight: 900, fontSize: '0.9rem' }}
+                          >
+                            {selectedNode.level.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </OverlayTrigger>
                     </>
                   )}
                 </div>
@@ -372,24 +375,27 @@ const TreeForLists = ({
                       onChange={handleSearchTerm}
                     />
                     <>
-                      <Button
-                        id="close-all-button"
-                        onClick={() => {
-                          onNodeSelect({});
-                          treeRef.current?.closeAll();
-                        }}
-                        size="sm"
-                        variant="light"
-                        className="border"
-                      >
-                        <FaChevronUp />
-                      </Button>
-                      {/* <UncontrolledTooltip
+                      <OverlayTrigger
                         placement="top"
-                        target="close-all-button"
+                        overlay={
+                          <Tooltip id="close-all-tooltip">
+                            {t('Close All')}
+                          </Tooltip>
+                        }
                       >
-                        {t('Close All')}
-                      </UncontrolledTooltip> */}
+                        <Button
+                          id="close-all-button"
+                          onClick={() => {
+                            onNodeSelect({});
+                            treeRef.current?.closeAll();
+                          }}
+                          size="sm"
+                          variant="light"
+                          className="border"
+                        >
+                          <FaChevronUp />
+                        </Button>
+                      </OverlayTrigger>
                     </>
                   </Col>
                 </Row>
