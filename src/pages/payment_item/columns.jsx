@@ -39,7 +39,7 @@ export const usePaymentItemColumns = (onEdit, onDelete, hasPermission) => {
           }
           onDelete={
             hasPermission('accounts.delete_paymentitem')
-              ? () => onDelete(info.row.original.id)
+              ? () => onDelete(info.row.original)
               : undefined
           }
         />

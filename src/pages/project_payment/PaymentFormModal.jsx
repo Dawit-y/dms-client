@@ -83,7 +83,9 @@ const PaymentFormModal = ({
   return (
     <Modal size="lg" show={isOpen} onHide={toggle} centered={true}>
       <Modal.Header closeButton>
-        <Modal.Title>{isEdit ? 'Edit Payment' : 'Add Payment'}</Modal.Title>
+        <Modal.Title>
+          {isEdit ? `Edit Payment #${paymentData.id}` : 'Add Payment'}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form noValidate onSubmit={formik.handleSubmit}>

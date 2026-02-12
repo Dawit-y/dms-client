@@ -32,8 +32,8 @@ function ProjectPayments({ isActive }) {
     setIsModalOpen(true);
   }, []);
 
-  const handleDeleteClick = useCallback((id) => {
-    setPaymentToDelete(id);
+  const handleDeleteClick = useCallback((payment) => {
+    setPaymentToDelete(payment);
     setDeleteModal(true);
   }, []);
 
@@ -50,7 +50,7 @@ function ProjectPayments({ isActive }) {
   const confirmDelete = async () => {
     if (paymentToDelete) {
       try {
-        await deletePaymentMutation.mutateAsync(paymentToDelete);
+        await deletePaymentMutation.mutateAsync(paymentToDelete.id);
         setDeleteModal(false);
         setPaymentToDelete(null);
       } catch (error) {
@@ -121,6 +121,7 @@ function ProjectPayments({ isActive }) {
         toggle={() => setDeleteModal(false)}
         onDeleteClick={confirmDelete}
         isPending={deletePaymentMutation.isPending}
+        itemName={paymentToDelete ? `Payment #${paymentToDelete.id}` : ''}
       />
 
       <RightOffCanvas

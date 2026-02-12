@@ -2,8 +2,15 @@ import PropTypes from 'prop-types';
 import { Spinner, Modal, ModalBody } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-const DeleteModal = ({ isOpen, onDeleteClick, toggle, isPending }) => {
+const DeleteModal = ({
+  isOpen,
+  onDeleteClick,
+  toggle,
+  isPending,
+  itemName,
+}) => {
   const { t } = useTranslation();
+  console.log('DeleteModal rendered with itemName:', itemName);
   return (
     <Modal size="md" show={isOpen} onHide={toggle} centered={true}>
       <div className="modal-content">
@@ -19,6 +26,11 @@ const DeleteModal = ({ isOpen, onDeleteClick, toggle, isPending }) => {
             </div>
           </div>
           <p className="text-muted font-size-16 mb-4">{t('confirm_erase')}</p>
+          {itemName && (
+            <p className="text-muted font-size-16 mb-4">
+              <strong>{itemName}</strong>
+            </p>
+          )}
 
           <div className="hstack gap-2 justify-content-center mb-0">
             {isPending ? (
@@ -59,6 +71,8 @@ DeleteModal.propTypes = {
   toggle: PropTypes.func,
   onDeleteClick: PropTypes.func,
   isOpen: PropTypes.any,
+  itemName: PropTypes.string,
+  isPending: PropTypes.bool,
 };
 
 export default DeleteModal;

@@ -26,15 +26,15 @@ const PaymentItems = ({ passedId }) => {
     setIsModalOpen(true);
   }, []);
 
-  const handleDeleteClick = useCallback((passedId) => {
-    setItemToDelete(passedId);
+  const handleDeleteClick = useCallback((item) => {
+    setItemToDelete(item);
     setDeleteModal(true);
   }, []);
 
   const confirmDelete = async () => {
     if (itemToDelete) {
       try {
-        await deleteItemMutation.mutateAsync(itemToDelete);
+        await deleteItemMutation.mutateAsync(itemToDelete.id);
         setDeleteModal(false);
         setItemToDelete(null);
       } catch (error) {
@@ -98,6 +98,7 @@ const PaymentItems = ({ passedId }) => {
         toggle={() => setDeleteModal(false)}
         onDeleteClick={confirmDelete}
         isPending={deleteItemMutation.isPending}
+        itemName={itemToDelete?.name}
       />
     </>
   );

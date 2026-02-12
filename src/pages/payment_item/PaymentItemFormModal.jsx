@@ -79,7 +79,7 @@ const PaymentItemFormModal = ({
     <Modal size="lg" show={isOpen} onHide={toggle} centered={true}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {isEdit ? 'Edit Payment Item' : 'Add Payment Item'}
+          {isEdit ? `Edit Item: ${itemData.name}` : 'Add Payment Item'}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

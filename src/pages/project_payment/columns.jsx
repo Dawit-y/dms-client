@@ -64,7 +64,7 @@ export const usePaymentColumns = (
           }
           onDelete={
             hasPermission('accounts.delete_projectpayment')
-              ? () => onDelete(info.row.original.id)
+              ? () => onDelete(info.row.original)
               : undefined
           }
         />
