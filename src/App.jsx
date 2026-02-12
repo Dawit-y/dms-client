@@ -85,7 +85,7 @@ const App = () => {
 
     resolveAuth();
 
-    const REFRESH_INTERVAL_MS = 30 * 1000;
+    const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
     const intervalId = setInterval(async () => {
       if (accessToken) {
         try {

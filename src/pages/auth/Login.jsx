@@ -77,7 +77,6 @@ const Login = () => {
         .email('Invalid email format')
         .required('Please Enter Your Email'),
       password: Yup.string().required('Please Enter Your Password'),
-      // .min(8, 'Password should be at least 8 characters long'),
     }),
     onSubmit: async (values) => await mutation.mutateAsync(values),
   });

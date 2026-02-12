@@ -7,6 +7,7 @@ export const usePaymentColumns = (
   projectId,
   onEdit,
   onDelete,
+  handleCanvasToggle,
   hasPermission
 ) => {
   const navigate = useNavigate();
@@ -15,7 +16,6 @@ export const usePaymentColumns = (
     snColumn,
     {
       accessorKey: 'amount',
-      header: 'Amount',
       cell: (info) => {
         const value = info.getValue();
         return value ? `$${Number(value).toLocaleString()}` : '-';
@@ -26,7 +26,6 @@ export const usePaymentColumns = (
     },
     {
       accessorKey: 'payment_date',
-      header: 'Payment Date',
       cell: (info) => {
         const value = info.getValue();
         return value ? new Date(value).toLocaleDateString() : '-';
@@ -34,7 +33,6 @@ export const usePaymentColumns = (
     },
     {
       accessorKey: 'payment_method',
-      header: 'Payment Method',
       cell: (info) => {
         const value = info.getValue();
         return value || '-';
@@ -42,7 +40,6 @@ export const usePaymentColumns = (
     },
     {
       accessorKey: 'status',
-      header: 'Status',
       cell: (info) => {
         const value = info.getValue();
         return value || '-';
@@ -50,15 +47,15 @@ export const usePaymentColumns = (
     },
     {
       accessorKey: 'receipt_number',
-      header: 'Receipt Number',
       cell: (info) => info.getValue() || '-',
     },
     {
-      header: 'Actions',
       id: 'actions',
+      header: 'Actions',
       cell: (info) => (
         <ActionsCell
           id={info.row.original.id}
+          onCanvasToggle={() => handleCanvasToggle(info.row.original)}
           onView={(id) => navigate(`/projects/${projectId}/payments/${id}`)}
           onEdit={
             hasPermission('accounts.change_projectpayment')

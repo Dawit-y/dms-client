@@ -1,10 +1,17 @@
-import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaCog } from 'react-icons/fa';
 
 import IconButton from './IconButton';
 
-const ActionsCell = ({ id, onView, onEdit, onDelete }) => {
+const ActionsCell = ({ id, onView, onEdit, onDelete, onCanvasToggle }) => {
   return (
     <div className="d-flex gap-2">
+      {onCanvasToggle !== undefined && (
+        <IconButton
+          icon={<FaCog />}
+          onClick={() => onCanvasToggle(id)}
+          className="text-info"
+        />
+      )}
       {onView !== undefined && (
         <IconButton
           icon={<FaEye />}

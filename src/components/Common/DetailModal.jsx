@@ -11,7 +11,6 @@ const DetailModal = (props) => {
   );
 
   const printDetail = () => {
-    console.log(rowData);
     const modalContent = document.getElementById('printable-content').innerHTML;
     const printWindow = window.open(
       '',

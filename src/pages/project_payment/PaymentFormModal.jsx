@@ -93,12 +93,12 @@ const PaymentFormModal = ({
               type="date"
               formik={formik}
               fieldId={'payment_date'}
-              label="Payment Date"
+              label={t('payment_date')}
             />
             <AsyncSelectField
               formik={formik}
               fieldId={'payment_method'}
-              label="Payment Method"
+              label={t('payment_method')}
               optionMap={{
                 cash: t('Cash'),
                 bank_transfer: t('Bank Transfer'),
@@ -109,6 +109,7 @@ const PaymentFormModal = ({
             <AsyncSelectField
               formik={formik}
               fieldId={'status'}
+              label={t('status')}
               optionMap={{
                 pending: t('Pending'),
                 completed: t('Completed'),
@@ -134,9 +135,14 @@ const PaymentFormModal = ({
           Cancel
         </Button>
         <Button
-          variant="primary"
+          variant="success"
           onClick={formik.submitForm}
-          disabled={formik.isSubmitting || isMutationPending || !formik.isValid}
+          disabled={
+            formik.isSubmitting ||
+            isMutationPending ||
+            !formik.isValid ||
+            !formik.dirty
+          }
         >
           {isMutationPending && (
             <Spinner size="sm" className="me-1" animation="border" />

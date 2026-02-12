@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
-import {
-  Card,
-  Col,
-  Container,
-  Row,
-  Badge,
-  Spinner,
-  Button,
-} from 'react-bootstrap';
+import { Card, Col, Row, Badge, Button } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
+import MultiFetchErrorHandler from '../../components/Common/MultiFetchErrorHandler';
+import RightOffCanvas from '../../components/Common/RightOffCanvas';
+import SpinnerOnDetail from '../../components/Common/SpinnerOnDetail';
+import { usePermissions } from '../../hooks/usePermissions';
 import {
   useFetchProjectPayment,
   useDeleteProjectPayment,
 } from '../../queries/project_payments_query';
 import { useFetchProject } from '../../queries/projects_query';
+import PaymentItems from '../payment_item';
 import PaymentFormModal from './PaymentFormModal';
 
 const PaymentDetails = () => {
@@ -25,16 +23,32 @@ const PaymentDetails = () => {
   }, []);
 
   const { projectId, paymentId } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: payment, isLoading: isPaymentLoading } = useFetchProjectPayment(
-    projectId,
-    paymentId
-  );
-  const { data: project } = useFetchProject(projectId);
+  const { hasPermission } = usePermissions();
+  const {
+    data: payment,
+    isLoading: isPaymentLoading,
+    isError: isPaymentError,
+    error: paymentError,
+    refetch: refetchPayment,
+  } = useFetchProjectPayment(projectId, paymentId);
+  const {
+    data: project,
+    isLoading: isProjectLoading,
+    isError: isProjectError,
+    error: projectError,
+    refetch: refetchProject,
+  } = useFetchProject(projectId);
 
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
+  const [openCanvas, setOpenCanvas] = useState(false);
+
   const deletePaymentMutation = useDeleteProjectPayment(projectId);
+
+  const handleCanvasOpen = () => setOpenCanvas(true);
+  const handleCanvasClose = () => setOpenCanvas(false);
 
   const handleDelete = async () => {
     if (payment?.id) {
@@ -42,38 +56,6 @@ const PaymentDetails = () => {
       navigate(`/projects/${projectId}/payments`);
     }
   };
-
-  if (isPaymentLoading) {
-    return (
-      <div className="page-content">
-        <Container
-          fluid
-          className="d-flex justify-content-center align-items-center"
-          style={{ minHeight: '50vh' }}
-        >
-          <Spinner animation="border" variant="primary" />
-        </Container>
-      </div>
-    );
-  }
-
-  if (!payment) {
-    return (
-      <div className="page-content">
-        <Container fluid>
-          <div className="text-center py-5">
-            <h4 className="mb-3">Payment not found</h4>
-            <Button
-              variant="primary"
-              onClick={() => navigate(`/projects/${projectId}/payments`)}
-            >
-              Back to Payments
-            </Button>
-          </div>
-        </Container>
-      </div>
-    );
-  }
 
   const getStatusBadge = (status) => {
     const statusMap = {
@@ -83,6 +65,21 @@ const PaymentDetails = () => {
     };
     return statusMap[status] || 'secondary';
   };
+
+  if (isPaymentLoading || isProjectLoading) {
+    return <SpinnerOnDetail />;
+  }
+
+  if (isPaymentError || isProjectError) {
+    return (
+      <MultiFetchErrorHandler
+        errors={[
+          { error: paymentError, refetch: refetchPayment },
+          { error: projectError, refetch: refetchProject },
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="page-content">
@@ -102,18 +99,25 @@ const PaymentDetails = () => {
                     <p className="text-muted mb-0">Payment ID: {payment.id}</p>
                   </div>
                   <div className="d-flex gap-2">
-                    <Button
-                      variant="success"
-                      onClick={() => setEditModal(true)}
-                    >
-                      <i className="mdi mdi-pencil me-1"></i> Edit
+                    <Button variant="info" onClick={handleCanvasOpen}>
+                      <i className="mdi mdi-cog me-1"></i> {t('configure')}
                     </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => setDeleteModal(true)}
-                    >
-                      <i className="mdi mdi-trash-can me-1"></i> Delete
-                    </Button>
+                    {hasPermission('accounts.change_projectpayment') && (
+                      <Button
+                        variant="success"
+                        onClick={() => setEditModal(true)}
+                      >
+                        <i className="mdi mdi-pencil me-1"></i> {t('edit')}
+                      </Button>
+                    )}
+                    {hasPermission('accounts.delete_projectpayment') && (
+                      <Button
+                        variant="danger"
+                        onClick={() => setDeleteModal(true)}
+                      >
+                        <i className="mdi mdi-trash-can me-1"></i> {t('delete')}
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -223,6 +227,21 @@ const PaymentDetails = () => {
           projectId={projectId}
           isEdit={true}
           paymentData={payment}
+        />
+
+        <RightOffCanvas
+          handleClick={handleCanvasClose}
+          showCanvas={openCanvas}
+          canvasWidth={80}
+          name={
+            payment
+              ? `Payment #${payment.id} - Receipt Number ${payment.receipt_number || 'N/A'}`
+              : 'Payment Items'
+          }
+          id={paymentId}
+          components={{
+            'Payment Item': PaymentItems,
+          }}
         />
       </>
     </div>

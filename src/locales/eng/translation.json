@@ -19,5 +19,6 @@
   "delete_now": "Delete Now",
   "confirm_erase": "Are you sure you want to delete this data?",
   "srch_search": "Search",
-  "srch_clear": "Clear"
+  "srch_clear": "Clear",
+  "receipt_number": "Receipt Number"
 }

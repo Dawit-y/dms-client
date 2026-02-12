@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 
 import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
+import RightOffCanvas from '../../components/Common/RightOffCanvas';
 import TableContainer from '../../components/Common/TableContainer';
 import { usePermissions } from '../../hooks/usePermissions';
 import {
@@ -10,6 +11,7 @@ import {
   useDeleteProjectPayment,
 } from '../../queries/project_payments_query';
 import { projectPaymentExportColumns } from '../../utils/exportColumnsForLists';
+import PaymentItem from '../payment_item';
 import { usePaymentColumns } from './columns';
 import PaymentFormModal from './PaymentFormModal';
 
@@ -18,6 +20,8 @@ function ProjectPayments({ isActive }) {
   const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [openCanvas, setOpenCanvas] = useState(false);
+  const [canvaseData, setCanvaseData] = useState(null);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
   const [paymentToEdit, setPaymentToEdit] = useState(null);
 
@@ -31,6 +35,16 @@ function ProjectPayments({ isActive }) {
   const handleDeleteClick = useCallback((id) => {
     setPaymentToDelete(id);
     setDeleteModal(true);
+  }, []);
+
+  const handleCanvasOpen = useCallback((payment) => {
+    setCanvaseData(payment);
+    setOpenCanvas(true);
+  }, []);
+
+  const handleCanvasClose = useCallback(() => {
+    setOpenCanvas(false);
+    setCanvaseData(null);
   }, []);
 
   const confirmDelete = async () => {
@@ -70,6 +84,7 @@ function ProjectPayments({ isActive }) {
     projectId,
     handleEditClick,
     handleDeleteClick,
+    handleCanvasOpen,
     hasPermission
   );
 
@@ -106,6 +121,21 @@ function ProjectPayments({ isActive }) {
         toggle={() => setDeleteModal(false)}
         onDeleteClick={confirmDelete}
         isPending={deletePaymentMutation.isPending}
+      />
+
+      <RightOffCanvas
+        handleClick={handleCanvasClose}
+        showCanvas={openCanvas}
+        canvasWidth={80}
+        name={
+          canvaseData
+            ? `Payment #${canvaseData.id} - Receipt Number ${canvaseData.receipt_number || 'N/A'}`
+            : 'Payment Items'
+        }
+        id={canvaseData?.id}
+        components={{
+          'Payment Item': PaymentItem,
+        }}
       />
     </>
   );

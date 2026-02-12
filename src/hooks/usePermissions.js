@@ -23,11 +23,6 @@ export const usePermissions = () => {
     const required = Array.isArray(requiredPermissions)
       ? requiredPermissions
       : [requiredPermissions];
-    console.log('Checking permissions:', {
-      required,
-      userPermissions: permissions,
-      match,
-    });
     if (match === 'any') {
       return required.some((perm) => permissions.includes(perm));
     }
