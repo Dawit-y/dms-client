@@ -1,4 +1,5 @@
 import { useCallback, useEffect, memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
 import DeleteModal from '../../components/Common/DeleteModal';
@@ -16,6 +17,7 @@ import { usePaymentColumns } from './columns';
 import PaymentFormModal from './PaymentFormModal';
 
 function ProjectPayments({ isActive }) {
+  const { t } = useTranslation();
   const { id: projectId } = useParams();
   const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,8 +70,8 @@ function ProjectPayments({ isActive }) {
   } = useFetchProjectPayments(projectId, isActive);
 
   useEffect(() => {
-    document.title = 'Project Payments';
-  }, []);
+    document.title = t('project_payments');
+  }, [t]);
 
   const handleAddClick = useCallback(() => {
     setIsModalOpen(true);
@@ -103,7 +105,7 @@ function ProjectPayments({ isActive }) {
         isCustomPageSize={true}
         isPagination={true}
         onAddClick={handleAddClick}
-        tableName="Project Payments"
+        tableName={t('project_payments')}
         exportColumns={projectPaymentExportColumns}
         refetch={refetch}
       />

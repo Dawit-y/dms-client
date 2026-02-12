@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useCallback, useState, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import DeleteModal from '../../components/Common/DeleteModal';
 import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
@@ -13,6 +14,7 @@ import { usePaymentItemColumns } from './columns';
 import PaymentItemFormModal from './PaymentItemFormModal';
 
 const PaymentItems = ({ passedId }) => {
+  const { t } = useTranslation();
   const { hasPermission } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -81,7 +83,7 @@ const PaymentItems = ({ passedId }) => {
         isCustomPageSize={true}
         isPagination={true}
         onAddClick={handleAddClick}
-        tableName="Payment Items"
+        tableName={t('payment_items')}
         refetch={refetch}
       />
 

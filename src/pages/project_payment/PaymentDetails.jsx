@@ -85,8 +85,8 @@ const PaymentDetails = () => {
     <div className="page-content">
       <>
         <Breadcrumbs
-          title="Projects"
-          breadcrumbItem={`${project?.title || 'Project'} - Payment Details`}
+          title={t('projects')}
+          breadcrumbItem={`${project?.title || t('project')} - ${t('payment_details')}`}
         />
 
         <Row>
@@ -95,8 +95,10 @@ const PaymentDetails = () => {
               <Card.Body>
                 <div className="d-flex align-items-center justify-content-between mb-4">
                   <div>
-                    <h4 className="card-title mb-1">Payment Details</h4>
-                    <p className="text-muted mb-0">Payment ID: {payment.id}</p>
+                    <h4 className="card-title mb-1">{t('payment_details')}</h4>
+                    <p className="text-muted mb-0">
+                      {t('payment_id')}: {payment.id}
+                    </p>
                   </div>
                   <div className="d-flex gap-2">
                     <Button variant="info" onClick={handleCanvasOpen}>

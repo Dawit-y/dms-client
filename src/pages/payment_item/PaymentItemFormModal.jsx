@@ -79,22 +79,24 @@ const PaymentItemFormModal = ({
     <Modal size="lg" show={isOpen} onHide={toggle} centered={true}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {isEdit ? `Edit Item: ${itemData.name}` : 'Add Payment Item'}
+          {isEdit
+            ? t('edit_item', { item: itemData.name })
+            : t('add_payment_item')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form noValidate onSubmit={formik.handleSubmit}>
           <Row>
-            <Input formik={formik} fieldId={'name'} label="Item Name" />
+            <Input formik={formik} fieldId={'name'} label={t('item_name')} />
             <NumberField
               formik={formik}
               fieldId={'quantity'}
-              label="Quantity"
+              label={t('quantity')}
             />
             <NumberField
               formik={formik}
               fieldId={'unit_price'}
-              label="Unit Price"
+              label={t('unit_price')}
             />
           </Row>
         </Form>

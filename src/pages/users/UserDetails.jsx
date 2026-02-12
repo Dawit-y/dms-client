@@ -96,7 +96,9 @@ const UserDetails = () => {
             <h4 className="card-title mb-1">
               {user?.first_name} {user?.last_name}
             </h4>
-            <p className="text-muted mb-0">User ID: {user?.id}</p>
+            <p className="text-muted mb-0">
+              {t('user_id')}: {user?.id}
+            </p>
           </div>
           <div className="d-flex gap-2">
             <Button
@@ -105,10 +107,10 @@ const UserDetails = () => {
                 navigate(`/users/${user?.id}/edit${window.location.search}`)
               }
             >
-              <i className="mdi mdi-pencil me-1"></i> {t('Edit')}
+              <i className="mdi mdi-pencil me-1"></i> {t('edit')}
             </Button>
             <Button variant="danger" onClick={() => setDeleteModal(true)}>
-              <i className="mdi mdi-trash-can me-1"></i> {t('Delete')}
+              <i className="mdi mdi-trash-can me-1"></i> {t('delete')}
             </Button>
           </div>
         </div>
@@ -118,30 +120,30 @@ const UserDetails = () => {
           <Col md={4}>
             <Card className="h-100 border">
               <Card.Header className="bg-light">
-                <h6 className="mb-0">{t('Basic Information')}</h6>
+                <h6 className="mb-0">{t('basic_information')}</h6>
               </Card.Header>
               <Card.Body>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Full Name')}</h6>
+                  <h6 className="text-muted mb-2">{t('full_name')}</h6>
                   <p className="mb-0">
                     {user?.first_name} {user?.last_name}
                   </p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Email')}</h6>
+                  <h6 className="text-muted mb-2">{t('email')}</h6>
                   <p className="mb-0">{user?.email}</p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Phone Number')}</h6>
+                  <h6 className="text-muted mb-2">{t('phone_number')}</h6>
                   <p className="mb-0">{user?.phone_number || 'N/A'}</p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Role')}</h6>
+                  <h6 className="text-muted mb-2">{t('role')}</h6>
                   <Badge
                     bg={getRoleBadgeVariant(user?.role)}
                     className="px-3 py-2"
                   >
-                    {user?.role ? t(user?.role) : 'Unknown'}
+                    {user?.role ? t(user?.role) : t('unknown')}
                   </Badge>
                 </div>
               </Card.Body>
@@ -152,40 +154,40 @@ const UserDetails = () => {
           <Col md={4}>
             <Card className="h-100 border">
               <Card.Header className="bg-light">
-                <h6 className="mb-0">{t('Account Details')}</h6>
+                <h6 className="mb-0">{t('account_details')}</h6>
               </Card.Header>
               <Card.Body>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Account Status')}</h6>
+                  <h6 className="text-muted mb-2">{t('account_status')}</h6>
                   <Badge
                     bg={getStatusBadgeVariant(user?.status)}
                     className="px-3 py-2"
                   >
-                    {user?.status ? t(user?.status) : 'Unknown'}
+                    {user?.status ? t(user?.status) : t('unknown')}
                   </Badge>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Date Joined')}</h6>
+                  <h6 className="text-muted mb-2">{t('date_joined')}</h6>
                   <p className="mb-0">
                     {formatDate(user?.created_at || user?.createdAt)}
                   </p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Last Login')}</h6>
+                  <h6 className="text-muted mb-2">{t('last_login')}</h6>
                   <p className="mb-0">
                     {formatDate(user?.last_login) || 'N/A'}
                   </p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Email Verified')}</h6>
+                  <h6 className="text-muted mb-2">{t('email_verified')}</h6>
                   <p className="mb-0">
                     {user?.email_verified ? (
                       <Badge bg="success" className="px-3 py-2">
-                        {t('Verified')}
+                        {t('verified')}
                       </Badge>
                     ) : (
                       <Badge bg="danger" className="px-3 py-2">
-                        {t('Not Verified')}
+                        {t('not_verified')}
                       </Badge>
                     )}
                   </p>
@@ -198,25 +200,25 @@ const UserDetails = () => {
           <Col md={4}>
             <Card className="h-100 border">
               <Card.Header className="bg-light">
-                <h6 className="mb-0">{t('Additional Information')}</h6>
+                <h6 className="mb-0">{t('additional_information')}</h6>
               </Card.Header>
               <Card.Body>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Department')}</h6>
+                  <h6 className="text-muted mb-2">{t('department')}</h6>
                   <p className="mb-0">{user?.department || 'N/A'}</p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Position')}</h6>
+                  <h6 className="text-muted mb-2">{t('position')}</h6>
                   <p className="mb-0">{user?.position || 'N/A'}</p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Address')}</h6>
+                  <h6 className="text-muted mb-2">{t('address')}</h6>
                   <p className="mb-0">{user?.address || 'N/A'}</p>
                 </div>
                 <div className="mb-3">
-                  <h6 className="text-muted mb-2">{t('Notes')}</h6>
+                  <h6 className="text-muted mb-2">{t('notes')}</h6>
                   <p className="mb-0">
-                    {user?.notes || t('No additional notes')}
+                    {user?.notes || t('no_additional_notes')}
                   </p>
                 </div>
               </Card.Body>
@@ -230,7 +232,7 @@ const UserDetails = () => {
             <Col md={12}>
               <Card className="border">
                 <Card.Header className="bg-light">
-                  <h6 className="mb-0">{t('Description')}</h6>
+                  <h6 className="mb-0">{t('description')}</h6>
                 </Card.Header>
                 <Card.Body>
                   <p className="mb-0">{user.description}</p>

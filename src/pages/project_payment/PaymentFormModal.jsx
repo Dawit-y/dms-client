@@ -84,7 +84,9 @@ const PaymentFormModal = ({
     <Modal size="lg" show={isOpen} onHide={toggle} centered={true}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {isEdit ? `Edit Payment #${paymentData.id}` : 'Add Payment'}
+          {isEdit
+            ? t('edit_payment', { id: paymentData.id })
+            : t('add_payment')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -149,7 +151,7 @@ const PaymentFormModal = ({
           {isMutationPending && (
             <Spinner size="sm" className="me-1" animation="border" />
           )}
-          {isEdit ? 'Update' : 'Save'}
+          {isEdit ? t('update') : t('save')}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -10,7 +10,6 @@ const DeleteModal = ({
   itemName,
 }) => {
   const { t } = useTranslation();
-  console.log('DeleteModal rendered with itemName:', itemName);
   return (
     <Modal size="md" show={isOpen} onHide={toggle} centered={true}>
       <div className="modal-content">

@@ -18,17 +18,17 @@ const FormActionButtons = ({
   return (
     <div className="d-flex justify-content-end mt-3 gap-2">
       <Button variant="secondary" onClick={onCancel} disabled={isLoading}>
-        {t('Cancel')}
+        {t('cancel')}
       </Button>
 
       <Button variant="primary" onClick={onSaveAndClose} disabled={isDisabled}>
         {isLoading && <Spinner size="sm" className="me-2" />}
-        {isEdit ? t('Update & Close') : t('Save & Close')}
+        {isEdit ? t('update_and_close') : t('save_and_close')}
       </Button>
 
       <Button variant="success" onClick={onSaveAndView} disabled={isDisabled}>
         {isLoading && <Spinner size="sm" className="me-2" />}
-        {isEdit ? t('Update & View') : t('Save & View')}
+        {isEdit ? t('update_and_view') : t('save_and_view')}
       </Button>
     </div>
   );

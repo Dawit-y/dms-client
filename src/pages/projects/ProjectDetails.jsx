@@ -9,6 +9,7 @@ import {
   Nav,
   Tab,
 } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { FaBars, FaHome, FaDollarSign } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router';
 
@@ -38,9 +39,10 @@ const navItems = [
 ];
 
 const ProjectDetails = () => {
+  const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'Project Details';
-  }, []);
+    document.title = t('project_details');
+  }, [t]);
 
   const { id, tab } = useParams();
   const navigate = useNavigate();
@@ -105,16 +107,17 @@ const ProjectDetails = () => {
   if (accessibleNavItems.length === 0) {
     return (
       <div className="page-content">
-        <Breadcrumbs title="Projects" breadcrumbItem="Project Details" />
+        <Breadcrumbs
+          title={t('projects')}
+          breadcrumbItem={t('project_details')}
+        />
         <Row>
           <Col lg={12}>
             <Card>
               <Card.Body>
                 <div className="text-center p-5">
-                  <h5>No Access</h5>
-                  <p className="text-muted">
-                    You don't have permission to view any project details.
-                  </p>
+                  <h5>{t('no_access')}</h5>
+                  <p className="text-muted">{t('no_permission_view')}</p>
                 </div>
               </Card.Body>
             </Card>
@@ -127,7 +130,10 @@ const ProjectDetails = () => {
   return (
     <div className="page-content">
       <>
-        <Breadcrumbs title="Projects" breadcrumbItem="Project Details" />
+        <Breadcrumbs
+          title={t('projects')}
+          breadcrumbItem={t('project_details')}
+        />
 
         <Row>
           <Col lg={12}>
@@ -156,7 +162,7 @@ const ProjectDetails = () => {
                       style={{ minHeight: '60px' }}
                     >
                       {!isSidebarCollapsed && (
-                        <h6 className="mb-0 fw-semibold">Navigation</h6>
+                        <h6 className="mb-0 fw-semibold">{t('navigation')}</h6>
                       )}
                       <Button
                         variant="link"
@@ -165,8 +171,8 @@ const ProjectDetails = () => {
                         className="p-0"
                         title={
                           isSidebarCollapsed
-                            ? 'Expand sidebar'
-                            : 'Collapse sidebar'
+                            ? t('expand_sidebar')
+                            : t('collapse_sidebar')
                         }
                       >
                         <FaBars size={18} />
@@ -206,7 +212,8 @@ const ProjectDetails = () => {
                                 size={16}
                                 className={isSidebarCollapsed ? '' : 'me-2'}
                               />
-                              {!isSidebarCollapsed && item.label}
+                              {!isSidebarCollapsed &&
+                                t(item.label.toLowerCase())}
                             </Nav.Link>
                           </Nav.Item>
                         );

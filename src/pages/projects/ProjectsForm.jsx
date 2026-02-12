@@ -98,16 +98,26 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
       <Card.Body>
         <Form noValidate onSubmit={formik.handleSubmit}>
           <Row>
-            <Input formik={formik} fieldId={'title'} />
-            <NumberField formik={formik} fieldId={'budget'} />
-            <Input type="checkbox" formik={formik} fieldId={'isApproved'} />
+            <Input formik={formik} fieldId={'title'} label={t('title')} />
+            <NumberField
+              formik={formik}
+              fieldId={'budget'}
+              label={t('budget')}
+            />
+            <Input
+              type="checkbox"
+              formik={formik}
+              fieldId={'isApproved'}
+              label={t('is_approved')}
+            />
             <AsyncSelectField
               formik={formik}
               fieldId={'status'}
+              label={t('status')}
               optionMap={{
-                active: t('Active'),
-                inactive: t('Inactive'),
-                completed: t('Completed'),
+                active: t('active'),
+                inactive: t('inactive'),
+                completed: t('completed'),
               }}
             />
             <Input
@@ -127,8 +137,6 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
             onCancel={handleCancel}
             onSaveAndClose={handleSaveAndClose}
             onSaveAndView={handleSaveAndView}
-            showSaveAndView
-            showSaveAndClose
           />
         </Form>
       </Card.Body>
