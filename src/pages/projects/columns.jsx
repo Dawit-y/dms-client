@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import ActionsCell from '../../components/Common/ActionsCell';
@@ -5,15 +6,18 @@ import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
 export const useProjectColumns = (onDelete, hasPermission) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return [
     snColumn,
     {
       accessorKey: 'title',
+      header: t('title'),
       cell: (info) => info.getValue(),
     },
     {
       accessorKey: 'budget',
+      header: t('budget'),
       cell: (info) => info.getValue(),
       meta: {
         filterVariant: 'range',
@@ -21,10 +25,11 @@ export const useProjectColumns = (onDelete, hasPermission) => {
     },
     {
       accessorKey: 'status',
+      header: t('status'),
       cell: (info) => info.getValue(),
     },
     {
-      header: 'Actions',
+      header: t('actions'),
       id: 'actions',
       size: 100,
       cell: (info) => (

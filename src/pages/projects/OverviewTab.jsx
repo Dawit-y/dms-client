@@ -38,7 +38,9 @@ function OverviewTab({ project }) {
       <div className="d-flex align-items-center justify-content-between mb-4">
         <div>
           <h4 className="card-title mb-1">{project.title}</h4>
-          <p className="text-muted mb-0">Project ID: {project.id}</p>
+          <p className="text-muted mb-0">
+            {t('project_id')}: {project.id}
+          </p>
         </div>
         <div className="d-flex gap-2">
           {hasPermission('accounts.change_project') && (
@@ -46,12 +48,12 @@ function OverviewTab({ project }) {
               variant="success"
               onClick={() => navigate(`/projects/${project.id}/edit`)}
             >
-              <i className="mdi mdi-pencil me-1"></i> Edit
+              <i className="mdi mdi-pencil me-1"></i> {t('edit')}
             </Button>
           )}
           {hasPermission('accounts.delete_project') && (
             <Button variant="danger" onClick={() => setDeleteModal(true)}>
-              <i className="mdi mdi-trash-can me-1"></i> Delete
+              <i className="mdi mdi-trash-can me-1"></i> {t('delete')}
             </Button>
           )}
         </div>
@@ -60,7 +62,7 @@ function OverviewTab({ project }) {
       {/* Project Progress Bar */}
       <div className="mb-4">
         <div className="d-flex justify-content-between mb-2">
-          <h6 className="mb-0">Project Progress</h6>
+          <h6 className="mb-0">{t('project_progress')}</h6>
           <span className="text-muted">{progressWidth}%</span>
         </div>
         <div className="progress" style={{ height: '8px' }}>
@@ -78,7 +80,7 @@ function OverviewTab({ project }) {
       <Row className="mb-4">
         <Col md={6}>
           <div className="mb-3">
-            <h6 className="text-muted">Description</h6>
+            <h6 className="text-muted">{t('description')}</h6>
             <p className="mb-0">
               {project.description || 'No description provided'}
             </p>
@@ -86,7 +88,7 @@ function OverviewTab({ project }) {
         </Col>
         <Col md={6}>
           <div className="mb-3">
-            <h6 className="text-muted">Status</h6>
+            <h6 className="text-muted">{t('status')}</h6>
             <Badge
               bg={
                 project.status === 'active'
@@ -111,7 +113,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Budget</h6>
+              <h6 className="text-muted mb-2">{t('budget')}</h6>
               <h4 className="mb-0">
                 ${Number(project.budget || 0).toLocaleString()}
               </h4>
@@ -121,7 +123,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Location</h6>
+              <h6 className="text-muted mb-2">{t('location')}</h6>
               <p className="mb-0">{demoData.location}</p>
             </Card.Body>
           </Card>
@@ -129,7 +131,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Contractor</h6>
+              <h6 className="text-muted mb-2">{t('contractor')}</h6>
               <p className="mb-0">{demoData.contractor}</p>
             </Card.Body>
           </Card>
@@ -137,7 +139,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Timeline</h6>
+              <h6 className="text-muted mb-2">{t('timeline')}</h6>
               <p className="mb-0">
                 <small>
                   {demoData.startDate} - {demoData.endDate}
@@ -152,7 +154,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Approval Status</h6>
+              <h6 className="text-muted mb-2">{t('approval_status')}</h6>
               <p className="mb-0">
                 {project.isApproved ? (
                   <Badge bg="success" className="px-3 py-2">
@@ -170,7 +172,7 @@ function OverviewTab({ project }) {
         <Col md={3}>
           <Card className="h-100 border">
             <Card.Body className="p-3">
-              <h6 className="text-muted mb-2">Start Date</h6>
+              <h6 className="text-muted mb-2">{t('start_date')}</h6>
               <p className="mb-0">
                 {new Date(project.createdAt).toLocaleDateString()}
               </p>

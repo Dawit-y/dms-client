@@ -77,7 +77,7 @@ const ProjectChildFormModal = ({
         <Modal.Title>
           {isEdit
             ? t('edit_project', { id: projectData.id })
-            : t('add_sub_project')}
+            : t('add_project')}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useOutletContext } from 'react-router';
 
@@ -17,6 +18,7 @@ import { useProjectColumns } from './columns';
 
 function Projects() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { pageFilter, searchConfig } = useOutletContext();
   const { hasPermission } = usePermissions();
   const [deleteModal, setDeleteModal] = useState(false);
@@ -47,8 +49,8 @@ function Projects() {
   );
 
   useEffect(() => {
-    document.title = 'Projects';
-  }, []);
+    document.title = t('projects');
+  }, [t]);
 
   const handleAddClick = useCallback(() => {
     navigate(`/projects/add${window.location.search}`);
@@ -56,7 +58,7 @@ function Projects() {
 
   const columns = useProjectColumns(handleDeleteClick, hasPermission);
 
-  const breadcrumbItems = [{ label: 'Projects', active: true }];
+  const breadcrumbItems = [{ label: t('projects'), active: true }];
 
   return (
     <>
@@ -79,7 +81,7 @@ function Projects() {
                   isCustomPageSize={true}
                   isPagination={true}
                   onAddClick={handleAddClick}
-                  tableName="Projects"
+                  tableName={t('projects')}
                   exportColumns={projectExportColumns}
                   paginationState={pagination}
                   isServerSidePagination={true}

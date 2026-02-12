@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import ActionsCell from '../../components/Common/ActionsCell';
 import { snColumn } from '../../components/Common/TableContainer/snColumnDef';
 
@@ -7,15 +9,16 @@ export const useChildProjectColumns = (
   handleCanvasToggle,
   hasPermission
 ) => {
+  const { t } = useTranslation();
   return [
     snColumn,
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: t('title'),
     },
     {
       accessorKey: 'budget',
-      header: 'Budget',
+      header: t('budget'),
       cell: (info) => {
         const value = info.getValue();
         return value ? `$${Number(value).toLocaleString()}` : '-';
@@ -26,7 +29,7 @@ export const useChildProjectColumns = (
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: t('status'),
       cell: (info) => {
         const value = info.getValue();
         return value || '-';
@@ -34,7 +37,7 @@ export const useChildProjectColumns = (
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('actions'),
       cell: (info) => (
         <ActionsCell
           id={info.row.original.id}

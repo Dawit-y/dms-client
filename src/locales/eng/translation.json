@@ -89,5 +89,17 @@
   "update_and_view": "Update & View",
   "edit_project": "Edit Project",
   "delete_project": "Delete Project",
-  "add_project": "Add Project"
+  "add_project": "Add Project",
+  "project_id": "Project ID",
+  "contractor": "Contractor",
+  "timeline": "Timeline",
+  "approval_status": "Approval Status",
+  "start_date": "Start Date",
+  "added_successfully": "Added successfully",
+  "updated_successfully": "Updated successfully",
+  "deleted_successfully": "Deleted successfully",
+  "error_occurred": "An error occurred. Please try again.",
+  "add_failed": "Failed to add",
+  "update_failed": "Failed to update",
+  "delete_failed": "Failed to delete"
 }

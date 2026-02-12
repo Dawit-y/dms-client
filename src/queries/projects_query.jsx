@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import {
   getProjects,
@@ -43,13 +44,14 @@ export const useSearchProjects = (searchParams) => {
 };
 
 export const useAddProject = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: addProject,
     meta: {
-      successMessage: 'Project added successfully',
-      errorMessage: 'Failed to add project',
+      successMessage: t('added_successfully'),
+      errorMessage: t('add_failed'),
     },
     onMutate: async (newProjectPayload) => {
       await queryClient.cancelQueries({ queryKey: PROJECT_QUERY_KEY });
@@ -87,13 +89,14 @@ export const useAddProject = () => {
 };
 
 export const useUpdateProject = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateProject,
     meta: {
-      successMessage: 'Project updated successfully',
-      errorMessage: 'Failed to update project',
+      successMessage: t('updated_successfully'),
+      errorMessage: t('update_failed'),
     },
 
     onMutate: async (updatedProject) => {
@@ -129,14 +132,15 @@ export const useUpdateProject = () => {
 };
 
 export const useDeleteProject = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteProject,
 
     meta: {
-      successMessage: 'Project deleted successfully',
-      errorMessage: 'Failed to delete project',
+      successMessage: t('deleted_successfully'),
+      errorMessage: t('delete_failed'),
     },
 
     onMutate: async (projectId) => {

@@ -117,8 +117,8 @@ const ProjectDetails = () => {
       <div className="page-content">
         <Breadcrumbs
           items={[
-            { label: 'Projects', path: '/projects' },
-            { label: 'Project Details', active: true },
+            { label: t('projects'), path: '/projects' },
+            { label: t('project_details'), active: true },
           ]}
         />
         <Row>
@@ -142,8 +142,8 @@ const ProjectDetails = () => {
       <>
         <Breadcrumbs
           items={[
-            { label: 'Projects', path: '/projects' },
-            { label: 'Project Details', active: true },
+            { label: t('projects'), path: '/projects' },
+            { label: t('project_details'), active: true },
           ]}
         />
 
