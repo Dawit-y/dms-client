@@ -86,5 +86,8 @@
   "save_and_close": "Save & Close",
   "save_and_view": "Save & View",
   "update_and_close": "Update & Close",
-  "update_and_view": "Update & View"
+  "update_and_view": "Update & View",
+  "edit_project": "Edit Project",
+  "delete_project": "Delete Project",
+  "add_project": "Add Project"
 }

@@ -132,28 +132,29 @@ const RightOffCanvas = ({
                   </Nav>
                 )}
                 <div className="p-3 text-muted mt-4">
-                  {navItems.map((navItem) => {
-                    const item = components[navItem];
-                    const Component =
-                      item && typeof item === 'object' && item.component
-                        ? item.component
-                        : item;
+                  {showCanvas &&
+                    navItems.map((navItem) => {
+                      const item = components[navItem];
+                      const Component =
+                        item && typeof item === 'object' && item.component
+                          ? item.component
+                          : item;
 
-                    return (
-                      <div
-                        key={navItem}
-                        style={{
-                          display: activeTab1 === navItem ? 'block' : 'none',
-                        }}
-                      >
-                        {React.createElement(Component, {
-                          passedId: id,
-                          isActive: activeTab1 === navItem,
-                          projectName: name,
-                        })}
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div
+                          key={navItem}
+                          style={{
+                            display: activeTab1 === navItem ? 'block' : 'none',
+                          }}
+                        >
+                          {React.createElement(Component, {
+                            passedId: id,
+                            isActive: activeTab1 === navItem,
+                            projectName: name,
+                          })}
+                        </div>
+                      );
+                    })}
                 </div>
               </CardBody>
             </Card>

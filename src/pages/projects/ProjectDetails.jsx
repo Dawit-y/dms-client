@@ -10,7 +10,7 @@ import {
   Tab,
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { FaBars, FaHome, FaDollarSign } from 'react-icons/fa';
+import { FaBars, FaHome, FaDollarSign, FaProjectDiagram } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
@@ -19,6 +19,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { useFetchProject } from '../../queries/projects_query';
 import ProjectPayments from '../project_payment/index';
 import OverviewTab from './OverviewTab';
+import ProjectChildren from './ProjectChildren';
 
 // Navigation items configuration
 const navItems = [
@@ -27,6 +28,13 @@ const navItems = [
     label: 'Overview',
     icon: FaHome,
     component: OverviewTab,
+    permission: 'accounts.view_project',
+  },
+  {
+    key: 'projects',
+    label: 'Sub-Projects',
+    icon: FaProjectDiagram,
+    component: ProjectChildren,
     permission: 'accounts.view_project',
   },
   {
