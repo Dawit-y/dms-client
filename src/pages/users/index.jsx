@@ -22,15 +22,15 @@ function Users() {
 
   const deleteUserMutation = useDeleteUser();
 
-  const handleDeleteClick = useCallback((id) => {
-    setUserToDelete(id);
+  const handleDeleteClick = useCallback((user) => {
+    setUserToDelete(user);
     setDeleteModal(true);
   }, []);
 
   const confirmDelete = async () => {
-    if (userToDelete) {
+    if (userToDelete?.id) {
       try {
-        await deleteUserMutation.mutateAsync(userToDelete);
+        await deleteUserMutation.mutateAsync(userToDelete.id);
         setDeleteModal(false);
         setUserToDelete(null);
       } catch (error) {
@@ -65,7 +65,7 @@ function Users() {
   return (
     <>
       <div className="page-content">
-        <Breadcrumb />
+        <Breadcrumb items={[{ label: 'Users', active: true }]} />
         <TableContainer
           data={data?.results ?? []}
           columns={columns}
@@ -89,6 +89,11 @@ function Users() {
           toggle={() => setDeleteModal(false)}
           onDeleteClick={confirmDelete}
           isPending={deleteUserMutation.isPending}
+          itemName={
+            userToDelete
+              ? `${userToDelete.first_name} ${userToDelete.last_name}`
+              : ''
+          }
         />
       </div>
     </>

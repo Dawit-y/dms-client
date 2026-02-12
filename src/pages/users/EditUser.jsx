@@ -29,7 +29,12 @@ const EditUser = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title={t('Users')} breadcrumbItem={t('Edit User')} />
+        <Breadcrumbs
+          items={[
+            { label: 'Users', path: '/users' },
+            { label: 'Edit User', active: true },
+          ]}
+        />
         <UsersForm isEdit={true} rowData={user} />
       </Container>
     </div>

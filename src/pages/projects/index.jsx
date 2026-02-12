@@ -24,15 +24,15 @@ function Projects() {
 
   const deleteProjectMutation = useDeleteProject();
 
-  const handleDeleteClick = useCallback((id) => {
-    setProjectToDelete(id);
+  const handleDeleteClick = useCallback((project) => {
+    setProjectToDelete(project);
     setDeleteModal(true);
   }, []);
 
   const confirmDelete = async () => {
-    if (projectToDelete) {
+    if (projectToDelete?.id) {
       try {
-        await deleteProjectMutation.mutateAsync(projectToDelete);
+        await deleteProjectMutation.mutateAsync(projectToDelete.id);
         setDeleteModal(false);
         setProjectToDelete(null);
       } catch (error) {
@@ -56,10 +56,12 @@ function Projects() {
 
   const columns = useProjectColumns(handleDeleteClick, hasPermission);
 
+  const breadcrumbItems = [{ label: 'Projects', active: true }];
+
   return (
     <>
       <div className="page-content">
-        <Breadcrumb />
+        <Breadcrumb items={breadcrumbItems} />
         <>
           <TreeSearchWrapper
             searchHook={useSearchProjects}
@@ -94,6 +96,7 @@ function Projects() {
           toggle={() => setDeleteModal(false)}
           onDeleteClick={confirmDelete}
           isPending={deleteProjectMutation.isPending}
+          itemName={projectToDelete?.title}
         />
       </div>
     </>

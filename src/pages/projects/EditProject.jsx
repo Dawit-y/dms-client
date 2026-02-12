@@ -29,7 +29,12 @@ const EditProject = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title="Projects" breadcrumbItem="Edit Project" />
+        <Breadcrumbs
+          items={[
+            { label: 'Projects', path: '/projects' },
+            { label: 'Edit Project', active: true },
+          ]}
+        />
         <ProjectsForm isEdit={true} rowData={project} />
       </Container>
     </div>

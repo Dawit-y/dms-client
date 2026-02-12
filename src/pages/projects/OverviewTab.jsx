@@ -184,6 +184,7 @@ function OverviewTab({ project }) {
         toggle={() => setDeleteModal(false)}
         onDeleteClick={handleDelete}
         isPending={deleteProjectMutation.isPending}
+        itemName={project.title}
       />
     </>
   );

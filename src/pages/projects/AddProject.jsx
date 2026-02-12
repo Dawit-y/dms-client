@@ -12,7 +12,12 @@ const AddProject = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title="Projects" breadcrumbItem="Add Project" />
+        <Breadcrumbs
+          items={[
+            { label: 'Projects', path: '/projects' },
+            { label: 'Add Project', active: true },
+          ]}
+        />
         <ProjectsForm />
       </Container>
     </div>

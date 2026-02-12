@@ -85,8 +85,14 @@ const PaymentDetails = () => {
     <div className="page-content">
       <>
         <Breadcrumbs
-          title={t('projects')}
-          breadcrumbItem={`${project?.title || t('project')} - ${t('payment_details')}`}
+          items={[
+            { label: 'Projects', path: '/projects' },
+            {
+              label: project?.title || t('project'),
+              path: `/projects/${projectId}`,
+            },
+            { label: 'Payment Details', active: true },
+          ]}
         />
 
         <Row>

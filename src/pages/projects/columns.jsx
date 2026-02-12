@@ -38,7 +38,9 @@ export const useProjectColumns = (onDelete, hasPermission) => {
               : undefined
           }
           onDelete={
-            hasPermission('accounts.delete_project') ? onDelete : undefined
+            hasPermission('accounts.delete_project')
+              ? () => onDelete(info.row.original)
+              : undefined
           }
         />
       ),

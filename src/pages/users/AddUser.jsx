@@ -15,7 +15,12 @@ const AddUser = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title={t('Users')} breadcrumbItem={t('Add User')} />
+        <Breadcrumbs
+          items={[
+            { label: 'Users', path: '/users' },
+            { label: 'Add User', active: true },
+          ]}
+        />
         <UsersForm />
       </Container>
     </div>

@@ -42,7 +42,9 @@ export const useUserColumns = (onDelete, hasPermission) => {
               : undefined
           }
           onDelete={
-            hasPermission('accounts.delete_user') ? onDelete : undefined
+            hasPermission('accounts.delete_user')
+              ? () => onDelete(info.row.original)
+              : undefined
           }
         />
       ),

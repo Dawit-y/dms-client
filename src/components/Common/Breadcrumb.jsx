@@ -1,62 +1,14 @@
+import PropTypes from 'prop-types';
 import { Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FaArrowCircleLeft, FaHome } from 'react-icons/fa';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
-const Breadcrumb = () => {
+const Breadcrumb = ({ items = [] }) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
 
-  const generateBreadcrumbs = () => {
-    const pathParts = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs = [];
-
-    if (pathParts.length === 0) {
-      return [];
-    }
-
-    let accumulatedPath = '';
-    for (let i = 0; i < pathParts.length; i++) {
-      const label = pathParts[i];
-
-      // Skip numeric parts (e.g., IDs like 23)
-      if (!isNaN(label)) {
-        accumulatedPath += `/${label}`;
-        continue;
-      }
-
-      accumulatedPath += `/${label}`;
-
-      // Special case for `/Project/:id` to add "Details"
-      if (
-        label.toLowerCase() === 'project' &&
-        i + 1 < pathParts.length &&
-        !isNaN(pathParts[i + 1]) &&
-        i + 2 === pathParts.length
-      ) {
-        breadcrumbs.push({
-          path: accumulatedPath,
-          label: 'project',
-        });
-        breadcrumbs.push({
-          path: accumulatedPath,
-          label: 'details',
-        });
-        break;
-      }
-
-      breadcrumbs.push({
-        path: accumulatedPath,
-        label,
-      });
-    }
-
-    return breadcrumbs;
-  };
-
-  const breadcrumbs = generateBreadcrumbs();
-  const lastBreadcrumbLabel = breadcrumbs[breadcrumbs.length - 1]?.label || '';
+  const lastBreadcrumbLabel = items[items.length - 1]?.label || '';
 
   return (
     <Row>
@@ -79,35 +31,26 @@ const Breadcrumb = () => {
             <nav aria-label="breadcrumb">
               <ol className="breadcrumb m-0">
                 <li
-                  className={`breadcrumb-item${breadcrumbs.length === 0 ? ' active' : ''}`}
+                  className={`breadcrumb-item${items.length === 0 ? ' active' : ''}`}
                 >
-                  {breadcrumbs.length === 0 ? (
-                    <div className="d-flex align-items-center gap-1">
-                      <FaHome />
-                      <span>{t('home_page')}</span>
-                    </div>
-                  ) : (
-                    <Link
-                      to="/dashboard"
-                      className="d-flex align-items-center gap-1"
-                    >
-                      <FaHome />
-                      <span>{t('home_page')}</span>
-                    </Link>
-                  )}
+                  <Link
+                    to="/dashboard"
+                    className="d-flex align-items-center gap-1"
+                  >
+                    <FaHome />
+                    <span>{t('home_page')}</span>
+                  </Link>
                 </li>
-                {breadcrumbs.map((breadcrumb, index) => (
+                {items.map((item, index) => (
                   <li
                     key={index}
-                    className={`breadcrumb-item${index === breadcrumbs.length - 1 ? ' active' : ''}`}
-                    aria-current={
-                      index === breadcrumbs.length - 1 ? 'page' : undefined
-                    }
+                    className={`breadcrumb-item${item.active ? ' active' : ''}`}
+                    aria-current={item.active ? 'page' : undefined}
                   >
-                    {index === breadcrumbs.length - 1 ? (
-                      t(breadcrumb.label)
+                    {item.active ? (
+                      t(item.label)
                     ) : (
-                      <Link to={breadcrumb.path}>{t(breadcrumb.label)}</Link>
+                      <Link to={item.path}>{t(item.label)}</Link>
                     )}
                   </li>
                 ))}
@@ -118,6 +61,16 @@ const Breadcrumb = () => {
       </Col>
     </Row>
   );
+};
+
+Breadcrumb.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      path: PropTypes.string,
+      active: PropTypes.bool,
+    })
+  ),
 };
 
 export default Breadcrumb;

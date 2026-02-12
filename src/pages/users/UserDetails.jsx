@@ -89,7 +89,12 @@ const UserDetails = () => {
   return (
     <div className="page-content">
       <Container fluid>
-        <Breadcrumbs title={t('Users')} breadcrumbItem={t('User Details')} />
+        <Breadcrumbs
+          items={[
+            { label: 'Users', path: '/users' },
+            { label: 'User Details', active: true },
+          ]}
+        />
 
         <div className="d-flex align-items-center justify-content-between mb-4">
           <div>
@@ -248,6 +253,7 @@ const UserDetails = () => {
           toggle={() => setDeleteModal(false)}
           onDeleteClick={handleDelete}
           isPending={deleteUserMutation.isPending}
+          itemName={user ? `${user.first_name} ${user.last_name}` : ''}
         />
       </Container>
     </div>
