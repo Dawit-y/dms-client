@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
-import ProjectsForm from './ProjectsForm';
+import ProjectsForm from './Form';
 
 const AddProject = () => {
   const { t } = useTranslation();

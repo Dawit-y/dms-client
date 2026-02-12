@@ -13,7 +13,7 @@ import {
 } from '../../queries/projects_query';
 import ProjectPayment from '../project_payment';
 import { useChildProjectColumns } from './childColumns';
-import ProjectChildFormModal from './ProjectChildFormModal';
+import ProjectChildFormModal from './ChildFormModal';
 
 const ProjectChildren = ({ project, isActive = false }) => {
   const { t } = useTranslation();

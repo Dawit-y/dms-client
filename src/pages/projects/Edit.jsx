@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import { useFetchProject } from '../../queries/projects_query';
-import ProjectsForm from './ProjectsForm';
+import ProjectsForm from './Form';
 
 const EditProject = () => {
   const { t } = useTranslation();

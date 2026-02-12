@@ -18,8 +18,8 @@ import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useFetchProject } from '../../queries/projects_query';
 import ProjectPayments from '../project_payment/index';
+import ProjectChildren from './Children';
 import OverviewTab from './OverviewTab';
-import ProjectChildren from './ProjectChildren';
 
 // Navigation items configuration
 const navItems = [
