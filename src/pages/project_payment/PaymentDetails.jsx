@@ -248,7 +248,10 @@ const PaymentDetails = () => {
           }
           id={paymentId}
           components={{
-            'Payment Item': PaymentItems,
+            'Payment Item': {
+              component: PaymentItems,
+              permission: 'accounts.view_paymentitem',
+            },
           }}
         />
       </>

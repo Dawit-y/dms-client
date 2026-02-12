@@ -137,7 +137,10 @@ function ProjectPayments({ isActive }) {
         }
         id={canvaseData?.id}
         components={{
-          'Payment Item': PaymentItem,
+          'Payment Item': {
+            component: PaymentItem,
+            permission: 'accounts.view_paymentitem',
+          },
         }}
       />
     </>

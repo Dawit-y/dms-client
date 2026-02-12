@@ -39,6 +39,7 @@ import {
  *   }}
  * />
  */
+import { usePermissions } from '../../hooks/usePermissions';
 
 const RightOffCanvas = ({
   handleClick,
@@ -48,7 +49,17 @@ const RightOffCanvas = ({
   id,
   components,
 }) => {
-  const navItems = Object.keys(components);
+  const { hasPermission } = usePermissions();
+
+  // Filter components based on permissions
+  const navItems = Object.keys(components).filter((key) => {
+    const item = components[key];
+    if (item && typeof item === 'object' && item.permission) {
+      return hasPermission(item.permission);
+    }
+    return true;
+  });
+
   const firstTab = navItems[0];
 
   const [activeTab1, setActiveTab1] = useState(firstTab);
@@ -121,20 +132,28 @@ const RightOffCanvas = ({
                   </Nav>
                 )}
                 <div className="p-3 text-muted mt-4">
-                  {navItems.map((navItem) => (
-                    <div
-                      key={navItem}
-                      style={{
-                        display: activeTab1 === navItem ? 'block' : 'none',
-                      }}
-                    >
-                      {React.createElement(components[navItem], {
-                        passedId: id,
-                        isActive: activeTab1 === navItem,
-                        projectName: name,
-                      })}
-                    </div>
-                  ))}
+                  {navItems.map((navItem) => {
+                    const item = components[navItem];
+                    const Component =
+                      item && typeof item === 'object' && item.component
+                        ? item.component
+                        : item;
+
+                    return (
+                      <div
+                        key={navItem}
+                        style={{
+                          display: activeTab1 === navItem ? 'block' : 'none',
+                        }}
+                      >
+                        {React.createElement(Component, {
+                          passedId: id,
+                          isActive: activeTab1 === navItem,
+                          projectName: name,
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               </CardBody>
             </Card>
