@@ -2,22 +2,27 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
-const useErrorMessages = () => {
-  const { t } = useTranslation();
-  return {
+import i18n from './i18n';
+
+const getErrorMessage = (error) => {
+  const t = i18n.t.bind(i18n);
+  const statusMessages = {
     452: t('errors_duplicateEntry'),
     453: t('errors_missingField'),
     454: t('errors_invalidReference'),
     455: t('errors_genericError'),
+    456: t('errors_valueTooLong'),
+    457: t('errors_updateIdNotProvided'),
+    458: t('errors_dataNotFoundWithId'),
+    459: t('errors_notAllowedSave'),
+    460: t('errors_notAllowedUpdate'),
+    461: t('errors_notAllowedViewList'),
+    429: t('errors_tooManyRequests'),
+    487: t('errors_incorrect_input'),
+    500: t('errors_serverError'),
   };
-};
-
-// Function to extract API error message
-const GetErrorMessage = ({ error }) => {
-  const statusMessages = useErrorMessages();
 
   if (error?.response?.data) {
     const { status_code, errorMsg, column } = error.response.data;
@@ -44,12 +49,7 @@ const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 10,
     },
   },
-  queryCache: new QueryCache({
-    // onError: (error) => {
-    //   const message = getErrorMessage(error);
-    //   toast.error(message);
-    // },
-  }),
+  queryCache: new QueryCache({}),
   mutationCache: new MutationCache({
     onSuccess: (_data, _variables, _context, mutation) => {
       if (mutation.options.meta?.successMessage) {
@@ -58,21 +58,18 @@ const queryClient = new QueryClient({
         });
       }
     },
-    onError: (error, variables, context, mutation) => {
-      const message = <GetErrorMessage error={error} />;
+    onError: (error, _variables, _context, mutation) => {
+      if (mutation.options.meta?.errorMessage) {
+        toast.error(mutation.options.meta.errorMessage, { autoClose: 2000 });
+        return;
+      }
+
+      const message = getErrorMessage(error);
       if (message) {
         toast.error(message, { autoClose: 2000 });
-      } else if (mutation.options.meta?.errorMessage) {
-        toast.error(mutation.options.meta.errorMessage, { autoClose: 2000 });
       } else {
         toast.error('Operation failed', { autoClose: 2000 });
       }
-
-      // if (!error.handledByMutationCache && error.response?.status !== 401) {
-      //   error.handledByMutationCache = true;
-      //   const message = <GetErrorMessage error={error} />;
-      //   toast.error(message, { autoClose: 2000 });
-      // }
     },
   }),
 });

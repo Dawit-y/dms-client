@@ -15,7 +15,7 @@ import ProjectPayment from '../project_payment';
 import { useChildProjectColumns } from './childColumns';
 import ProjectChildFormModal from './ProjectChildFormModal';
 
-const ProjectChildren = ({ project }) => {
+const ProjectChildren = ({ project, isActive = false }) => {
   const { t } = useTranslation();
   const parentId = project?.id;
   const { hasPermission } = usePermissions();
@@ -54,19 +54,20 @@ const ProjectChildren = ({ project }) => {
         await deleteProjectMutation.mutateAsync(projectToDelete.id);
         setDeleteModal(false);
         setProjectToDelete(null);
-      } catch (error) {
-        console.error('Failed to delete project:', error);
+      } catch {
+        // Error handling is managed globally by QueryProvider
       }
     }
   };
 
+  const param = { parent: parentId };
   const {
     data: result,
     isLoading,
     isError,
     error,
     refetch,
-  } = useFetchProjects(parentId);
+  } = useFetchProjects(param, isActive);
 
   const handleAddClick = useCallback(() => {
     setIsModalOpen(true);
@@ -140,6 +141,7 @@ ProjectChildren.propTypes = {
   project: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }),
+  isActive: PropTypes.bool,
 };
 
 export default memo(ProjectChildren);

@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import { memo, useRef } from 'react';
 import { Form, Row, Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import * as Yup from 'yup';
 
 import AsyncSelectField from '../../components/Common/AsyncSelectField';
@@ -15,6 +15,7 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
   const submitActionRef = useRef(null);
 
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -60,13 +61,13 @@ const ProjectsForm = ({ isEdit = false, rowData = {} }) => {
         }
 
         if (submitActionRef.current === 'view') {
-          const search = window.location.search;
+          const search = searchParams.toString();
           navigate(
             projectId ? `/projects/${projectId}${search}` : `/projects${search}`
           );
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
+        // Error handling is managed globally by QueryProvider
       } finally {
         setSubmitting(false);
         submitActionRef.current = null;

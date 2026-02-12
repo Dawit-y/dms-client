@@ -101,5 +101,18 @@
   "error_occurred": "An error occurred. Please try again.",
   "add_failed": "Failed to add",
   "update_failed": "Failed to update",
-  "delete_failed": "Failed to delete"
+  "delete_failed": "Failed to delete",
+  "errors_duplicateEntry": "Duplicate entry",
+  "errors_missingField": "Missing required field",
+  "errors_invalidReference": "Invalid reference",
+  "errors_genericError": "An error occurred",
+  "errors_valueTooLong": "Value exceeds maximum length",
+  "errors_updateIdNotProvided": "Update ID not provided",
+  "errors_dataNotFoundWithId": "Data not found with the provided ID",
+  "errors_notAllowedSave": "You are not allowed to save this data",
+  "errors_notAllowedUpdate": "You are not allowed to update this data",
+  "errors_notAllowedViewList": "You are not allowed to view the list",
+  "errors_tooManyRequests": "Too many requests. Please try again later.",
+  "errors_incorrect_input": "Incorrect input provided",
+  "errors_serverError": "Server error. Please try again later."
 }

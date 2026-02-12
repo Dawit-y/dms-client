@@ -1,6 +1,6 @@
 import { useCallback, useEffect, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useOutletContext } from 'react-router';
 
 import Breadcrumb from '../../components/Common/Breadcrumb';
@@ -18,6 +18,7 @@ import { useProjectColumns } from './columns';
 
 function Projects() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const { pageFilter, searchConfig } = useOutletContext();
   const { hasPermission } = usePermissions();
@@ -37,8 +38,8 @@ function Projects() {
         await deleteProjectMutation.mutateAsync(projectToDelete.id);
         setDeleteModal(false);
         setProjectToDelete(null);
-      } catch (error) {
-        console.error('Failed to delete project:', error);
+      } catch {
+        // Error handling is managed globally by QueryProvider
       }
     }
   };
@@ -53,8 +54,9 @@ function Projects() {
   }, [t]);
 
   const handleAddClick = useCallback(() => {
-    navigate(`/projects/add${window.location.search}`);
-  }, [navigate]);
+    const search = searchParams.toString();
+    navigate(`/projects/add${search ? `?${search}` : ''}`);
+  }, [navigate, searchParams]);
 
   const columns = useProjectColumns(handleDeleteClick, hasPermission);
 

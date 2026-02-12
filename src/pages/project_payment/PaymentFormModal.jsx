@@ -61,8 +61,8 @@ const PaymentFormModal = ({
         }
         resetForm();
         toggle();
-      } catch (error) {
-        console.error(error);
+      } catch {
+        // Error handling is managed globally by QueryProvider
       } finally {
         setSubmitting(false);
       }
