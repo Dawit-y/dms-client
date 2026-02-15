@@ -3,9 +3,18 @@ import { Outlet } from 'react-router';
 import { usePageFilters } from '../../hooks/usePageFilters';
 
 const searchConfig = {
-  textSearchKeys: ['first_name', 'last_name', 'email'],
-  dropdownSearchKeys: [],
-  dateSearchKeys: [],
+  textSearchKeys: ['name'],
+  dropdownSearchKeys: [
+    {
+      key: 'status',
+      options: {
+        inactive: 'Inactive',
+        active: 'Active',
+        completed: 'Completed',
+      },
+    },
+  ],
+  dateSearchKeys: ['created_at'],
 };
 
 export default function UsersLayout() {

@@ -49,6 +49,7 @@ const AdvancedSearch = ({
   onSearchClick, // Callback to get tree selection values
   onClearClick, // Callback to clear tree selection
   treeSelection, // Current tree selection state
+  allowEmptySearch = false,
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +88,7 @@ const AdvancedSearch = ({
   // Build search params from URL filters + additional params
   // Only include search params if there are active filters (prevent initial load)
   const searchParams = useMemo(() => {
-    if (!hasActiveFilters) {
+    if (!hasActiveFilters && !allowEmptySearch) {
       return null; // Return null to prevent initial data fetch
     }
     const apiParams = getApiParams();
@@ -95,7 +96,7 @@ const AdvancedSearch = ({
       ...apiParams,
       ...(additionalParams || {}),
     };
-  }, [getApiParams, additionalParams, hasActiveFilters]);
+  }, [getApiParams, additionalParams, hasActiveFilters, allowEmptySearch]);
 
   const {
     data = [],
@@ -457,9 +458,15 @@ const AdvancedSearch = ({
       return value != null && value !== '';
     });
 
-    // Button is enabled if there's tree selection OR search values
-    return !hasTreeSelection && !hasAnyValue;
-  }, [localParams, validation.values, additionalParams, treeSelection]);
+    // Button is enabled if there's tree selection OR search values OR empty search is allowed
+    return !hasTreeSelection && !hasAnyValue && !allowEmptySearch;
+  }, [
+    localParams,
+    validation.values,
+    additionalParams,
+    treeSelection,
+    allowEmptySearch,
+  ]);
 
   // Expose method to get search values
   useImperativeHandle(ref, () => ({

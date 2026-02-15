@@ -38,7 +38,7 @@ export const useSearchUsers = (searchParams) => {
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    enabled: !!searchParams && Object.keys(searchParams || {}).length > 0,
+    enabled: !!searchParams,
   });
 };
 

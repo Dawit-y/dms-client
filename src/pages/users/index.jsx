@@ -2,20 +2,20 @@ import { useCallback, useEffect, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useOutletContext } from 'react-router';
 
+import AdvancedSearch from '../../components/Common/AdvancedSearch';
 import Breadcrumb from '../../components/Common/Breadcrumb';
 import DeleteModal from '../../components/Common/DeleteModal';
-import FetchErrorHandler from '../../components/Common/FetchErrorHandler';
 import TableContainer from '../../components/Common/TableContainer';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useUrlPagination } from '../../hooks/useUrlPagination';
-import { useFetchUsers, useDeleteUser } from '../../queries/users_query';
+import { useDeleteUser, useSearchUsers } from '../../queries/users_query';
 import { userExportColumns } from '../../utils/exportColumnsForLists';
 import { useUserColumns } from './columns';
 
 function Users() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { pageFilter } = useOutletContext();
+  const { pageFilter, searchConfig } = useOutletContext();
   const { hasPermission } = usePermissions();
   const [deleteModal, setDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
@@ -48,42 +48,45 @@ function Users() {
     document.title = t('Users');
   }, [t]);
 
-  const param = pageFilter.getApiParams();
-
-  const { data, isLoading, isError, error, refetch } = useFetchUsers(param);
-
   const handleAddClick = useCallback(() => {
     navigate(`/users/add${window.location.search}`);
   }, [navigate]);
 
   const columns = useUserColumns(handleDeleteClick, hasPermission);
 
-  if (isError) {
-    return <FetchErrorHandler error={error} refetch={refetch} />;
-  }
-
   return (
     <>
       <div className="page-content">
         <Breadcrumb items={[{ label: 'Users', active: true }]} />
-        <TableContainer
-          data={data?.results ?? []}
-          columns={columns}
-          isLoading={isLoading}
-          isGlobalFilter={true}
-          isAddButton={hasPermission('accounts.add_user')}
-          isCustomPageSize={true}
-          isPagination={true}
-          onAddClick={handleAddClick}
-          tableName="Users"
-          exportColumns={userExportColumns}
-          paginationState={pagination}
-          isServerSidePagination={true}
-          onPaginationChange={onChange}
-          totalRows={data?.pagination?.total}
-          pageCount={data?.pagination?.total_pages}
-          refetch={refetch}
-        />
+        <AdvancedSearch
+          searchHook={useSearchUsers}
+          pageFilter={pageFilter}
+          allowEmptySearch={true}
+          {...searchConfig}
+        >
+          {({ result, isLoading }) => {
+            return (
+              <TableContainer
+                data={result?.results ?? []}
+                columns={columns}
+                isLoading={isLoading}
+                isGlobalFilter={true}
+                isAddButton={hasPermission('accounts.add_user')}
+                isCustomPageSize={true}
+                isPagination={true}
+                onAddClick={handleAddClick}
+                tableName="Users"
+                exportColumns={userExportColumns}
+                paginationState={pagination}
+                isServerSidePagination={true}
+                onPaginationChange={onChange}
+                totalRows={result?.pagination?.total}
+                pageCount={result?.pagination?.total_pages}
+              />
+            );
+          }}
+        </AdvancedSearch>
+
         <DeleteModal
           isOpen={deleteModal}
           toggle={() => setDeleteModal(false)}
