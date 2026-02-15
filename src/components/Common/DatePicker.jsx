@@ -1,4 +1,4 @@
-import { Form } from 'react-bootstrap';
+import { Form, Col } from 'react-bootstrap';
 import 'react-ethiopian-calendar/dist/index.css';
 import { EtCalendar } from 'react-ethiopian-calendar';
 import { useTranslation } from 'react-i18next';
@@ -38,35 +38,35 @@ const enhancedParseDate = (rawValue) => {
 
 function DatePicker({
   isRequired,
-  validation,
-  componentId,
+  formik,
+  fieldId,
   minDate,
   maxDate,
   label,
   disabled,
+  className,
 }) {
   const { t } = useTranslation();
 
-  const rawValue = validation?.values?.[componentId] ?? '';
+  const rawValue = formik?.values?.[fieldId] ?? '';
   const selectedDate = enhancedParseDate(rawValue);
 
-  const hasError =
-    validation?.touched?.[componentId] && validation?.errors?.[componentId];
+  const hasError = formik?.touched?.[fieldId] && formik?.errors?.[fieldId];
 
   const handleDateChange = (date) => {
     if (!date) return;
 
     const formatted = toYMDDateString(date);
-    validation?.setFieldValue(componentId, formatted, true);
+    formik?.setFieldValue(fieldId, formatted, true);
   };
 
   const parsedMinDate = enhancedParseDate(minDate);
   const parsedMaxDate = enhancedParseDate(maxDate);
 
   return (
-    <>
+    <Col className={className}>
       <Form.Label>
-        {label ? t(label) : t(componentId)}{' '}
+        {label ? t(label) : t(fieldId)}{' '}
         {isRequired && <span className="text-danger">*</span>}
       </Form.Label>
 
@@ -74,7 +74,7 @@ function DatePicker({
         <EtCalendar
           value={selectedDate}
           onChange={handleDateChange}
-          onBlur={validation?.handleBlur}
+          onBlur={formik?.handleBlur}
           calendarType
           fullWidth
           minDate={parsedMinDate}
@@ -93,11 +93,9 @@ function DatePicker({
       </div>
 
       {hasError && (
-        <div className="text-danger small mt-1">
-          {validation.errors[componentId]}
-        </div>
+        <div className="text-danger small mt-1">{formik.errors[fieldId]}</div>
       )}
-    </>
+    </Col>
   );
 }
 
