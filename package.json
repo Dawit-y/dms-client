@@ -10,7 +10,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,jsx,json,md,html,css,less,scss}\"",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate:page": "plop page"
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
@@ -68,6 +69,7 @@
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
+    "plop": "^4.0.5",
     "prettier": "^3.8.1",
     "sass": "^1.69.5",
     "vite": "^7.2.4"
