@@ -27,6 +27,15 @@ function Users() {
     setDeleteModal(true);
   }, []);
 
+  const handleDuplicateClick = useCallback(
+    (user) => {
+      navigate(`/users/add${window.location.search}`, {
+        state: { duplicateData: user },
+      });
+    },
+    [navigate]
+  );
+
   const confirmDelete = async () => {
     if (userToDelete?.id) {
       try {
@@ -52,7 +61,11 @@ function Users() {
     navigate(`/users/add${window.location.search}`);
   }, [navigate]);
 
-  const columns = useUserColumns(handleDeleteClick, hasPermission);
+  const columns = useUserColumns(
+    handleDeleteClick,
+    hasPermission,
+    handleDuplicateClick
+  );
 
   return (
     <>

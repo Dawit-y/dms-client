@@ -1,6 +1,6 @@
 import { useFormik } from 'formik';
 import { memo, useRef } from 'react';
-import { Form, Row, Card } from 'react-bootstrap';
+import { Form, Row, Card, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import * as Yup from 'yup';
@@ -9,7 +9,7 @@ import FormActionButtons from '../../components/Common/FormActionButtons';
 import Input from '../../components/Common/Input';
 import { useAddUser, useUpdateUser } from '../../queries/users_query';
 
-const UsersForm = ({ isEdit = false, rowData = {} }) => {
+const UsersForm = ({ isEdit = false, rowData = {}, isDuplicate = false }) => {
   const submitActionRef = useRef(null);
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -28,10 +28,10 @@ const UsersForm = ({ isEdit = false, rowData = {} }) => {
 
   const formik = useFormik({
     initialValues: {
-      first_name: isEdit ? rowData.first_name || '' : '',
-      last_name: isEdit ? rowData.last_name || '' : '',
-      email: isEdit ? rowData.email || '' : '',
-      phone_number: isEdit ? rowData.phone_number || '' : '',
+      first_name: rowData?.first_name || '',
+      last_name: rowData?.last_name || '',
+      email: isEdit ? rowData?.email || '' : '',
+      phone_number: isEdit ? rowData?.phone_number || '' : '',
     },
     validationSchema,
     enableReinitialize: true,
@@ -86,6 +86,12 @@ const UsersForm = ({ isEdit = false, rowData = {} }) => {
   return (
     <Card>
       <Card.Body>
+        {isDuplicate && (
+          <Alert variant="warning" className="mb-3">
+            <i className="bx bx-error-alt me-2 align-middle"></i>
+            {t('warning_duplicating_user')}
+          </Alert>
+        )}
         <Form noValidate onSubmit={formik.handleSubmit}>
           <Row>
             <Input

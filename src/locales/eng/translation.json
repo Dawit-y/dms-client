@@ -1,4 +1,5 @@
 {
+  "warning_duplicating_user": "You are duplicating a user, please be careful.",
   "title": "Title",
   "type": "Type",
   "actions": "Actions",

@@ -1,8 +1,15 @@
-import { FaEye, FaEdit, FaTrash, FaCog } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaCog, FaCopy } from 'react-icons/fa';
 
 import IconButton from './IconButton';
 
-const ActionsCell = ({ id, onView, onEdit, onDelete, onCanvasToggle }) => {
+const ActionsCell = ({
+  id,
+  onView,
+  onEdit,
+  onDelete,
+  onCanvasToggle,
+  onDuplicate,
+}) => {
   return (
     <div className="d-flex gap-2">
       {onCanvasToggle !== undefined && (
@@ -18,6 +25,14 @@ const ActionsCell = ({ id, onView, onEdit, onDelete, onCanvasToggle }) => {
           onClick={() => onView(id)}
           className="text-primary"
           title="View"
+        />
+      )}
+      {onDuplicate !== undefined && (
+        <IconButton
+          icon={<FaCopy />}
+          onClick={() => onDuplicate(id)}
+          className="text-warning"
+          title="Duplicate"
         />
       )}
       {onEdit !== undefined && (
